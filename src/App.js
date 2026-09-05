@@ -6,6 +6,7 @@ import FarmerPage from "./FarmerPage.jsx";
 import CartPage from "./cartpage.jsx";
 import PaymentPage from "./PaymentPage";
 import ProfilePanel from "./profilepanel.jsx";
+
 function App() {
   const [page, setPage] = useState("login");
   const [role, setRole] = useState("");

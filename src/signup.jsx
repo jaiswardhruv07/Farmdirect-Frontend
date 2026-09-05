@@ -12,16 +12,22 @@ function Signup({ onSignup, onBackToLogin }) {
     e.preventDefault();
 
     if (!role) {
-      alert("Please select Farmer or Consumer");
+      alert("Please select your account type");
       return;
     }
 
-    onSignup({
+    const user = {
       name,
       email,
       password,
       role,
-    });
+    };
+
+    // Save user information in browser
+    localStorage.setItem("kb_user", JSON.stringify(user));
+
+    // Send user information to App.js
+    onSignup(user);
   };
 
   return (
@@ -60,27 +66,82 @@ function Signup({ onSignup, onBackToLogin }) {
 
           <div className="role-selection">
 
+            {/* FARMER */}
             <button
               type="button"
-              className={role === "farmer" ? "role selected" : "role"}
+              className={
+                role === "farmer"
+                  ? "role selected"
+                  : "role"
+              }
               onClick={() => setRole("farmer")}
             >
               👨‍🌾
               <span>Farmer</span>
             </button>
 
+            {/* CONSUMER */}
             <button
               type="button"
-              className={role === "consumer" ? "role selected" : "role"}
+              className={
+                role === "consumer"
+                  ? "role selected"
+                  : "role"
+              }
               onClick={() => setRole("consumer")}
             >
               🛒
               <span>Consumer</span>
             </button>
 
+            {/* FPO */}
+            <button
+              type="button"
+              className={
+                role === "fpo"
+                  ? "role selected"
+                  : "role"
+              }
+              onClick={() => setRole("fpo")}
+            >
+              🏢
+              <span>FPO</span>
+            </button>
+
+            {/* GOVERNMENT */}
+            <button
+              type="button"
+              className={
+                role === "government"
+                  ? "role selected"
+                  : "role"
+              }
+              onClick={() => setRole("government")}
+            >
+              🏛️
+              <span>Government</span>
+            </button>
+
+            {/* ADMIN */}
+            <button
+              type="button"
+              className={
+                role === "admin"
+                  ? "role selected"
+                  : "role"
+              }
+              onClick={() => setRole("admin")}
+            >
+              👨‍💻
+              <span>Admin</span>
+            </button>
+
           </div>
 
-          <button type="submit" className="signup-button">
+          <button
+            type="submit"
+            className="signup-button"
+          >
             Create Account
           </button>
 
@@ -88,6 +149,7 @@ function Signup({ onSignup, onBackToLogin }) {
 
         <p>
           Already have an account?{" "}
+
           <button
             className="back-login"
             onClick={onBackToLogin}

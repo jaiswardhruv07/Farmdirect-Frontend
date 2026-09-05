@@ -11,8 +11,6 @@ export default function LoginPage({
   const [showPassword, setShowPassword] = useState(false);
   const [remember, setRemember] = useState(false);
 
-  const [role, setRole] = useState("");
-
   const [errors, setErrors] = useState({});
   const [status, setStatus] = useState("");
 
@@ -29,10 +27,6 @@ export default function LoginPage({
       newErrors.password = "Please enter your password";
     }
 
-    if (!role) {
-      newErrors.role = "Please select Farmer or Consumer";
-    }
-
     setErrors(newErrors);
 
     return Object.keys(newErrors).length === 0;
@@ -47,20 +41,33 @@ export default function LoginPage({
       return;
     }
 
-    setStatus("loading");
+    const savedUser = JSON.parse(
+      localStorage.getItem("kb_user")
+    );
 
-    setTimeout(() => {
-      setStatus("success");
+    if (!savedUser) {
+      setStatus("error");
+      alert("No account found. Please sign up first.");
+      return;
+    }
 
-      if (onLogin) {
-        onLogin({
-          email,
-          password,
-          remember,
-          role,
-        });
-      }
-    }, 500);
+    if (
+      email.trim() === savedUser.email &&
+      password === savedUser.password
+    ) {
+      setStatus("loading");
+
+      setTimeout(() => {
+        setStatus("success");
+
+        if (onLogin) {
+          onLogin(savedUser);
+        }
+      }, 500);
+    } else {
+      setStatus("error");
+      alert("Invalid email or password");
+    }
   };
 
   return (
@@ -225,49 +232,6 @@ export default function LoginPage({
           color: #c0392b;
           font-size: 12px;
           margin-top: 6px;
-        }
-
-        /* ROLE */
-
-        .role-title {
-          font-size: 14px;
-          font-weight: 600;
-          color: #332326;
-          margin-bottom: 10px;
-        }
-
-        .role-selection {
-          display: flex;
-          gap: 12px;
-        }
-
-        .role-button {
-          flex: 1;
-          padding: 14px 10px;
-          border: 1px solid #d5cecc;
-          border-radius: 13px;
-          background: white;
-          cursor: pointer;
-          color: #332326;
-          font-size: 14px;
-          font-weight: 600;
-          transition: 0.2s;
-        }
-
-        .role-button:hover {
-          border-color: #633b42;
-        }
-
-        .role-button.selected {
-          background: #3b2428;
-          color: white;
-          border-color: #3b2428;
-        }
-
-        .role-icon {
-          font-size: 22px;
-          display: block;
-          margin-bottom: 5px;
         }
 
         /* REMEMBER + FORGOT */
@@ -495,72 +459,6 @@ export default function LoginPage({
                 {errors.password && (
                   <div className="error-text">
                     {errors.password}
-                  </div>
-                )}
-
-              </div>
-
-              {/* USER TYPE */}
-
-              <div className="form-group">
-
-                <div className="role-title">
-                  I am a:
-                </div>
-
-                <div className="role-selection">
-
-                  <button
-                    type="button"
-                    className={
-                      role === "farmer"
-                        ? "role-button selected"
-                        : "role-button"
-                    }
-                    onClick={() => {
-                      setRole("farmer");
-
-                      setErrors({
-                        ...errors,
-                        role: "",
-                      });
-                    }}
-                  >
-                    <span className="role-icon">
-                      👨‍🌾
-                    </span>
-
-                    Farmer
-                  </button>
-
-                  <button
-                    type="button"
-                    className={
-                      role === "consumer"
-                        ? "role-button selected"
-                        : "role-button"
-                    }
-                    onClick={() => {
-                      setRole("consumer");
-
-                      setErrors({
-                        ...errors,
-                        role: "",
-                      });
-                    }}
-                  >
-                    <span className="role-icon">
-                      🛒
-                    </span>
-
-                    Consumer
-                  </button>
-
-                </div>
-
-                {errors.role && (
-                  <div className="error-text">
-                    {errors.role}
                   </div>
                 )}
 
