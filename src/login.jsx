@@ -41,38 +41,53 @@ export default function LoginPage({
       return;
     }
 
+    // Get saved account
     const savedUser = JSON.parse(
       localStorage.getItem("kb_user")
     );
 
+    // No account
     if (!savedUser) {
-      setStatus("error");
-      alert("No account found. Please sign up first.");
+      alert(
+        "No account found. Please create an account first."
+      );
       return;
     }
 
+    // Check email
     if (
-      email.trim() === savedUser.email &&
-      password === savedUser.password
+      email.trim().toLowerCase() !==
+      savedUser.email.toLowerCase()
     ) {
-      setStatus("loading");
-
-      setTimeout(() => {
-        setStatus("success");
-
-        if (onLogin) {
-          onLogin(savedUser);
-        }
-      }, 500);
-    } else {
       setStatus("error");
       alert("Invalid email or password");
+      return;
     }
+
+    // Check password
+    if (password !== savedUser.password) {
+      setStatus("error");
+      alert("Invalid email or password");
+      return;
+    }
+
+    setStatus("loading");
+
+    // Login successful
+    setTimeout(() => {
+      setStatus("success");
+
+      // Send saved account to App.js
+      if (onLogin) {
+        onLogin(savedUser);
+      }
+    }, 500);
   };
 
   return (
     <>
       <style>{`
+
         * {
           box-sizing: border-box;
         }
@@ -89,7 +104,7 @@ export default function LoginPage({
           background: #f7f3f1;
         }
 
-        /* LEFT SIDE */
+        /* ================= LEFT ================= */
 
         .login-left {
           width: 50%;
@@ -149,7 +164,7 @@ export default function LoginPage({
           margin-top: 5px;
         }
 
-        /* RIGHT SIDE */
+        /* ================= RIGHT ================= */
 
         .login-right {
           width: 50%;
@@ -166,7 +181,8 @@ export default function LoginPage({
           background: white;
           padding: 42px;
           border-radius: 22px;
-          box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08);
+          box-shadow:
+            0 15px 40px rgba(0, 0, 0, 0.08);
         }
 
         .login-title {
@@ -179,6 +195,8 @@ export default function LoginPage({
           color: #777;
           margin-bottom: 30px;
         }
+
+        /* ================= FORM ================= */
 
         .form-group {
           margin-bottom: 20px;
@@ -208,7 +226,8 @@ export default function LoginPage({
 
         .input-field:focus {
           border-color: #633b42;
-          box-shadow: 0 0 0 3px rgba(99, 59, 66, 0.1);
+          box-shadow:
+            0 0 0 3px rgba(99, 59, 66, 0.1);
         }
 
         .password-input {
@@ -234,7 +253,7 @@ export default function LoginPage({
           margin-top: 6px;
         }
 
-        /* REMEMBER + FORGOT */
+        /* ================= OPTIONS ================= */
 
         .login-options {
           display: flex;
@@ -260,7 +279,7 @@ export default function LoginPage({
           font-weight: 600;
         }
 
-        /* LOGIN BUTTON */
+        /* ================= LOGIN BUTTON ================= */
 
         .login-button {
           width: 100%;
@@ -294,7 +313,7 @@ export default function LoginPage({
           color: #287a45;
         }
 
-        /* SIGN UP */
+        /* ================= SIGN UP ================= */
 
         .signup-text {
           text-align: center;
@@ -312,9 +331,10 @@ export default function LoginPage({
           font-size: 14px;
         }
 
-        /* MOBILE */
+        /* ================= MOBILE ================= */
 
         @media (max-width: 850px) {
+
           .login-page {
             flex-direction: column;
           }
@@ -336,12 +356,14 @@ export default function LoginPage({
           .stats {
             margin-top: 30px;
           }
+
         }
+
       `}</style>
 
       <div className="login-page">
 
-        {/* LEFT SECTION */}
+        {/* ================= LEFT ================= */}
 
         <section className="login-left">
 
@@ -368,25 +390,40 @@ export default function LoginPage({
           <div className="stats">
 
             <div>
-              <div className="stat-number">100+</div>
-              <div className="stat-label">Farmers</div>
+              <div className="stat-number">
+                100+
+              </div>
+
+              <div className="stat-label">
+                Farmers
+              </div>
             </div>
 
             <div>
-              <div className="stat-number">500+</div>
-              <div className="stat-label">Products</div>
+              <div className="stat-number">
+                500+
+              </div>
+
+              <div className="stat-label">
+                Products
+              </div>
             </div>
 
             <div>
-              <div className="stat-number">1000+</div>
-              <div className="stat-label">Consumers</div>
+              <div className="stat-number">
+                1000+
+              </div>
+
+              <div className="stat-label">
+                Consumers
+              </div>
             </div>
 
           </div>
 
         </section>
 
-        {/* RIGHT SECTION */}
+        {/* ================= RIGHT ================= */}
 
         <section className="login-right">
 
@@ -415,7 +452,9 @@ export default function LoginPage({
                   type="email"
                   placeholder="Enter your email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) =>
+                    setEmail(e.target.value)
+                  }
                 />
 
                 {errors.email && (
@@ -438,20 +477,30 @@ export default function LoginPage({
 
                   <input
                     className="input-field password-input"
-                    type={showPassword ? "text" : "password"}
+                    type={
+                      showPassword
+                        ? "text"
+                        : "password"
+                    }
                     placeholder="Enter your password"
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    onChange={(e) =>
+                      setPassword(e.target.value)
+                    }
                   />
 
                   <button
                     type="button"
                     className="show-password"
                     onClick={() =>
-                      setShowPassword(!showPassword)
+                      setShowPassword(
+                        !showPassword
+                      )
                     }
                   >
-                    {showPassword ? "Hide" : "Show"}
+                    {showPassword
+                      ? "Hide"
+                      : "Show"}
                   </button>
 
                 </div>
@@ -474,7 +523,9 @@ export default function LoginPage({
                     type="checkbox"
                     checked={remember}
                     onChange={(e) =>
-                      setRemember(e.target.checked)
+                      setRemember(
+                        e.target.checked
+                      )
                     }
                   />
 
@@ -485,19 +536,23 @@ export default function LoginPage({
                 <button
                   type="button"
                   className="forgot-button"
-                  onClick={onNavigateForgotPassword}
+                  onClick={
+                    onNavigateForgotPassword
+                  }
                 >
                   Forgot Password?
                 </button>
 
               </div>
 
-              {/* LOGIN BUTTON */}
+              {/* LOGIN */}
 
               <button
                 type="submit"
                 className="login-button"
-                disabled={status === "loading"}
+                disabled={
+                  status === "loading"
+                }
               >
                 {status === "loading"
                   ? "Logging in..."
@@ -518,9 +573,14 @@ export default function LoginPage({
 
               Don't have an account?
 
+              {" "}
+
               <button
+                type="button"
                 className="signup-button"
-                onClick={onNavigateSignup}
+                onClick={
+                  onNavigateSignup
+                }
               >
                 Sign Up
               </button>

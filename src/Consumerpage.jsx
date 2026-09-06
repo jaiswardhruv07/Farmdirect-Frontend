@@ -219,66 +219,73 @@ const filteredNewProducts = newProducts.filter((product) => {
 
       {/* ================= ADDRESS BAR ================= */}
 
-      <div className="address-bar">
+{/* ================= ADDRESS BAR ================= */}
 
-        {isEditingAddress ? (
+<div className="address-bar">
 
-          <div className="address-edit">
+  {isEditingAddress ? (
 
-            <input
-              type="text"
-              placeholder="Enter your delivery address"
-              value={addressInput}
-              onChange={(e) =>
-                setAddressInput(e.target.value)
-              }
-              autoFocus
-            />
+    <div className="address-edit">
 
-            <button onClick={handleSaveAddress}>
-              Save
-            </button>
+      <span className="address-icon">📍</span>
 
-            <button
-              onClick={() =>
-                setIsEditingAddress(false)
-              }
-            >
-              Cancel
-            </button>
+      <input
+        type="text"
+        placeholder="Enter your delivery address"
+        value={addressInput}
+        onChange={(e) =>
+          setAddressInput(e.target.value)
+        }
+        autoFocus
+      />
 
-          </div>
+      <button onClick={handleSaveAddress}>
+        Save
+      </button>
 
-        ) : address ? (
+      <button
+        onClick={() => {
+          setIsEditingAddress(false);
+          setAddressInput("");
+        }}
+      >
+        Cancel
+      </button>
 
-          <p>
-            📍 Delivering to:{" "}
-            <strong>{address}</strong>{" "}
+    </div>
 
-            <button
-              onClick={() => {
-                setAddressInput(address);
-                setIsEditingAddress(true);
-              }}
-            >
-              Change
-            </button>
-          </p>
+  ) : address ? (
 
-        ) : (
+    <p>
+      <span className="address-icon">📍</span>
 
-          <button
-            onClick={() =>
-              setIsEditingAddress(true)
-            }
-          >
-            + Add your address
-          </button>
+      <span>
+        <strong>Delivering to:</strong>{" "}
+        {address}
+      </span>
 
-        )}
+      <button
+        onClick={() => {
+          setAddressInput(address);
+          setIsEditingAddress(true);
+        }}
+      >
+        Change
+      </button>
+    </p>
 
-      </div>
+  ) : (
 
+    <button
+      className="add-address-btn"
+      onClick={() => setIsEditingAddress(true)}
+    >
+      📍 + Add your address
+    </button>
+
+  )}
+
+</div>
 
       {/* ================= SEARCH BAR ================= */}
 

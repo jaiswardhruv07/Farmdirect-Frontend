@@ -1,326 +1,2150 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
+import "./FarmerPage.css";
 
-/**
- * KisaanBazar — Farmer Page
- *
- * Matches the wireframe: top nav (Home / Analysis / Orders / Forcast / Switch),
- * a "Farmers!" banner pill + search bar, two promo banners, a Categories
- * pill-row, and a Products grid. Same palette/type system as the login page
- * (login.jsx) so the two screens feel like one app.
- */
-
-const NAV_ITEMS = ["Home", "Analysis", "Orders", "Forcast", "Switch"];
-
-const CATEGORIES = ["Vegetables", "Fruits", "Grains", "Dairy"];
-
-const PRODUCTS = [
-  { id: 1, name: "Tomatoes", price: "₹28/kg" },
-  { id: 2, name: "Wheat", price: "₹22/kg" },
-  { id: 3, name: "Onions", price: "₹18/kg" },
-  { id: 4, name: "Milk", price: "₹52/L" },
-  { id: 5, name: "Potatoes", price: "₹15/kg" },
+// ─── Data ──────────────────────────────────────────────────────────────────
+const INITIAL_PRODUCTS = [
+  { id: 1, name: "Tomatoes", category: "Vegetables", stock: 20, status: "In Stock", price: 30, image: null },
+  { id: 2, name: "Mangoes", category: "Fruits", stock: 5, status: "Low Stock", price: 80, image: null },
+  { id: 3, name: "Wheat", category: "Grains", stock: 0, status: "Out of Stock", price: 25, image: null },
+  { id: 4, name: "Milk", category: "Dairy", stock: 15, status: "In Stock", price: 50, image: null },
+  { id: 5, name: "Spinach", category: "Vegetables", stock: 8, status: "In Stock", price: 20, image: null },
+  { id: 6, name: "Bananas", category: "Fruits", stock: 3, status: "Low Stock", price: 40, image: null },
 ];
 
-function PlaceholderThumb({ label }) {
-  return (
-    <div className="fp-thumb">
-      <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-        <line x1="0" y1="0" x2="100" y2="100" />
-        <line x1="100" y1="0" x2="0" y2="100" />
-      </svg>
-      {label && <span className="fp-thumb-label">{label}</span>}
-    </div>
+const INITIAL_ORDERS = [
+  { id: "#001", consumer: "Rahul Sharma", product: "Tomatoes", category: "Vegetables", quantity: 2, status: "New Order", date: "Today" },
+  { id: "#002", consumer: "Priya Singh", product: "Mangoes", category: "Fruits", quantity: 1, status: "New Order", date: "Today" },
+  { id: "#003", consumer: "Amit Kumar", product: "Wheat", category: "Grains", quantity: 4, status: "Completed", date: "Yesterday" },
+  { id: "#004", consumer: "Sunita Devi", product: "Milk", category: "Dairy", quantity: 2, status: "Completed", date: "Yesterday" },
+  { id: "#005", consumer: "Deepak Rao", product: "Spinach", category: "Vegetables", quantity: 3, status: "New Order", date: "2 days ago" },
+  { id: "#006", consumer: "Neha Patel", product: "Bananas", category: "Fruits", quantity: 2, status: "New Order", date: "Today" },
+];
+
+const CATEGORIES = ["All", "Vegetables", "Fruits", "Grains", "Dairy"];
+
+const CAT_EMOJI = {
+  Vegetables: "🥬",
+  Fruits: "🍎",
+  Grains: "🌾",
+  Dairy: "🥛",
+};
+
+const STATUS_NEXT = {
+  "New Order": "Completed",
+};
+
+const STATUS_COLOR = {
+  "New Order": {
+    background: "#fff3cd",
+    color: "#856404",
+  },
+  
+  Completed: {
+    background: "#d1e7dd",
+    color: "#0a3622",
+  },
+};
+
+const ORDER_STATUSES = [
+  "All",
+  "New Order",
+  "Completed",
+];
+
+export default function FarmerDashboard({ farmer,onNavigate }) {
+  const [section, setSection] = useState("home");
+
+  const [orderCat, setOrderCat] = useState("All");
+  const [orderStatus, setOrderStatus] = useState("All");
+  const [prodCat, setProdCat] = useState("All");
+
+  const [products, setProducts] = useState(INITIAL_PRODUCTS);
+  const [orders, setOrders] = useState(INITIAL_ORDERS);
+
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [showDrawer, setShowDrawer] = useState(false);
+  const [toast, setToast] = useState("");
+
+  const [newProd, setNewProd] = useState({
+    name: "",
+    category: "Vegetables",
+    stock: "",
+    price: "",
+    image: null,
+  });
+
+  const prodFileInputs = useRef({});
+
+ const [profile, setProfile] = useState({
+  name: farmer?.name || "",
+  email: farmer?.email || "",
+  place: "",
+  dob: "",
+});
+const [salesView, setSalesView] = useState("month");
+
+  // ─── Toast ────────────────────────────────────────────────────────────────
+
+  const showToast = (msg) => {
+    setToast(msg);
+
+    setTimeout(() => {
+      setToast("");
+    }, 2600);
+  };
+
+  // ─── Computed Values ─────────────────────────────────────────────────────
+
+  const remainingOrders = orders.filter(
+    (o) => o.status !== "Completed"
+  );
+
+  const lowStockProducts = products.filter(
+    (p) => p.status === "Low Stock"
+  );
+
+  const filteredOrders = orders.filter((o) => {
+    const categoryMatch =
+      orderCat === "All" || o.category === orderCat;
+
+    const statusMatch =
+      orderStatus === "All" || o.status === orderStatus;
+
+    return categoryMatch && statusMatch;
+  });
+
+  const filteredProducts =
+    prodCat === "All"
+      ? products
+      : products.filter((p) => p.category === prodCat);
+
+  // Simple sales calculation
+  const totalSales = orders.reduce((total, order) => {
+    if (order.status !== "Completed") return total;
+
+    const product = products.find(
+      (p) => p.name === order.product
+    );
+
+    return total + (product?.price || 0) * order.quantity;
+  }, 0);
+
+  // Example estimated profit
+  const estimatedProfit = Math.round(totalSales * 0.3);
+
+  // ─── Product Image ───────────────────────────────────────────────────────
+
+  function getProductImage(productName) {
+    const product = products.find(
+      (p) => p.name === productName
+    );
+
+    return product?.image || null;
+  }
+
+  function handleProductImage(id, file) {
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = (e) => {
+      setProducts((prev) =>
+        prev.map((p) =>
+          p.id === id
+            ? { ...p, image: e.target.result }
+            : p
+        )
+      );
+
+      showToast("📷 Photo updated!");
+    };
+
+    reader.readAsDataURL(file);
+  }
+
+  function triggerProductImageInput(id) {
+    if (!prodFileInputs.current[id]) {
+      const input = document.createElement("input");
+
+      input.type = "file";
+      input.accept = "image/*";
+
+      input.onchange = (e) => {
+        handleProductImage(id, e.target.files[0]);
+      };
+
+      prodFileInputs.current[id] = input;
+    }
+
+    prodFileInputs.current[id].click();
+  }
+
+  // ─── Orders ──────────────────────────────────────────────────────────────
+
+  function advanceOrder(id) {
+  setOrders((prev) =>
+    prev.map((order) => {
+      if (order.id !== id) return order;
+
+      const nextStatus = STATUS_NEXT[order.status];
+
+      return nextStatus
+        ? { ...order, status: nextStatus }
+        : order;
+    })
+  );
+
+  showToast("✅ Order status updated!");
+}
+function undoOrder(id) {
+  setOrders((prev) =>
+    prev.map((order) => {
+      if (order.id !== id) return order;
+
+      if (order.status === "Completed") {
+        return {
+          ...order,
+          status: "New Order",
+        };
+      }
+
+      return order;
+    })
+  );
+
+  showToast("↩️ Order status undone!");
+}
+  // ─── Stock ───────────────────────────────────────────────────────────────
+
+  function updateStock(id) {
+    const value = prompt(
+      "नया stock quantity दर्ज करें:"
+    );
+
+    if (value === null || value === "") return;
+
+    const quantity = Number(value);
+
+    if (
+      Number.isNaN(quantity) ||
+      quantity < 0 ||
+      !Number.isFinite(quantity)
+    ) {
+      alert("Valid quantity दर्ज करें।");
+      return;
+    }
+
+    setProducts((prev) =>
+      prev.map((product) => {
+        if (product.id !== id) return product;
+
+        return {
+          ...product,
+          stock: quantity,
+          status:
+            quantity === 0
+              ? "Out of Stock"
+              : quantity <= 5
+              ? "Low Stock"
+              : "In Stock",
+        };
+      })
+    );
+
+    showToast("✅ Stock updated!");
+  }
+
+ 
+// ─── Remove Product ──────────────────────────────────────────────────────
+
+function removeProduct(id) {
+  if (
+    !window.confirm(
+      "क्या आप इस product को हटाना चाहते हैं?"
+    )
+  ) {
+    return;
+  }
+
+  // Delete product from Products
+  const productToRemove = products.find(
+    (product) => product.id === id
+  );
+
+  if (!productToRemove) return;
+
+  setProducts((prev) =>
+    prev.filter((product) => product.id !== id)
+  );
+
+  // Delete related orders from All Orders
+  setOrders((prev) =>
+    prev.filter(
+      (order) => order.product !== productToRemove.name
+    )
+  );
+
+  showToast(
+    `🗑️ ${productToRemove.name} removed with its orders`
   );
 }
+  // ─── Add Product ─────────────────────────────────────────────────────────
+function handleAddProduct() {
+  const name = newProd.name.trim();
+  const quantity = Number(newProd.stock);
+  const price = Number(newProd.price);
 
-export default function FarmerPage({ activeNav = "Forcast", onNavigate, onSearch }) {
-  const [active, setActive] = useState(activeNav);
-  const [query, setQuery] = useState("");
-
-  function handleNavClick(item) {
-    setActive(item);
-    onNavigate?.(item);
+  if (!name) {
+    alert("Product का नाम भरें।");
+    return;
   }
 
-  function handleSearchSubmit(e) {
-    e.preventDefault();
-    onSearch?.(query);
+  if (
+    newProd.stock === "" ||
+    Number.isNaN(quantity) ||
+    quantity < 0
+  ) {
+    alert("Valid stock quantity दर्ज करें।");
+    return;
   }
 
-  return (
-    <div className="fp-page">
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Work+Sans:wght@400;500;600&display=swap');
+  if (
+    newProd.price !== "" &&
+    (Number.isNaN(price) || price < 0)
+  ) {
+    alert("Valid price दर्ज करें।");
+    return;
+  }
 
-        .fp-page {
-          --clay: #b5654a;
-          --oxblood: #4a2328;
-          --oxblood-deep: #331519;
-          --wheat: #d8a73e;
-          --wheat-dark: #a67d26;
-          --cream: #f6efe4;
-          --paper: #fbf7ef;
-          --rose: #e3c2ac;
-          --rose-soft: #f1ddce;
-          --ink: #2a1d18;
-          --ink-soft: #6b5a50;
+  // ─── Create New Product ───
+  const newProduct = {
+    id: Date.now(),
+    name,
+    category: newProd.category,
+    stock: quantity,
+    price: price || 0,
+    status:
+      quantity === 0
+        ? "Out of Stock"
+        : quantity <= 5
+        ? "Low Stock"
+        : "In Stock",
+    image: newProd.image || null,
+  };
 
-          min-height: 100vh;
-          width: 100%;
-          background: var(--cream);
-          font-family: 'Work Sans', sans-serif;
-          color: var(--ink);
+  // Add to Products
+  setProducts((prev) => [
+    ...prev,
+    newProduct,
+  ]);
+
+  // ─── Automatically Add To All Orders ───
+  const newOrder = {
+    id: `#${String(orders.length + 1).padStart(3, "0")}`,
+    consumer: "Demo Customer",
+    product: name,
+    category: newProd.category,
+    quantity: 1,
+    status: "New Order",
+    date: "Today",
+  };
+
+  setOrders((prev) => [
+    ...prev,
+    newOrder,
+  ]);
+
+  // Reset form
+  setNewProd({
+    name: "",
+    category: "Vegetables",
+    stock: "",
+    price: "",
+    image: null,
+  });
+
+  setShowAddModal(false);
+
+  showToast(
+    `✅ ${name} added to Products & All Orders!`
+  );
+}
+  function handleNewProductImage(file) {
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = (e) => {
+      setNewProd((prev) => ({
+        ...prev,
+        image: e.target.result,
+      }));
+    };
+
+    reader.readAsDataURL(file);
+  }
+
+  // ─── Navigation ──────────────────────────────────────────────────────────
+
+const navItems = [
+  { key: "home", label: "🏠 Home" },
+  { key: "orders", label: "📦 Orders" },
+  { key: "products", label: "🌾 Products" },
+  { key: "stock", label: "⚠️ Stock" },
+  { key: "sales", label: "₹ Sales" },
+  { key: "profit", label: "📈 Profit" },
+];
+  // ─── Product Card ─────────────────────────────────────────────────────────
+
+  const ProductCard = ({ p }) => (
+    <div className="kb-product-card">
+
+      <div
+        className="kb-prod-img-wrap"
+        onClick={() =>
+          triggerProductImageInput(p.id)
         }
-
-        .fp-page * { box-sizing: border-box; }
-
-        .fp-nav {
-          display: flex;
-          align-items: center;
-          gap: 0.6rem;
-          background: var(--oxblood-deep);
-          padding: 0.85rem 1.5rem;
-          flex-wrap: wrap;
-        }
-
-        .fp-nav-item {
-          border: none;
-          background: var(--oxblood);
-          color: #e8d2c4;
-          font-family: 'Work Sans', sans-serif;
-          font-size: 0.88rem;
-          font-weight: 500;
-          padding: 0.55rem 1.3rem;
-          border-radius: 999px;
-          cursor: pointer;
-          transition: background 0.15s ease, color 0.15s ease;
-        }
-
-        .fp-nav-item:hover { background: #5c2c32; }
-
-        .fp-nav-item.fp-active {
-          background: var(--wheat);
-          color: var(--oxblood-deep);
-          font-weight: 600;
-        }
-
-        .fp-toolbar {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 1rem;
-          padding: 1.25rem 1.5rem;
-          flex-wrap: wrap;
-        }
-
-        .fp-hello-pill {
-          background: var(--rose);
-          font-family: 'Fraunces', serif;
-          font-weight: 500;
-          font-size: 1.15rem;
-          color: var(--oxblood-deep);
-          padding: 0.7rem 2rem;
-          border-radius: 999px;
-        }
-
-        .fp-search {
-          flex: 1 1 320px;
-          max-width: 460px;
-          display: flex;
-          align-items: center;
-          background: var(--paper);
-          border-radius: 999px;
-          padding: 0.15rem 0.15rem 0.15rem 1.2rem;
-          box-shadow: inset 0 0 0 1.5px rgba(74,35,40,0.12);
-        }
-
-        .fp-search input {
-          flex: 1;
-          border: none;
-          background: transparent;
-          outline: none;
-          font-size: 0.95rem;
-          font-family: 'Work Sans', sans-serif;
-          color: var(--ink);
-          padding: 0.55rem 0;
-        }
-
-        .fp-search input::placeholder { color: #a89485; }
-
-        .fp-search-btn {
-          width: 42px;
-          height: 42px;
-          border-radius: 50%;
-          border: none;
-          background: var(--oxblood);
-          color: var(--cream);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          cursor: pointer;
-          flex-shrink: 0;
-        }
-
-        .fp-search-btn:hover { background: var(--oxblood-deep); }
-
-        .fp-section {
-          padding: 0 1.5rem 2rem;
-        }
-
-        .fp-section-title {
-          font-family: 'Fraunces', serif;
-          font-weight: 600;
-          font-size: 1.15rem;
-          color: var(--oxblood-deep);
-          margin: 0 0 0.9rem;
-        }
-
-        .fp-banners {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 1rem;
-          margin-bottom: 2rem;
-        }
-
-        .fp-thumb {
-          position: relative;
-          background: var(--rose-soft);
-          border-radius: 12px;
-          aspect-ratio: 16 / 8;
-          overflow: hidden;
-        }
-
-        .fp-thumb svg {
-          position: absolute;
-          inset: 0;
-          width: 100%;
-          height: 100%;
-        }
-
-        .fp-thumb svg line {
-          stroke: rgba(74,35,40,0.28);
-          stroke-width: 1;
-        }
-
-        .fp-thumb-label {
-          position: absolute;
-          bottom: 0.5rem;
-          left: 0.7rem;
-          font-size: 0.75rem;
-          color: var(--ink-soft);
-          background: rgba(251,247,239,0.85);
-          padding: 0.15rem 0.5rem;
-          border-radius: 6px;
-        }
-
-        .fp-categories {
-          display: flex;
-          gap: 0.75rem;
-          flex-wrap: wrap;
-        }
-
-        .fp-category-pill {
-          background: var(--oxblood-deep);
-          color: var(--wheat);
-          border: none;
-          font-family: 'Work Sans', sans-serif;
-          font-size: 0.85rem;
-          font-weight: 500;
-          padding: 0.6rem 1.6rem;
-          border-radius: 999px;
-          cursor: pointer;
-          transition: background 0.15s ease;
-        }
-
-        .fp-category-pill:hover { background: var(--oxblood); }
-
-        .fp-products {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-          gap: 1rem;
-        }
-
-        .fp-product-card .fp-thumb { aspect-ratio: 1 / 1; margin-bottom: 0.6rem; }
-
-        .fp-product-name {
-          font-size: 0.9rem;
-          font-weight: 500;
-          margin: 0;
-        }
-
-        .fp-product-price {
-          font-size: 0.8rem;
-          color: var(--ink-soft);
-          margin: 0.1rem 0 0;
-        }
-
-        @media (max-width: 640px) {
-          .fp-banners { grid-template-columns: 1fr; }
-          .fp-toolbar { flex-direction: column; align-items: stretch; }
-          .fp-hello-pill { text-align: center; }
-        }
-      `}</style>
-
-      <nav className="fp-nav">
-        {NAV_ITEMS.map((item) => (
-          <button
-            key={item}
-            className={`fp-nav-item ${active === item ? "fp-active" : ""}`}
-            onClick={() => handleNavClick(item)}
-          >
-            {item}
-          </button>
-        ))}
-      </nav>
-
-      <div className="fp-toolbar">
-        <div className="fp-hello-pill">Farmers!</div>
-        <form className="fp-search" onSubmit={handleSearchSubmit}>
-          <input
-            type="text"
-            placeholder="Search Product"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
+      >
+        {p.image ? (
+          <img
+            src={p.image}
+            alt={p.name}
           />
-          <button type="submit" className="fp-search-btn" aria-label="Search">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="11" cy="11" r="7" />
-              <line x1="21" y1="21" x2="16.65" y2="16.65" />
-            </svg>
-          </button>
-        </form>
+        ) : (
+          <span>
+            {CAT_EMOJI[p.category]}
+          </span>
+        )}
+
+        <div className="kb-prod-img-overlay">
+          <span>📷</span>
+          <span>
+            {p.image
+              ? "Change Photo"
+              : "Add Photo"}
+          </span>
+        </div>
       </div>
 
-      <section className="fp-section">
-        <div className="fp-banners">
-          <PlaceholderThumb label="Seasonal harvest" />
-          <PlaceholderThumb label="This week's demand" />
-        </div>
-      </section>
+      <div className="kb-product-body">
 
-      <section className="fp-section">
-        <h2 className="fp-section-title">Categories</h2>
-        <div className="fp-categories">
-          {CATEGORIES.map((cat) => (
-            <button key={cat} className="fp-category-pill">
-              {cat}
-            </button>
-          ))}
+        <div className="kb-product-name">
+          {p.name}
         </div>
-      </section>
 
-      <section className="fp-section">
-        <h2 className="fp-section-title">Products</h2>
-        <div className="fp-products">
-          {PRODUCTS.map((p) => (
-            <div key={p.id} className="fp-product-card">
-              <PlaceholderThumb />
-              <p className="fp-product-name">{p.name}</p>
-              <p className="fp-product-price">{p.price}</p>
-            </div>
-          ))}
+        <div className="kb-product-cat">
+          {CAT_EMOJI[p.category]} {p.category}
         </div>
-      </section>
+
+        <div className="kb-product-foot">
+
+          <span className="kb-product-price">
+            ₹{p.price || "--"}/kg
+          </span>
+
+          <span
+            className={`kb-stock-badge ${
+              p.status === "In Stock"
+                ? "kb-si"
+                : p.status === "Low Stock"
+                ? "kb-sl"
+                : "kb-so"
+            }`}
+          >
+            {p.stock} left
+          </span>
+
+        </div>
+
+        <div className="kb-product-actions">
+
+          <button
+            className="kb-prod-btn kb-prod-update"
+            onClick={() =>
+              updateStock(p.id)
+            }
+          >
+            📝 Stock
+          </button>
+
+          <button
+            className="kb-prod-btn kb-prod-remove"
+            onClick={() =>
+              removeProduct(p.id)
+            }
+          >
+            🗑️
+          </button>
+
+        </div>
+
+      </div>
     </div>
+  );
+
+  // ─── Render ──────────────────────────────────────────────────────────────
+
+  return (
+    <>
+
+      <div className="kb-app">
+
+        {/* NAVBAR */}
+
+        <header className="kb-nav">
+
+          <div className="kb-logo">
+            🌾 Kisaan<em>Bazar</em>
+          </div>
+
+          <nav className="kb-nav-links">
+
+            {navItems.map((item) => (
+              <button
+                key={item.key}
+                className={
+                  section === item.key
+                    ? "active"
+                    : ""
+                }
+                onClick={() =>
+                  setSection(item.key)
+                }
+              >
+                {item.label}
+              </button>
+            ))}
+
+          </nav>
+
+          <button
+  className="kb-farmer-btn"
+  onClick={() =>
+    setShowDrawer(true)
+  }
+>
+  👨‍🌾{" "}
+  {profile.name.split(" ")[0]}
+</button>
+
+<button
+  className="kb-checkout-btn"
+  onClick={() => onNavigate("login")}
+>
+  🛒 Checkout
+</button>
+
+        </header>
+
+        {/* TRENDING */}
+
+        <div className="kb-trending">
+
+          <strong>🔥 Trending:</strong>
+
+          {products
+            .slice(0, 4)
+            .map((product) => (
+              <span key={product.id}>
+                {product.name}
+              </span>
+            ))}
+
+        </div>
+
+        <main className="kb-main">
+
+          {/* ═════════════════ HOME ═════════════════ */}
+
+          {section === "home" && (
+            <>
+
+              <h1 className="kb-page-title">
+                Welcome,{" "}
+                {profile.name.split(" ")[0]} 👋
+              </h1>
+
+              <p className="kb-page-sub">
+                अपने orders, products और sales
+                एक जगह manage करें।
+              </p>
+
+              {/* STAT CARDS */}
+
+              <div className="kb-stats">
+
+                <div
+                  className="kb-stat"
+                  onClick={() =>
+                    setSection("orders")
+                  }
+                >
+                  <div className="kb-stat-icon">
+                    📦
+                  </div>
+
+                  <div>
+                    <h3>Total Orders</h3>
+                    <strong>
+                      {orders.length}
+                    </strong>
+                    <small>
+                      सभी orders →
+                    </small>
+                  </div>
+                </div>
+
+                <div
+                  className="kb-stat"
+                  onClick={() => {
+                    setSection("orders");
+                    setOrderStatus("New Order");
+                  }}
+                >
+                  <div className="kb-stat-icon">
+                    🚚
+                  </div>
+
+                  <div>
+                    <h3>Remaining Orders</h3>
+                    <strong>
+                      {remainingOrders.length}
+                    </strong>
+                    <small>
+                      Delivery बाकी →
+                    </small>
+                  </div>
+                </div>
+
+                <div
+                  className="kb-stat"
+                  onClick={() =>
+                    setSection("stock")
+                  }
+                >
+                  <div className="kb-stat-icon">
+                    ⚠️
+                  </div>
+
+                  <div>
+                    <h3>Low Stock</h3>
+                    <strong>
+                      {lowStockProducts.length}
+                    </strong>
+                    <small>
+                      Stock कम है →
+                    </small>
+                  </div>
+                </div>
+
+                <div
+                  className="kb-stat"
+                  onClick={() =>
+                    setSection("sales")
+                  }
+                >
+                  <div className="kb-stat-icon">
+                    ₹
+                  </div>
+
+                  <div>
+                    <h3>Total Sales</h3>
+
+                    <strong>
+                      ₹{totalSales}
+                    </strong>
+
+                    <small>
+                      Sales देखें →
+                    </small>
+                  </div>
+                </div>
+
+              </div>
+
+              {/* RECENT ORDERS */}
+
+              <div className="kb-section">
+
+                <div className="kb-section-head">
+
+                  <h2>
+                    📦 Recent Orders
+                  </h2>
+
+                  <button
+                    className="kb-view-all"
+                    onClick={() =>
+                      setSection("orders")
+                    }
+                  >
+                    View All
+                  </button>
+
+                </div>
+
+                <div className="kb-table-wrap">
+
+                  <table className="kb-table">
+
+                    <thead>
+                      <tr>
+                        <th>Order ID</th>
+                        <th>Consumer</th>
+                        <th>Product</th>
+                        <th>Qty</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                      </tr>
+                    </thead>
+
+                    <tbody>
+
+                      {orders
+                        .slice(0, 4)
+                        .map((order) => (
+
+                          <tr key={order.id}>
+
+                            <td>{order.id}</td>
+
+                            <td>
+                              {order.consumer}
+                            </td>
+
+                            <td>
+
+                              <div
+                                style={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: 8,
+                                }}
+                              >
+
+                                <div
+                                  style={{
+                                    width: 30,
+                                    height: 30,
+                                    borderRadius: 8,
+                                    background: "#e8eedc",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    fontSize: 16,
+                                    overflow: "hidden",
+                                  }}
+                                >
+
+                                  {getProductImage(
+                                    order.product
+                                  ) ? (
+                                    <img
+                                      src={getProductImage(
+                                        order.product
+                                      )}
+                                      style={{
+                                        width: "100%",
+                                        height: "100%",
+                                        objectFit:
+                                          "cover",
+                                      }}
+                                      alt=""
+                                    />
+                                  ) : (
+                                    CAT_EMOJI[
+                                      order.category
+                                    ]
+                                  )}
+
+                                </div>
+
+                                {order.product}
+
+                              </div>
+
+                            </td>
+
+                            <td>
+                              {order.quantity}
+                            </td>
+
+                            <td>
+
+                              <span
+                                className="kb-badge"
+                                style={
+                                  STATUS_COLOR[
+                                    order.status
+                                  ]
+                                }
+                              >
+                                {order.status}
+                              </span>
+
+                            </td>
+
+                            <td>
+                              {order.date}
+                            </td>
+
+                          </tr>
+
+                        ))}
+
+                    </tbody>
+
+                  </table>
+
+                </div>
+
+              </div>
+
+              {/* BEST SELLING */}
+
+              <div className="kb-section">
+
+                <h2
+                  style={{
+                    fontFamily:
+                      "Playfair Display,serif",
+                    fontSize: 19,
+                    color: "#3e582e",
+                    marginBottom: 14,
+                  }}
+                >
+                  🏆 Best Selling Products
+                </h2>
+
+                <div className="kb-bestsell">
+
+                  {["🥇", "🥈", "🥉"].map(
+                    (medal, index) => {
+
+                      const product =
+                        products[index];
+
+                      return (
+                        <div
+                          className="kb-bestsell-item"
+                          key={index}
+                        >
+
+                          <span
+                            style={{
+                              fontSize: 22,
+                            }}
+                          >
+                            {medal}
+                          </span>
+
+                          <div className="kb-bestsell-thumb">
+
+                            {product?.image ? (
+                              <img
+                                src={product.image}
+                                alt=""
+                              />
+                            ) : (
+                              CAT_EMOJI[
+                                product?.category
+                              ]
+                            )}
+
+                          </div>
+
+                          <div>
+
+                            <strong>
+                              {product?.name ||
+                                `Product ${
+                                  index + 1
+                                }`}
+                            </strong>
+
+                            <p>
+                              {product?.category ||
+                                ""}
+                            </p>
+
+                          </div>
+
+                        </div>
+                      );
+                    }
+                  )}
+
+                </div>
+
+              </div>
+
+              {/* TRENDING PRODUCTS */}
+
+              <div className="kb-section">
+
+                <h2
+                  style={{
+                    fontFamily:
+                      "Playfair Display,serif",
+                    fontSize: 19,
+                    color: "#3e582e",
+                    marginBottom: 14,
+                  }}
+                >
+                  🔥 Trending Products
+                </h2>
+
+                <div className="kb-trend-grid">
+
+                  {products
+                    .slice(0, 4)
+                    .map((product) => (
+
+                      <div
+                        className="kb-trend-item"
+                        key={product.id}
+                      >
+
+                        <div className="kb-trend-thumb">
+
+                          {product.image ? (
+                            <img
+                              src={product.image}
+                              alt=""
+                            />
+                          ) : (
+                            CAT_EMOJI[
+                              product.category
+                            ]
+                          )}
+
+                        </div>
+
+                        <strong>
+                          {product.name}
+                        </strong>
+
+                        <span>
+                          {product.category}
+                        </span>
+
+                      </div>
+
+                    ))}
+
+                </div>
+
+              </div>
+
+            </>
+          )}
+
+          {/* ═════════════════ ORDERS ═════════════════ */}
+
+          {section === "orders" && (
+            <>
+
+              <h1 className="kb-page-title">
+                📦 Orders
+              </h1>
+
+              <p className="kb-page-sub">
+                Category और status filter
+                करके orders manage करें।
+              </p>
+
+              <div className="kb-order-highlight">
+
+                <div>
+                  <span>Total Orders</span>
+                  <strong>
+                    {orders.length}
+                  </strong>
+                </div>
+
+                <div
+                  style={{
+                    textAlign: "right",
+                  }}
+                >
+                  <span>Remaining</span>
+
+                  <strong
+                    style={{
+                      color: "#ffd04a",
+                    }}
+                  >
+                    {remainingOrders.length}
+                  </strong>
+
+                </div>
+
+              </div>
+
+              {/* CATEGORY FILTER */}
+
+              <div
+                className="kb-tabs"
+                style={{
+                  marginBottom: 10,
+                }}
+              >
+
+                {CATEGORIES.map((category) => (
+
+                  <button
+                    key={category}
+                    className={`kb-tab ${
+                      orderCat === category
+                        ? "active"
+                        : ""
+                    }`}
+                    onClick={() =>
+                      setOrderCat(category)
+                    }
+                  >
+
+                    {category === "All"
+                      ? "📦 All"
+                      : `${CAT_EMOJI[category]} ${category}`}
+
+                    <span
+                      style={{
+                        marginLeft: 6,
+                        fontSize: 11,
+                        opacity: 0.75,
+                      }}
+                    >
+                      (
+                      {category === "All"
+                        ? orders.length
+                        : orders.filter(
+                            (o) =>
+                              o.category ===
+                              category
+                          ).length}
+                      )
+                    </span>
+
+                  </button>
+
+                ))}
+
+              </div>
+
+              {/* STATUS FILTER */}
+
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 10,
+                  marginBottom: 18,
+                  flexWrap: "wrap",
+                }}
+              >
+
+                <span
+                  style={{
+                    fontSize: 13,
+                    fontWeight: 700,
+                    color: "#7a6a50",
+                  }}
+                >
+                  Status:
+                </span>
+
+                <div className="kb-status-tabs">
+
+                  {ORDER_STATUSES.map(
+                    (status) => (
+
+                      <button
+                        key={status}
+                        className={`kb-status-tab ${
+                          orderStatus === status
+                            ? "active"
+                            : ""
+                        }`}
+                        onClick={() =>
+                          setOrderStatus(status)
+                        }
+                      >
+                        {status}
+                      </button>
+
+                    )
+                  )}
+
+                </div>
+
+              </div>
+
+              <div className="kb-section">
+
+                <div className="kb-section-head">
+
+                  <h2>
+                    {orderCat === "All"
+                      ? "All Orders"
+                      : `${CAT_EMOJI[orderCat]} ${orderCat}`}
+
+                    {orderStatus !== "All" &&
+                      ` · ${orderStatus}`}
+                  </h2>
+
+                  <span
+                    style={{
+                      fontSize: 13,
+                      color: "#7a6a50",
+                    }}
+                  >
+                    {filteredOrders.length}{" "}
+                    orders
+                  </span>
+
+                </div>
+
+                <div className="kb-table-wrap">
+
+                  <table className="kb-table">
+
+                    <thead>
+                      <tr>
+                        <th>Order ID</th>
+                        <th>Consumer</th>
+                        <th>Product</th>
+                        <th>Category</th>
+                        <th>Qty</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                        <th>Action</th>
+                      </tr>
+                    </thead>
+
+                    <tbody>
+
+                      {filteredOrders.length ===
+                      0 ? (
+
+                        <tr>
+
+                          <td
+                            colSpan={8}
+                            style={{
+                              textAlign: "center",
+                              color: "#7a6a50",
+                              padding: 28,
+                            }}
+                          >
+                            इस filter में कोई
+                            order नहीं है।
+                          </td>
+
+                        </tr>
+
+                      ) : (
+
+                        filteredOrders.map(
+                          (order) => (
+
+                            <tr
+                              key={order.id}
+                            >
+
+                              <td>
+                                {order.id}
+                              </td>
+
+                              <td>
+                                {order.consumer}
+                              </td>
+
+                              <td>
+
+                                <div
+                                  style={{
+                                    display: "flex",
+                                    alignItems:
+                                      "center",
+                                    gap: 8,
+                                  }}
+                                >
+
+                                  <div
+                                    style={{
+                                      width: 32,
+                                      height: 32,
+                                      borderRadius: 8,
+                                      background:
+                                        "#e8eedc",
+                                      display: "flex",
+                                      alignItems:
+                                        "center",
+                                      justifyContent:
+                                        "center",
+                                      fontSize: 16,
+                                      overflow:
+                                        "hidden",
+                                    }}
+                                  >
+
+                                    {getProductImage(
+                                      order.product
+                                    ) ? (
+
+                                      <img
+                                        src={getProductImage(
+                                          order.product
+                                        )}
+                                        style={{
+                                          width:
+                                            "100%",
+                                          height:
+                                            "100%",
+                                          objectFit:
+                                            "cover",
+                                        }}
+                                        alt=""
+                                      />
+
+                                    ) : (
+
+                                      CAT_EMOJI[
+                                        order.category
+                                      ]
+
+                                    )}
+
+                                  </div>
+
+                                  {order.product}
+
+                                </div>
+
+                              </td>
+
+                              <td>
+                                {CAT_EMOJI[
+                                  order.category
+                                ]}{" "}
+                                {order.category}
+                              </td>
+
+                              <td>
+                                {order.quantity}
+                              </td>
+
+                              <td>
+
+                                <span
+                                  className="kb-badge"
+                                  style={
+                                    STATUS_COLOR[
+                                      order.status
+                                    ]
+                                  }
+                                >
+                                  {order.status}
+                                </span>
+
+                              </td>
+
+                              <td>
+                                {order.date}
+                              </td>
+
+                              <td>
+<div className="kb-order-actions">
+
+  {order.status === "New Order" && (
+    <button
+      className="kb-order-action-btn"
+      onClick={() => advanceOrder(order.id)}
+    >
+      ✅ Mark Completed
+    </button>
+  )}
+
+  {order.status === "Completed" && (
+    <button
+      className="kb-order-action-btn kb-order-undo-btn"
+      onClick={() => undoOrder(order.id)}
+    >
+      ↩️ Undo
+    </button>
+  )}
+
+</div>
+</td>
+
+                            </tr>
+
+                          )
+                        )
+
+                      )}
+
+                    </tbody>
+
+                  </table>
+
+                </div>
+
+              </div>
+
+            </>
+          )}
+
+          {/* ═════════════════ PRODUCTS ═════════════════ */}
+
+          {section === "products" && (
+            <>
+
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent:
+                    "space-between",
+                  marginBottom: 4,
+                  gap: 15,
+                  flexWrap: "wrap",
+                }}
+              >
+
+                <h1 className="kb-page-title">
+                  🌾 Products
+                </h1>
+
+                <button
+                  className="kb-add-btn"
+                  onClick={() =>
+                    setShowAddModal(true)
+                  }
+                >
+                  + Add Product
+                </button>
+
+              </div>
+
+              <p className="kb-page-sub">
+                Products की photo के साथ
+                manage करें। Photo पर click
+                करके change करें।
+              </p>
+
+              {/* CATEGORY TABS */}
+
+              <div className="kb-tabs">
+
+                {CATEGORIES.map(
+                  (category) => (
+
+                    <button
+                      key={category}
+                      className={`kb-tab ${
+                        prodCat === category
+                          ? "active"
+                          : ""
+                      }`}
+                      onClick={() =>
+                        setProdCat(category)
+                      }
+                    >
+
+                      {category === "All"
+                        ? "📦 All"
+                        : `${CAT_EMOJI[category]} ${category}`}
+
+                    </button>
+
+                  )
+                )}
+
+              </div>
+
+              {/* LOW STOCK ALERT */}
+
+              {lowStockProducts.length >
+                0 &&
+                prodCat === "All" && (
+
+                  <div
+                    style={{
+                      background: "#fff3cd",
+                      border:
+                        "1.5px solid #f2b705",
+                      borderRadius: 14,
+                      padding:
+                        "12px 18px",
+                      marginBottom: 18,
+                      display: "flex",
+                      alignItems:
+                        "center",
+                      gap: 10,
+                      fontSize: 13,
+                      color: "#856404",
+                      fontWeight: 600,
+                    }}
+                  >
+                    ⚠️{" "}
+                    {lowStockProducts.length}{" "}
+                    product(s) have low
+                    stock. Please update
+                    your stock.
+                  </div>
+
+                )}
+
+              {/* PRODUCT GRID */}
+
+              {filteredProducts.length ===
+              0 ? (
+
+                <div
+                  className="kb-section"
+                  style={{
+                    textAlign: "center",
+                    padding: 40,
+                  }}
+                >
+                  <h2>
+                    No products found
+                  </h2>
+
+                  <p>
+                    इस category में अभी कोई
+                    product नहीं है।
+                  </p>
+                </div>
+
+              ) : (
+
+                <div className="kb-product-grid">
+
+                  {filteredProducts.map(
+                    (product) => (
+                      <ProductCard
+                        key={product.id}
+                        p={product}
+                      />
+                    )
+                  )}
+
+                </div>
+
+              )}
+
+            </>
+          )}
+
+          {/* ═════════════════ SALES ═════════════════ */}
+
+          {section === "sales" && (
+  <>
+
+    <h1 className="kb-page-title">
+      ₹ Sales
+    </h1>
+
+    <p className="kb-page-sub">
+      आपकी completed orders की
+      sales summary।
+    </p>
+
+    {/* TOTAL SALES + COMPLETED ORDERS */}
+    <div className="kb-stats">
+      ...
+    </div>
+
+
+    {/* SALES DETAILS TABLE */}
+    <div className="kb-section">
+
+      ...
+      
+    </div>
+
+
+    {/* 👇 YAHAN GRAPH ADD KARNA HAI */}
+    <div className="kb-section kb-sales-chart-section">
+
+      <div className="kb-sales-chart-header">
+
+        <div>
+          <h2>📊 Sales Overview</h2>
+          <p>
+            Track your sales performance
+          </p>
+        </div>
+
+        <div className="kb-sales-toggle">
+
+          <button
+            className={
+              salesView === "month"
+                ? "active"
+                : ""
+            }
+            onClick={() =>
+              setSalesView("month")
+            }
+          >
+            Month
+          </button>
+
+          <button
+            className={
+              salesView === "year"
+                ? "active"
+                : ""
+            }
+            onClick={() =>
+              setSalesView("year")
+            }
+          >
+            Year
+          </button>
+
+        </div>
+
+      </div>
+
+
+      <div className="kb-sales-graph">
+
+        {salesView === "month" ? (
+
+          <div className="kb-bar-chart">
+
+            {[
+              { month: "Jan", sale: 12000 },
+              { month: "Feb", sale: 15500 },
+              { month: "Mar", sale: 9800 },
+              { month: "Apr", sale: 18200 },
+              { month: "May", sale: 22100 },
+              { month: "Jun", sale: 19600 },
+              { month: "Jul", sale: 24800 },
+              { month: "Aug", sale: 21400 },
+              { month: "Sep", sale: 27500 },
+              { month: "Oct", sale: 23100 },
+              { month: "Nov", sale: 29800 },
+              { month: "Dec", sale: 32500 },
+            ].map((item) => (
+
+              <div
+                className="kb-bar-column"
+                key={item.month}
+              >
+
+                <div className="kb-bar-value">
+                  ₹{item.sale}
+                </div>
+
+                <div
+                  className="kb-bar"
+                  style={{
+                    height:
+                      `${(item.sale / 32500) * 180}px`,
+                  }}
+                />
+
+                <span>
+                  {item.month}
+                </span>
+
+              </div>
+
+            ))}
+
+          </div>
+
+        ) : (
+
+          <div className="kb-bar-chart">
+
+            {[
+              { year: "2022", sale: 185000 },
+              { year: "2023", sale: 242000 },
+              { year: "2024", sale: 318000 },
+              { year: "2025", sale: 425000 },
+              { year: "2026", sale: 510000 },
+            ].map((item) => (
+
+              <div
+                className="kb-bar-column"
+                key={item.year}
+              >
+
+                <div className="kb-bar-value">
+                  ₹{item.sale}
+                </div>
+
+                <div
+                  className="kb-bar"
+                  style={{
+                    height:
+                      `${(item.sale / 510000) * 180}px`,
+                  }}
+                />
+
+                <span>
+                  {item.year}
+                </span>
+
+              </div>
+
+            ))}
+
+          </div>
+
+        )}
+
+      </div>
+
+    </div>
+
+  </>
+)}
+
+          {/* ═════════════════ PROFIT ═════════════════ */}
+
+          {section === "profit" && (
+            <>
+
+              <h1 className="kb-page-title">
+                📈 Profit
+              </h1>
+
+              <p className="kb-page-sub">
+                आपकी estimated profit
+                summary।
+              </p>
+
+              <div className="kb-stats">
+
+                <div className="kb-stat">
+
+                  <div className="kb-stat-icon">
+                    ₹
+                  </div>
+
+                  <div>
+                    <h3>Total Sales</h3>
+
+                    <strong>
+                      ₹{totalSales}
+                    </strong>
+
+                    <small>
+                      Revenue
+                    </small>
+                  </div>
+
+                </div>
+
+                <div className="kb-stat">
+
+                  <div className="kb-stat-icon">
+                    📈
+                  </div>
+
+                  <div>
+                    <h3>Estimated Profit</h3>
+
+                    <strong>
+                      ₹{estimatedProfit}
+                    </strong>
+
+                    <small>
+                      Approx. 30%
+                    </small>
+                  </div>
+
+                </div>
+
+              </div>
+
+              <div
+                className="kb-section"
+                style={{
+                  padding: 25,
+                }}
+              >
+
+                <h2>
+                  📊 Profit Summary
+                </h2>
+
+                <p>
+                  Total Revenue:{" "}
+                  <strong>
+                    ₹{totalSales}
+                  </strong>
+                </p>
+
+                <p>
+                  Estimated Profit:{" "}
+                  <strong>
+                    ₹{estimatedProfit}
+                  </strong>
+                </p>
+
+                <p>
+                  Estimated Margin:{" "}
+                  <strong>30%</strong>
+                </p>
+
+                <p
+                  style={{
+                    color: "#7a6a50",
+                    fontSize: 13,
+                  }}
+                >
+                  *Profit is currently
+                  estimated at 30% of
+                  completed-order sales.
+                  Replace this calculation
+                  with your actual production,
+                  transport and other costs
+                  when connecting your backend.
+                </p>
+
+              </div>
+
+            </>
+          )}
+{/* STOCK */}
+{section === "stock" && (
+  <>
+    <h1 className="kb-page-title">
+      ⚠️ Stock
+    </h1>
+
+    <p className="kb-page-sub">
+      जिन products का stock कम है, वे यहाँ दिखाई देंगे।
+    </p>
+
+    <div className="kb-section">
+
+      <div className="kb-section-head">
+        <h2>⚠️ Low Stock Products</h2>
+
+        <span
+          style={{
+            fontSize: 13,
+            color: "#7a6a50",
+          }}
+        >
+          {lowStockProducts.length} products
+        </span>
+      </div>
+
+      <div className="kb-product-grid">
+        {lowStockProducts.map((product) => (
+          <ProductCard
+            key={product.id}
+            p={product}
+          />
+        ))}
+      </div>
+
+      {lowStockProducts.length === 0 && (
+        <div
+          style={{
+            textAlign: "center",
+            padding: "40px",
+            color: "#7a6a50",
+          }}
+        >
+          <div
+            style={{
+              fontSize: 45,
+              marginBottom: 10,
+            }}
+          >
+            🎉
+          </div>
+
+          <h3 style={{ color: "#3e582e" }}>
+            Stock looks good!
+          </h3>
+
+          <p>
+            सभी products का stock sufficient है।
+          </p>
+        </div>
+      )}
+
+    </div>
+  </>
+)}
+        </main>
+
+        {/* ═════════════════ PROFILE DRAWER ═════════════════ */}
+{/* PROFILE DRAWER */}
+{showDrawer && (
+  <>
+    <div
+      className="kb-drawer-overlay"
+      onClick={() => setShowDrawer(false)}
+    />
+
+    <aside className="kb-drawer">
+
+      {/* PROFILE HEADER */}
+      <div className="kb-profile-header">
+
+        <div className="kb-profile-avatar">
+          👨‍🌾
+        </div>
+
+        <div>
+          <h2>My Profile</h2>
+          <p>Manage your account details</p>
+        </div>
+
+        <button
+          className="kb-profile-close"
+          onClick={() => setShowDrawer(false)}
+        >
+          ×
+        </button>
+
+      </div>
+
+
+      {/* PROFILE CONTENT */}
+      <div className="kb-profile-content">
+
+        {/* ACCOUNT INFORMATION */}
+        <div className="kb-profile-section-title">
+          <span>👤</span>
+
+          <div>
+            <h3>Account Information</h3>
+            <p>Your login details</p>
+          </div>
+        </div>
+
+
+        {/* NAME */}
+        <div className="kb-profile-field">
+
+          <label>Name</label>
+
+          <div className="kb-profile-input locked">
+
+            <span>👤</span>
+
+            <input
+              type="text"
+              value={profile.name}
+              readOnly
+            />
+
+            <span className="kb-lock">
+              🔒
+            </span>
+
+          </div>
+
+          <small>
+            Name is linked to your account
+          </small>
+
+        </div>
+
+
+        {/* EMAIL */}
+        <div className="kb-profile-field">
+
+          <label>Email</label>
+
+          <div className="kb-profile-input locked">
+
+            <span>📧</span>
+
+            <input
+              type="email"
+              value={profile.email}
+              readOnly
+            />
+
+            <span className="kb-lock">
+              🔒
+            </span>
+
+          </div>
+
+          <small>
+            Email cannot be changed
+          </small>
+
+        </div>
+
+
+        {/* PERSONAL DETAILS */}
+        <div className="kb-profile-section-title kb-profile-second">
+
+          <span>🌱</span>
+
+          <div>
+            <h3>Personal Details</h3>
+            <p>You can edit these details</p>
+          </div>
+
+        </div>
+
+
+        {/* PLACE */}
+        <div className="kb-profile-field">
+
+          <label>Place</label>
+
+          <div className="kb-profile-input">
+
+            <span>📍</span>
+
+            <input
+              type="text"
+              placeholder="Enter your village / city"
+              value={profile.place}
+              onChange={(e) =>
+                setProfile({
+                  ...profile,
+                  place: e.target.value,
+                })
+              }
+            />
+
+            <span className="kb-edit-icon">
+              ✏️
+            </span>
+
+          </div>
+
+        </div>
+
+
+        {/* DATE OF BIRTH */}
+        <div className="kb-profile-field">
+
+          <label>Date of Birth</label>
+
+          <div className="kb-profile-input">
+
+            <span>🎂</span>
+
+            <input
+              type="date"
+              value={profile.dob}
+              onChange={(e) =>
+                setProfile({
+                  ...profile,
+                  dob: e.target.value,
+                })
+              }
+            />
+
+            <span className="kb-edit-icon">
+              ✏️
+            </span>
+
+          </div>
+
+        </div>
+
+
+        {/* SAVE BUTTON */}
+        <button
+          className="kb-profile-save"
+          onClick={() => {
+            showToast("✅ Profile updated successfully!");
+            setShowDrawer(false);
+          }}
+        >
+          💾 Save Changes
+        </button>
+
+      </div>
+
+    </aside>
+  </>
+)}
+        {/* ═════════════════ ADD PRODUCT MODAL ═════════════════ */}
+
+        {showAddModal && (
+          <div className="kb-modal-overlay">
+
+            <div className="kb-modal">
+
+              <div className="kb-modal-head">
+
+                <h2>
+                  🌾 Add New Product
+                </h2>
+
+                <button
+                  onClick={() =>
+                    setShowAddModal(false)
+                  }
+                >
+                  ✕
+                </button>
+
+              </div>
+
+              <label>
+                Product Name
+
+                <input
+                  type="text"
+                  value={newProd.name}
+                  onChange={(e) =>
+                    setNewProd({
+                      ...newProd,
+                      name: e.target.value,
+                    })
+                  }
+                  placeholder="e.g. Potatoes"
+                />
+
+              </label>
+
+              <label>
+                Category
+
+                <select
+                  value={newProd.category}
+                  onChange={(e) =>
+                    setNewProd({
+                      ...newProd,
+                      category:
+                        e.target.value,
+                    })
+                  }
+                >
+
+                  {CATEGORIES
+                    .slice(1)
+                    .map((category) => (
+
+                      <option
+                        key={category}
+                        value={category}
+                      >
+                        {CAT_EMOJI[category]}{" "}
+                        {category}
+                      </option>
+
+                    ))}
+
+                </select>
+
+              </label>
+
+              <label>
+                Stock Quantity
+
+                <input
+                  type="number"
+                  min="0"
+                  value={newProd.stock}
+                  onChange={(e) =>
+                    setNewProd({
+                      ...newProd,
+                      stock: e.target.value,
+                    })
+                  }
+                  placeholder="e.g. 25"
+                />
+
+              </label>
+
+              <label>
+                Price per kg
+
+                <input
+                  type="number"
+                  min="0"
+                  value={newProd.price}
+                  onChange={(e) =>
+                    setNewProd({
+                      ...newProd,
+                      price: e.target.value,
+                    })
+                  }
+                  placeholder="e.g. 40"
+                />
+
+              </label>
+
+              <label>
+                Product Photo
+
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) =>
+                    handleNewProductImage(
+                      e.target.files[0]
+                    )
+                  }
+                />
+
+              </label>
+
+              {newProd.image && (
+                <img
+                  src={newProd.image}
+                  alt="Preview"
+                  style={{
+                    width: 100,
+                    height: 100,
+                    objectFit: "cover",
+                    borderRadius: 12,
+                    marginTop: 5,
+                  }}
+                />
+              )}
+
+              <div className="kb-modal-actions">
+
+                <button
+                  className="kb-prod-btn"
+                  onClick={() =>
+                    setShowAddModal(false)
+                  }
+                >
+                  Cancel
+                </button>
+
+                <button
+                  className="kb-add-btn"
+                  onClick={handleAddProduct}
+                >
+                  Add Product
+                </button>
+
+              </div>
+
+            </div>
+
+          </div>
+        )}
+
+        {/* ═════════════════ TOAST ═════════════════ */}
+
+        {toast && (
+          <div className="kb-toast">
+            {toast}
+          </div>
+        )}
+
+      </div>
+
+    </>
   );
 }

@@ -6,7 +6,9 @@ import FarmerPage from "./FarmerPage.jsx";
 import CartPage from "./cartpage.jsx";
 import PaymentPage from "./PaymentPage";
 import ProfilePanel from "./profilepanel.jsx";
-
+import AdminPage from "./AdminPage.jsx";
+import GovernmentPage from "./GovernmentPage.jsx";
+import FPOPage from "./fpo.jsx";
 function App() {
   const [page, setPage] = useState("login");
   const [role, setRole] = useState("");
@@ -14,21 +16,36 @@ function App() {
   const [currentUser, setCurrentUser] = useState(null);
   const [profileOpen, setProfileOpen] = useState(false);
 
-function addToCart(product) {
-  setCart((prev) => [...prev, product]);
-}
+  // ─────────────────────────────────────
+  // CART FUNCTIONS
+  // ─────────────────────────────────────
 
-function removeFromCart(productId) {
-  setCart((prev) => prev.filter((item) => item.id !== productId));
-}
-function updateQuantity(productId, quantity) {
-  if (quantity < 1) return;
-  setCart((prev) =>
-    prev.map((item) => (item.id === productId ? { ...item, quantity } : item))
-  );
-}
+  function addToCart(product) {
+    setCart((prev) => [...prev, product]);
+  }
 
+  function removeFromCart(productId) {
+    setCart((prev) =>
+      prev.filter((item) => item.id !== productId)
+    );
+  }
+
+  function updateQuantity(productId, quantity) {
+    if (quantity < 1) return;
+
+    setCart((prev) =>
+      prev.map((item) =>
+        item.id === productId
+          ? { ...item, quantity }
+          : item
+      )
+    );
+  }
+
+  // ─────────────────────────────────────
   // SIGNUP PAGE
+  // ─────────────────────────────────────
+
   if (page === "signup") {
     return (
       <Signup
@@ -39,7 +56,13 @@ function updateQuantity(productId, quantity) {
           console.log("Role:", role);
 
           setRole(role);
-           setCurrentUser({ name, email, role });
+
+          setCurrentUser({
+            name,
+            email,
+            role,
+          });
+
           setPage("login");
         }}
         onBackToLogin={() => {
@@ -49,85 +72,142 @@ function updateQuantity(productId, quantity) {
     );
   }
 
+  // ─────────────────────────────────────
   // CONSUMER PAGE
+  // ─────────────────────────────────────
+
   if (page === "consumer") {
-  return (
-    <>
-      <ConsumerPage
-        onNavigate={setPage}
-        onAddToCart={addToCart}
-        cartCount={cart.length}
-        user={currentUser}
-        onProfile={() => setProfileOpen(true)}
-      />
-
-      {profileOpen && (
-        <ProfilePanel
+    return (
+      <>
+        <ConsumerPage
+          onNavigate={setPage}
+          onAddToCart={addToCart}
+          cartCount={cart.length}
           user={currentUser}
-          onClose={() => setProfileOpen(false)}
+          onProfile={() => setProfileOpen(true)}
         />
-      )}
-    </>
-  );
-}
 
-  // FARMER PAGE
-  if (page === "farmer") {
-    return <FarmerPage />;
+        {profileOpen && (
+          <ProfilePanel
+            user={currentUser}
+            onClose={() => setProfileOpen(false)}
+          />
+        )}
+      </>
+    );
   }
-  // CART PAGE
-if (page === "cart") {
+
+  // ─────────────────────────────────────
+  // FARMER PAGE
+  // ─────────────────────────────────────
+
+  if (page === "farmer") {
+    return (
+      <FarmerPage
+        farmer={currentUser}
+        onNavigate={setPage}
+      />
+    );
+  }
+
+  // ─────────────────────────────────────
+  // ADMIN PAGE
+  // ─────────────────────────────────────
+
+  if (page === "admin") {
+    return (
+      <AdminPage
+        onNavigate={setPage}
+        user={currentUser}
+      />
+    );
+  }
+  // ─────────────────────────────────────
+// GOVERNMENT PAGE
+// ─────────────────────────────────────
+
+if (page === "government") {
   return (
-    <CartPage 
-  cart={cart} 
-  onRemove={removeFromCart} 
-  onUpdateQuantity={updateQuantity} 
-  onNavigate={setPage}
-  onAddToCart={addToCart}
-/>
-  );
-}
-if (page === "payment") {
-  return (
-    <PaymentPage
-      cart={cart}
+    <GovernmentPage
+      user={currentUser}
       onNavigate={setPage}
     />
   );
 }
-
-  // LOGIN PAGE
+if (page === "fpo") {
   return (
-    <LoginPage
-      onLogin={({ email, password, remember, role }) => {
-        console.log("Email:", email);
-        console.log("Password:", password);
-        console.log("Remember:", remember);
-        console.log("Selected Role:", role);
-
-        setRole(role);
-          setCurrentUser((prev) => ({
-  ...prev,
-  email,
-  role,
-}));
-
-        if (role === "consumer") {
-          setPage("consumer");
-        }
-
-        if (role === "farmer") {
-          setPage("farmer");
-        }
-      }}
-      onNavigateSignup={() => {
-        setPage("signup");
-      }}
-      onNavigateForgotPassword={() => {
-        alert("Forgot Password");
-      }}
+    <FPOPage
+      user={currentUser}
+      onNavigate={setPage}
     />
   );
+}
+  // ─────────────────────────────────────
+  // CART PAGE
+  // ─────────────────────────────────────
+
+  if (page === "cart") {
+    return (
+      <CartPage
+        cart={cart}
+        onRemove={removeFromCart}
+        onUpdateQuantity={updateQuantity}
+        onNavigate={setPage}
+        onAddToCart={addToCart}
+      />
+    );
+  }
+
+  // ─────────────────────────────────────
+  // PAYMENT PAGE
+  // ─────────────────────────────────────
+
+  if (page === "payment") {
+    return (
+      <PaymentPage
+        cart={cart}
+        onNavigate={setPage}
+      />
+    );
+  }
+
+  // ─────────────────────────────────────
+  // LOGIN PAGE
+  // ─────────────────────────────────────
+
+return (
+  <LoginPage
+    onLogin={(user) => {
+      console.log("Logged in user:", user);
+
+      setCurrentUser(user);
+      setRole(user.role);
+
+     if (user.role === "consumer") {
+  setPage("consumer");
+} else if (user.role === "farmer") {
+  setPage("farmer");
+} else if (user.role === "admin") {
+  setPage("admin");
+} else if (user.role === "government") {
+  setPage("government");
+} else if (user.role === "fpo") {
+  setPage("fpo");
+} else {
+  alert("This account type is not available yet.");
+}
+    }}
+
+    onNavigateSignup={() => {
+      setPage("signup");
+    }}
+
+    onNavigateForgotPassword={() => {
+      alert("Forgot Password");
+    }}
+  />
+);
+ 
 }
 
 export default App;

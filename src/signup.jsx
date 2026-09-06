@@ -11,22 +11,41 @@ function Signup({ onSignup, onBackToLogin }) {
   const handleSubmit = (e) => {
     e.preventDefault();
 
+    // Check name
+    if (!name.trim()) {
+      alert("Please enter your full name");
+      return;
+    }
+
+    // Check email
+    if (!email.trim()) {
+      alert("Please enter your email");
+      return;
+    }
+
+    // Check password
+    if (!password) {
+      alert("Please create a password");
+      return;
+    }
+
+    // Check role
     if (!role) {
       alert("Please select your account type");
       return;
     }
 
     const user = {
-      name,
-      email,
+      name: name.trim(),
+      email: email.trim().toLowerCase(),
       password,
       role,
     };
 
-    // Save user information in browser
+    // Save account in browser
     localStorage.setItem("kb_user", JSON.stringify(user));
 
-    // Send user information to App.js
+    // Send account information to App.js
     onSignup(user);
   };
 
@@ -41,12 +60,16 @@ function Signup({ onSignup, onBackToLogin }) {
 
         <form onSubmit={handleSubmit}>
 
+          {/* NAME */}
+
           <input
             type="text"
             placeholder="Full Name"
             value={name}
             onChange={(e) => setName(e.target.value)}
           />
+
+          {/* EMAIL */}
 
           <input
             type="email"
@@ -55,18 +78,23 @@ function Signup({ onSignup, onBackToLogin }) {
             onChange={(e) => setEmail(e.target.value)}
           />
 
+          {/* PASSWORD */}
+
           <input
             type="password"
-            placeholder="Password"
+            placeholder="Create Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
+
+          {/* ROLE */}
 
           <h3>I am a:</h3>
 
           <div className="role-selection">
 
             {/* FARMER */}
+
             <button
               type="button"
               className={
@@ -81,6 +109,7 @@ function Signup({ onSignup, onBackToLogin }) {
             </button>
 
             {/* CONSUMER */}
+
             <button
               type="button"
               className={
@@ -95,6 +124,7 @@ function Signup({ onSignup, onBackToLogin }) {
             </button>
 
             {/* FPO */}
+
             <button
               type="button"
               className={
@@ -109,6 +139,7 @@ function Signup({ onSignup, onBackToLogin }) {
             </button>
 
             {/* GOVERNMENT */}
+
             <button
               type="button"
               className={
@@ -123,6 +154,7 @@ function Signup({ onSignup, onBackToLogin }) {
             </button>
 
             {/* ADMIN */}
+
             <button
               type="button"
               className={
@@ -138,6 +170,8 @@ function Signup({ onSignup, onBackToLogin }) {
 
           </div>
 
+          {/* CREATE ACCOUNT */}
+
           <button
             type="submit"
             className="signup-button"
@@ -147,15 +181,19 @@ function Signup({ onSignup, onBackToLogin }) {
 
         </form>
 
+        {/* LOGIN */}
+
         <p>
           Already have an account?{" "}
 
           <button
+            type="button"
             className="back-login"
             onClick={onBackToLogin}
           >
             Login
           </button>
+
         </p>
 
       </div>
