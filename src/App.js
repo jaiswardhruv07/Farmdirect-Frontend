@@ -1,213 +1,165 @@
-import { useState } from "react";
-import LoginPage from "./login.jsx";
-import Signup from "./signup.jsx";
-import ConsumerPage from "./Consumerpage.jsx";
-import FarmerPage from "./FarmerPage.jsx";
-import CartPage from "./cartpage.jsx";
-import PaymentPage from "./PaymentPage";
-import ProfilePanel from "./profilepanel.jsx";
-import AdminPage from "./AdminPage.jsx";
-import GovernmentPage from "./GovernmentPage.jsx";
-import FPOPage from "./fpo.jsx";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+  useNavigate
+} from "react-router-dom";
+
+import { useAuth } from "./context/AuthContext";
+import ProtectedRoute from "./routes/ProtectedRoute";
+
+// AUTH
+import LoginPage from "./pages/auth/Login";
+import Signup from "./pages/auth/Signup";
+
+// ROLE
+import AdminPage from "./pages/admin/AdminPage";
+import FarmerPage from "./pages/farmer/FarmerPage";
+import GovernmentPage from "./pages/government/GovernmentPage";
+import FPOPage from "./pages/fpo/FPOPage";
+import ConsumerPage from "./pages/consumer/Consumerpage";
+
+// OTHER
+import CartPage from "./pages/cart/cartpage";
+import PaymentPage from "./pages/payment/PaymentPage";
+
+function AppRoutes() {
+  const navigate = useNavigate();
+  const { user, isAuthenticated, loading } = useAuth();
+
+  const getDashboardPath = (role) => {
+    switch (role) {
+      case "CONSUMER":
+        return "/consumer";
+
+      case "FARMER":
+        return "/farmer";
+
+      case "ADMIN":
+        return "/admin";
+
+      case "GOVERNMENT_OFFICER":
+        return "/government";
+
+      case "FPO":
+        return "/fpo";
+
+      default:
+        return "/";
+    }
+  };
+
+  const handleLogin = (loggedInUser) => {
+    console.log("Logged in user:", loggedInUser);
+
+    navigate(getDashboardPath(loggedInUser.role));
+  };
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  return (
+    <Routes>
+      {/* ================= AUTH ================= */}
+
+      <Route
+        path="/"
+        element={
+          isAuthenticated ? (
+            <Navigate to={getDashboardPath(user?.role)} replace />
+          ) : (
+            <LoginPage
+              onLogin={handleLogin}
+              onNavigateSignup={() => navigate("/signup")}
+              onNavigateForgotPassword={() => {
+                alert("Forgot Password");
+              }}
+            />
+          )
+        }
+      />
+
+      <Route
+        path="/login"
+        element={
+          isAuthenticated ? (
+            <Navigate to={getDashboardPath(user?.role)} replace />
+          ) : (
+            <LoginPage
+              onLogin={handleLogin}
+              onNavigateSignup={() => navigate("/signup")}
+              onNavigateForgotPassword={() => {
+                alert("Forgot Password");
+              }}
+            />
+          )
+        }
+      />
+
+      <Route
+        path="/signup"
+        element={
+          isAuthenticated ? (
+            <Navigate to={getDashboardPath(user?.role)} replace />
+          ) : (
+            <Signup onBackToLogin={() => navigate("/")} />
+          )
+        }
+      />
+
+      {/* ================= PROTECTED ROLE ROUTES ================= */}
+
+      <Route element={<ProtectedRoute allowedRoles={["FARMER"]} />}>
+        <Route path="/farmer" element={<FarmerPage />} />
+      </Route>
+
+      <Route element={<ProtectedRoute allowedRoles={["CONSUMER"]} />}>
+        <Route path="/consumer" element={<ConsumerPage />} />
+      </Route>
+
+      <Route element={<ProtectedRoute allowedRoles={["ADMIN"]} />}>
+        <Route path="/admin" element={<AdminPage />} />
+      </Route>
+
+      <Route element={<ProtectedRoute allowedRoles={["GOVERNMENT_OFFICER"]} />}>
+        <Route path="/government" element={<GovernmentPage />} />
+      </Route>
+
+      <Route element={<ProtectedRoute allowedRoles={["FPO"]} />}>
+        <Route path="/fpo" element={<FPOPage />} />
+      </Route>
+
+      {/* ================= OTHER PROTECTED ROUTES ================= */}
+
+      <Route element={<ProtectedRoute allowedRoles={["CONSUMER"]} />}>
+        <Route path="/cart" element={<CartPage />} />
+        <Route path="/payment" element={<PaymentPage />} />
+      </Route>
+
+      {/* ================= FALLBACK ================= */}
+
+      <Route
+        path="*"
+        element={
+          isAuthenticated ? (
+            <Navigate to={getDashboardPath(user?.role)} replace />
+          ) : (
+            <Navigate to="/" replace />
+          )
+        }
+      />
+    </Routes>
+  );
+}
+
 function App() {
-  const [page, setPage] = useState("login");
-  const [role, setRole] = useState("");
-  const [cart, setCart] = useState([]);
-  const [currentUser, setCurrentUser] = useState(null);
-  const [profileOpen, setProfileOpen] = useState(false);
-
-  // ─────────────────────────────────────
-  // CART FUNCTIONS
-  // ─────────────────────────────────────
-
-  function addToCart(product) {
-    setCart((prev) => [...prev, product]);
-  }
-
-  function removeFromCart(productId) {
-    setCart((prev) =>
-      prev.filter((item) => item.id !== productId)
-    );
-  }
-
-  function updateQuantity(productId, quantity) {
-    if (quantity < 1) return;
-
-    setCart((prev) =>
-      prev.map((item) =>
-        item.id === productId
-          ? { ...item, quantity }
-          : item
-      )
-    );
-  }
-
-  // ─────────────────────────────────────
-  // SIGNUP PAGE
-  // ─────────────────────────────────────
-
-  if (page === "signup") {
-    return (
-      <Signup
-        onSignup={({ name, email, password, role }) => {
-          console.log("Name:", name);
-          console.log("Email:", email);
-          console.log("Password:", password);
-          console.log("Role:", role);
-
-          setRole(role);
-
-          setCurrentUser({
-            name,
-            email,
-            role,
-          });
-
-          setPage("login");
-        }}
-        onBackToLogin={() => {
-          setPage("login");
-        }}
-      />
-    );
-  }
-
-  // ─────────────────────────────────────
-  // CONSUMER PAGE
-  // ─────────────────────────────────────
-
-  if (page === "consumer") {
-    return (
-      <>
-        <ConsumerPage
-          onNavigate={setPage}
-          onAddToCart={addToCart}
-          cartCount={cart.length}
-          user={currentUser}
-          onProfile={() => setProfileOpen(true)}
-        />
-
-        {profileOpen && (
-          <ProfilePanel
-            user={currentUser}
-            onClose={() => setProfileOpen(false)}
-          />
-        )}
-      </>
-    );
-  }
-
-  // ─────────────────────────────────────
-  // FARMER PAGE
-  // ─────────────────────────────────────
-
-  if (page === "farmer") {
-    return (
-      <FarmerPage
-        farmer={currentUser}
-        onNavigate={setPage}
-      />
-    );
-  }
-
-  // ─────────────────────────────────────
-  // ADMIN PAGE
-  // ─────────────────────────────────────
-
-  if (page === "admin") {
-    return (
-      <AdminPage
-        onNavigate={setPage}
-        user={currentUser}
-      />
-    );
-  }
-  // ─────────────────────────────────────
-// GOVERNMENT PAGE
-// ─────────────────────────────────────
-
-if (page === "government") {
   return (
-    <GovernmentPage
-      user={currentUser}
-      onNavigate={setPage}
-    />
+    <BrowserRouter>
+      <AppRoutes />
+    </BrowserRouter>
   );
-}
-if (page === "fpo") {
-  return (
-    <FPOPage
-      user={currentUser}
-      onNavigate={setPage}
-    />
-  );
-}
-  // ─────────────────────────────────────
-  // CART PAGE
-  // ─────────────────────────────────────
-
-  if (page === "cart") {
-    return (
-      <CartPage
-        cart={cart}
-        onRemove={removeFromCart}
-        onUpdateQuantity={updateQuantity}
-        onNavigate={setPage}
-        onAddToCart={addToCart}
-      />
-    );
-  }
-
-  // ─────────────────────────────────────
-  // PAYMENT PAGE
-  // ─────────────────────────────────────
-
-  if (page === "payment") {
-    return (
-      <PaymentPage
-        cart={cart}
-        onNavigate={setPage}
-      />
-    );
-  }
-
-  // ─────────────────────────────────────
-  // LOGIN PAGE
-  // ─────────────────────────────────────
-
-return (
-  <LoginPage
-    onLogin={(user) => {
-      console.log("Logged in user:", user);
-
-      setCurrentUser(user);
-      setRole(user.role);
-
-     if (user.role === "consumer") {
-  setPage("consumer");
-} else if (user.role === "farmer") {
-  setPage("farmer");
-} else if (user.role === "admin") {
-  setPage("admin");
-} else if (user.role === "government") {
-  setPage("government");
-} else if (user.role === "fpo") {
-  setPage("fpo");
-} else {
-  alert("This account type is not available yet.");
-}
-    }}
-
-    onNavigateSignup={() => {
-      setPage("signup");
-    }}
-
-    onNavigateForgotPassword={() => {
-      alert("Forgot Password");
-    }}
-  />
-);
- 
 }
 
 export default App;

@@ -65,8 +65,10 @@
 /* Input Fields */
 
 .signup-box input[type="text"],
+.signup-box input[type="tel"],
 .signup-box input[type="email"],
-.signup-box input[type="password"] {
+.signup-box input[type="password"]
+ {
   width: 100%;
   padding: 14px 16px;
   margin-bottom: 16px;

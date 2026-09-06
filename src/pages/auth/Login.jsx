@@ -1,10 +1,13 @@
 import { useState } from "react";
+import { useAuth } from "../../context/AuthContext";
+import { loginUser } from "../../services/authService";
 
 export default function LoginPage({
   onLogin,
   onNavigateSignup,
-  onNavigateForgotPassword,
+  onNavigateForgotPassword
 }) {
+  const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -32,7 +35,7 @@ export default function LoginPage({
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     setStatus("");
@@ -41,47 +44,37 @@ export default function LoginPage({
       return;
     }
 
-    // Get saved account
-    const savedUser = JSON.parse(
-      localStorage.getItem("kb_user")
-    );
-
-    // No account
-    if (!savedUser) {
-      alert(
-        "No account found. Please create an account first."
-      );
-      return;
-    }
-
-    // Check email
-    if (
-      email.trim().toLowerCase() !==
-      savedUser.email.toLowerCase()
-    ) {
-      setStatus("error");
-      alert("Invalid email or password");
-      return;
-    }
-
-    // Check password
-    if (password !== savedUser.password) {
-      setStatus("error");
-      alert("Invalid email or password");
-      return;
-    }
-
     setStatus("loading");
 
-    // Login successful
-    setTimeout(() => {
+    try {
+      const response = await loginUser(email.trim(), password);
+
+      if (!response.success) {
+        throw new Error(response.message || "Login failed");
+      }
+
+      const { user, token } = response.data;
+
+      // Store authentication data
+      login({ user, token });
+
       setStatus("success");
 
-      // Send saved account to App.js
+      // Send authenticated user to App.js
       if (onLogin) {
-        onLogin(savedUser);
+        onLogin(user);
       }
-    }, 500);
+    } catch (error) {
+      console.error("Login error:", error);
+
+      setStatus("error");
+
+      if (error.status === 401) {
+        alert("Invalid email or password");
+      } else {
+        alert(error.message || "Unable to login. Please try again.");
+      }
+    }
   };
 
   return (
@@ -362,11 +355,9 @@ export default function LoginPage({
       `}</style>
 
       <div className="login-page">
-
         {/* ================= LEFT ================= */}
 
         <section className="login-left">
-
           <div className="brand">
             Kisaan<span>Bazar</span>
           </div>
@@ -377,172 +368,109 @@ export default function LoginPage({
             Fresh products. Fair prices. Better connections.
           </div>
 
-          <h2 className="story-title">
-            From Farm to Your Home
-          </h2>
+          <h2 className="story-title">From Farm to Your Home</h2>
 
           <p className="story-text">
-            KisaanBazar creates a simple connection between
-            farmers and consumers, making it easier to discover,
-            sell and buy fresh agricultural products.
+            KisaanBazar creates a simple connection between farmers and
+            consumers, making it easier to discover, sell and buy fresh
+            agricultural products.
           </p>
 
           <div className="stats">
-
             <div>
-              <div className="stat-number">
-                100+
-              </div>
+              <div className="stat-number">100+</div>
 
-              <div className="stat-label">
-                Farmers
-              </div>
+              <div className="stat-label">Farmers</div>
             </div>
 
             <div>
-              <div className="stat-number">
-                500+
-              </div>
+              <div className="stat-number">500+</div>
 
-              <div className="stat-label">
-                Products
-              </div>
+              <div className="stat-label">Products</div>
             </div>
 
             <div>
-              <div className="stat-number">
-                1000+
-              </div>
+              <div className="stat-number">1000+</div>
 
-              <div className="stat-label">
-                Consumers
-              </div>
+              <div className="stat-label">Consumers</div>
             </div>
-
           </div>
-
         </section>
 
         {/* ================= RIGHT ================= */}
 
         <section className="login-right">
-
           <div className="login-card">
+            <h1 className="login-title">Welcome Back</h1>
 
-            <h1 className="login-title">
-              Welcome Back
-            </h1>
-
-            <p className="login-subtitle">
-              Login to your KisaanBazar account
-            </p>
+            <p className="login-subtitle">Login to your KisaanBazar account</p>
 
             <form onSubmit={handleSubmit}>
-
               {/* EMAIL */}
 
               <div className="form-group">
-
-                <label className="form-label">
-                  Email
-                </label>
+                <label className="form-label">Email</label>
 
                 <input
                   className="input-field"
                   type="email"
                   placeholder="Enter your email"
                   value={email}
-                  onChange={(e) =>
-                    setEmail(e.target.value)
-                  }
+                  onChange={(e) => setEmail(e.target.value)}
                 />
 
                 {errors.email && (
-                  <div className="error-text">
-                    {errors.email}
-                  </div>
+                  <div className="error-text">{errors.email}</div>
                 )}
-
               </div>
 
               {/* PASSWORD */}
 
               <div className="form-group">
-
-                <label className="form-label">
-                  Password
-                </label>
+                <label className="form-label">Password</label>
 
                 <div className="input-wrapper">
-
                   <input
                     className="input-field password-input"
-                    type={
-                      showPassword
-                        ? "text"
-                        : "password"
-                    }
+                    type={showPassword ? "text" : "password"}
                     placeholder="Enter your password"
                     value={password}
-                    onChange={(e) =>
-                      setPassword(e.target.value)
-                    }
+                    onChange={(e) => setPassword(e.target.value)}
                   />
 
                   <button
                     type="button"
                     className="show-password"
-                    onClick={() =>
-                      setShowPassword(
-                        !showPassword
-                      )
-                    }
+                    onClick={() => setShowPassword(!showPassword)}
                   >
-                    {showPassword
-                      ? "Hide"
-                      : "Show"}
+                    {showPassword ? "Hide" : "Show"}
                   </button>
-
                 </div>
 
                 {errors.password && (
-                  <div className="error-text">
-                    {errors.password}
-                  </div>
+                  <div className="error-text">{errors.password}</div>
                 )}
-
               </div>
 
               {/* REMEMBER + FORGOT */}
 
               <div className="login-options">
-
                 <label className="remember-label">
-
                   <input
                     type="checkbox"
                     checked={remember}
-                    onChange={(e) =>
-                      setRemember(
-                        e.target.checked
-                      )
-                    }
+                    onChange={(e) => setRemember(e.target.checked)}
                   />
-
                   Remember me
-
                 </label>
 
                 <button
                   type="button"
                   className="forgot-button"
-                  onClick={
-                    onNavigateForgotPassword
-                  }
+                  onClick={onNavigateForgotPassword}
                 >
                   Forgot Password?
                 </button>
-
               </div>
 
               {/* LOGIN */}
@@ -550,47 +478,30 @@ export default function LoginPage({
               <button
                 type="submit"
                 className="login-button"
-                disabled={
-                  status === "loading"
-                }
+                disabled={status === "loading"}
               >
-                {status === "loading"
-                  ? "Logging in..."
-                  : "Log In"}
+                {status === "loading" ? "Logging in..." : "Log In"}
               </button>
 
               {status === "success" && (
-                <div className="status-message success">
-                  Login successful!
-                </div>
+                <div className="status-message success">Login successful!</div>
               )}
-
             </form>
 
             {/* SIGN UP */}
 
             <div className="signup-text">
-
-              Don't have an account?
-
-              {" "}
-
+              Don't have an account?{" "}
               <button
                 type="button"
                 className="signup-button"
-                onClick={
-                  onNavigateSignup
-                }
+                onClick={onNavigateSignup}
               >
                 Sign Up
               </button>
-
             </div>
-
           </div>
-
         </section>
-
       </div>
     </>
   );
