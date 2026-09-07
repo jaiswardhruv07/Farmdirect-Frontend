@@ -18,7 +18,7 @@ body {
     #f5f0e7;
 }
 
-/* ── NAVBAR ── */
+/* ── NAVBAR ── (unchanged) */
 .kb-nav {
   max-width: 1250px;
   min-height: 68px;
@@ -180,6 +180,19 @@ body {
 }
 .kb-next-btn:hover { background: linear-gradient(135deg, #f2b705, #d9a400); transform: translateY(-1px); }
 
+/* ── ORDER ACTIONS ── */
+.kb-order-actions { display: flex; gap: 6px; }
+.kb-order-action-btn {
+  border: none; border-radius: 20px; padding: 6px 14px;
+  font-size: 11.5px; font-weight: 700; cursor: pointer; transition: .2s;
+  background: linear-gradient(135deg, #c9a15a, #b88e48);
+  color: #302817;
+  white-space: nowrap;
+}
+.kb-order-action-btn:hover { background: linear-gradient(135deg, #f2b705, #d9a400); transform: translateY(-1px); }
+.kb-order-undo-btn { background: #e8eedc; color: #3e582e; }
+.kb-order-undo-btn:hover { background: #d6e2c6; }
+
 /* ── BEST SELLING ── */
 .kb-bestsell { display: flex; flex-direction: column; gap: 10px; }
 .kb-bestsell-item {
@@ -234,23 +247,44 @@ body {
 .kb-order-highlight span { font-size: 14px; color: #c8d8b8; }
 .kb-order-highlight strong { font-size: 38px; font-weight: 700; color: #f2b705; }
 
-/* ── PRODUCTS GRID ── */
-.kb-products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(195px, 1fr)); gap: 18px; }
-.kb-product-card {
-  background: linear-gradient(180deg, #f0e7d0, #eadfc4);
-  border: 1px solid #d3b979; border-radius: 20px;
-  overflow: hidden;
-  box-shadow: 0 7px 20px rgba(74,93,58,0.08);
-  transition: transform .28s, box-shadow .28s, border-color .28s;
+/* =========================================================
+   PRODUCTS GRID  (fixed class name to match JSX: kb-products-grid)
+   Cards are square — image area is a 1:1 square, body is compact,
+   same palette as the Consumer product-card.
+========================================================= */
+.kb-products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 18px;
 }
-.kb-product-card:hover { transform: translateY(-7px); border-color: #7f9a5c; box-shadow: 0 15px 30px rgba(74,93,58,0.15); }
 
-/* image area */
+.kb-product-card {
+  display: flex;
+  flex-direction: column;
+  background: #fffdf7;
+  border: 1px solid #e4dccb;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(68,78,54,0.06);
+  transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+}
+.kb-product-card:hover {
+  transform: translateY(-6px);
+  border-color: #b9a16d;
+  box-shadow: 0 14px 28px rgba(68,78,54,0.13);
+}
+
+/* image area — perfectly square (1:1) */
 .kb-prod-img-wrap {
-  width: 100%; height: 140px; position: relative; cursor: pointer;
-  background: linear-gradient(135deg, #dedbd6, #cbc8c3);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 48px;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  position: relative;
+  cursor: pointer;
+  background: linear-gradient(135deg, #e7e4df, #d5d2cc);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 42px;
 }
 .kb-prod-img-wrap img { width: 100%; height: 100%; object-fit: cover; }
 .kb-prod-img-overlay {
@@ -261,26 +295,26 @@ body {
   flex-direction: column; gap: 4px;
 }
 .kb-prod-img-wrap:hover .kb-prod-img-overlay { opacity: 1; }
-.kb-prod-img-overlay span { color: #fffaf0; font-size: 13px; font-weight: 700; }
+.kb-prod-img-overlay span { color: #fffaf0; font-size: 12px; font-weight: 700; text-align: center; padding: 0 8px; }
 
-.kb-product-body { padding: 12px; }
-.kb-product-name { font-size: 15px; font-weight: 700; color: #2f2a1e; margin-bottom: 2px; }
-.kb-product-cat { font-size: 12px; color: #7a6a50; margin-bottom: 8px; }
+.kb-product-body { padding: 12px; display: flex; flex-direction: column; flex: 1; }
+.kb-product-name { font-size: 14.5px; font-weight: 700; color: #2f2a1e; margin-bottom: 2px; }
+.kb-product-cat { font-size: 11.5px; color: #7a6a50; margin-bottom: 8px; }
 .kb-product-foot { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
-.kb-product-price { font-size: 15px; font-weight: 700; color: #4a7830; }
-.kb-stock-badge { font-size: 11px; font-weight: 700; padding: 2px 9px; border-radius: 20px; }
+.kb-product-price { font-size: 14.5px; font-weight: 700; color: #637d48; }
+.kb-stock-badge { font-size: 10.5px; font-weight: 700; padding: 2px 9px; border-radius: 20px; white-space: nowrap; }
 .kb-si { background: #d1e7dd; color: #0a3622; }
 .kb-sl { background: #fff3cd; color: #856404; }
 .kb-so { background: #f8d7da; color: #842029; }
-.kb-product-actions { display: flex; gap: 6px; }
+.kb-product-actions { display: flex; gap: 6px; margin-top: auto; }
 .kb-prod-btn {
-  flex: 1; border: none; border-radius: 10px; padding: 7px 4px;
-  font-size: 12px; font-weight: 700; cursor: pointer; transition: .18s;
+  flex: 1; border: none; border-radius: 9px; padding: 8px 4px;
+  font-size: 11.5px; font-weight: 700; cursor: pointer; transition: .18s;
   font-family: "DM Sans", Arial, sans-serif;
 }
 .kb-prod-update { background: #e8eedc; color: #3e582e; }
 .kb-prod-update:hover { background: #d6e2c6; }
-.kb-prod-remove { background: #fde8e8; color: #842029; }
+.kb-prod-remove { background: #fde8e8; color: #842029; flex: 0 0 40px; }
 .kb-prod-remove:hover { background: #f8d7da; }
 
 /* add product btn */
@@ -293,15 +327,160 @@ body {
 }
 .kb-add-btn:hover { background: linear-gradient(135deg, #f2b705, #d9a400); transform: translateY(-2px); }
 
-/* ── MODAL ── */
+/* =========================================================
+   STOCK LIST — simplified card, NO photo-upload section.
+   Just the essentials: icon, name/category, current stock, update button.
+========================================================= */
+.kb-stock-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.kb-stock-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  background: #fffdf7;
+  border: 1px solid #e4dccb;
+  border-left: 4px solid #f2b705;
+  border-radius: 13px;
+  box-shadow: 0 4px 15px rgba(68,78,54,0.05);
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+.kb-stock-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 22px rgba(68,78,54,0.10);
+}
+
+.kb-stock-icon {
+  width: 46px;
+  height: 46px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  background: #f0eadc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+}
+
+.kb-stock-info {
+  flex: 1;
+  min-width: 0;
+}
+.kb-stock-info strong {
+  display: block;
+  font-size: 14.5px;
+  color: #2f2a1e;
+}
+.kb-stock-info span {
+  font-size: 12px;
+  color: #7a6a50;
+}
+
+.kb-stock-qty {
+  flex-shrink: 0;
+}
+
+.kb-stock-update-btn {
+  flex-shrink: 0;
+  border: none;
+  border-radius: 20px;
+  padding: 9px 16px;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: "DM Sans", Arial, sans-serif;
+  cursor: pointer;
+  background: linear-gradient(135deg, #c9a15a, #b88e48);
+  color: #302817;
+  transition: .2s;
+  white-space: nowrap;
+}
+.kb-stock-update-btn:hover {
+  background: linear-gradient(135deg, #f2b705, #d9a400);
+  transform: translateY(-1px);
+}
+
+/* =========================================================
+   MODAL — Add Product
+   (now properly wired to these classes from the JSX)
+========================================================= */
 .kb-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 20px; }
 .kb-modal {
   background: #fffaf0; border-radius: 22px; padding: 28px;
   width: 100%; max-width: 430px;
+  max-height: 90vh;
+  overflow-y: auto;
   border: 1px solid #d3b979;
   box-shadow: 0 20px 50px rgba(74,93,58,0.18);
 }
-.kb-modal h2 { font-family: "Playfair Display", serif; font-size: 22px; color: #3e582e; margin-bottom: 20px; }
+.kb-modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 22px;
+}
+.kb-modal h2 { font-family: "Playfair Display", serif; font-size: 21px; color: #3e582e; }
+.kb-modal-close {
+  width: 32px; height: 32px;
+  flex-shrink: 0;
+  border: none; border-radius: 50%;
+  background: #f0e7d0; color: #5e513d;
+  font-size: 16px; font-weight: 700;
+  cursor: pointer; transition: .2s;
+}
+.kb-modal-close:hover { background: #e5d6ae; transform: rotate(90deg); }
+
+/* preview row inside the Update Stock modal */
+.kb-stock-modal-product {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  margin-bottom: 18px;
+  background: #f8f3e7;
+  border: 1px solid #e4dccb;
+  border-radius: 13px;
+}
+.kb-stock-modal-product .kb-stock-icon img {
+  width: 100%; height: 100%; object-fit: cover; border-radius: 12px;
+}
+.kb-stock-modal-product .kb-stock-info strong { font-size: 15px; }
+.kb-stock-modal-product .kb-stock-info span { font-size: 12px; }
+
+/* quantity stepper: -5 -1 [input] +1 +5 */
+.kb-qty-stepper {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.kb-qty-stepper .kb-form-input {
+  text-align: center;
+  flex: 1;
+  min-width: 0;
+}
+.kb-qty-stepper button {
+  flex-shrink: 0;
+  width: 42px;
+  height: 42px;
+  border: 1.5px solid #d3b979;
+  background: #f8f3e7;
+  color: #3e582e;
+  border-radius: 10px;
+  font-family: "DM Sans", Arial, sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: .18s;
+}
+.kb-qty-stepper button:hover {
+  background: #4a5d3a;
+  color: #fffaf0;
+  border-color: #4a5d3a;
+}
+
 .kb-form-group { margin-bottom: 15px; }
 .kb-form-label { display: block; font-size: 13px; font-weight: 700; color: #526344; margin-bottom: 6px; }
 .kb-form-input, .kb-form-select {
@@ -323,12 +502,13 @@ body {
   flex: 1; background: #e8e0d0; color: #7a6a50;
   border: none; border-radius: 12px; padding: 12px;
   font-size: 15px; font-weight: 600; cursor: pointer;
+  transition: .18s;
 }
 .kb-modal-cancel:hover { background: #d8d0c0; }
 .kb-img-upload-area {
   border: 2px dashed #c9a15a; border-radius: 14px;
   padding: 18px; text-align: center; cursor: pointer;
-  background: #fdf6e8; margin-bottom: 16px; transition: .18s;
+  background: #fdf6e8; margin-bottom: 6px; transition: .18s;
 }
 .kb-img-upload-area:hover { border-color: #7f9a5c; background: #edf5ed; }
 .kb-img-upload-area p { font-size: 12px; color: #7a6a50; margin-top: 6px; }
@@ -353,10 +533,6 @@ body {
 .kb-coming-soon h3 { font-family: "Playfair Display", serif; font-size: 20px; color: #3e582e; margin-bottom: 6px; }
 
 /* ── PROFILE DRAWER ── */
-/* ═══════════════════════════════════════
-   PROFILE DRAWER
-═══════════════════════════════════════ */
-
 .kb-drawer {
   width: 390px;
   max-width: 92vw;
@@ -700,6 +876,8 @@ body {
   .kb-farmer-btn { position: static; }
   .kb-products-grid { grid-template-columns: repeat(2,1fr); }
   .kb-drawer { width: 100%; }
+  .kb-stock-card { flex-wrap: wrap; }
+  .kb-stock-update-btn { width: 100%; }
 }
 /* ═══════════════════════════════════════
    SALES GRAPH

@@ -38,7 +38,7 @@ const STATUS_COLOR = {
     background: "#fff3cd",
     color: "#856404",
   },
-  
+
   Completed: {
     background: "#d1e7dd",
     color: "#0a3622",
@@ -51,7 +51,7 @@ const ORDER_STATUSES = [
   "Completed",
 ];
 
-export default function FarmerDashboard({ farmer,onNavigate }) {
+export default function FarmerDashboard({ farmer, onNavigate }) {
   const [section, setSection] = useState("home");
 
   const [orderCat, setOrderCat] = useState("All");
@@ -65,6 +65,9 @@ export default function FarmerDashboard({ farmer,onNavigate }) {
   const [showDrawer, setShowDrawer] = useState(false);
   const [toast, setToast] = useState("");
 
+  const [stockModalId, setStockModalId] = useState(null);
+  const [stockInput, setStockInput] = useState("");
+
   const [newProd, setNewProd] = useState({
     name: "",
     category: "Vegetables",
@@ -74,14 +77,15 @@ export default function FarmerDashboard({ farmer,onNavigate }) {
   });
 
   const prodFileInputs = useRef({});
+  const newProdFileInput = useRef(null);
 
- const [profile, setProfile] = useState({
-  name: farmer?.name || "",
-  email: farmer?.email || "",
-  place: "",
-  dob: "",
-});
-const [salesView, setSalesView] = useState("month");
+  const [profile, setProfile] = useState({
+    name: farmer?.name || "",
+    email: farmer?.email || "",
+    place: "",
+    dob: "",
+  });
+  const [salesView, setSalesView] = useState("month");
 
   // ─── Toast ────────────────────────────────────────────────────────────────
 
@@ -100,7 +104,7 @@ const [salesView, setSalesView] = useState("month");
   );
 
   const lowStockProducts = products.filter(
-    (p) => p.status === "Low Stock"
+    (p) => p.status === "Low Stock" || p.status === "Out of Stock"
   );
 
   const filteredOrders = orders.filter((o) => {
@@ -182,48 +186,72 @@ const [salesView, setSalesView] = useState("month");
   // ─── Orders ──────────────────────────────────────────────────────────────
 
   function advanceOrder(id) {
-  setOrders((prev) =>
-    prev.map((order) => {
-      if (order.id !== id) return order;
+    setOrders((prev) =>
+      prev.map((order) => {
+        if (order.id !== id) return order;
 
-      const nextStatus = STATUS_NEXT[order.status];
+        const nextStatus = STATUS_NEXT[order.status];
 
-      return nextStatus
-        ? { ...order, status: nextStatus }
-        : order;
-    })
-  );
-
-  showToast("✅ Order status updated!");
-}
-function undoOrder(id) {
-  setOrders((prev) =>
-    prev.map((order) => {
-      if (order.id !== id) return order;
-
-      if (order.status === "Completed") {
-        return {
-          ...order,
-          status: "New Order",
-        };
-      }
-
-      return order;
-    })
-  );
-
-  showToast("↩️ Order status undone!");
-}
-  // ─── Stock ───────────────────────────────────────────────────────────────
-
-  function updateStock(id) {
-    const value = prompt(
-      "नया stock quantity दर्ज करें:"
+        return nextStatus
+          ? { ...order, status: nextStatus }
+          : order;
+      })
     );
 
-    if (value === null || value === "") return;
+    showToast("✅ Order status updated!");
+  }
+  function undoOrder(id) {
+    setOrders((prev) =>
+      prev.map((order) => {
+        if (order.id !== id) return order;
 
-    const quantity = Number(value);
+        if (order.status === "Completed") {
+          return {
+            ...order,
+            status: "New Order",
+          };
+        }
+
+        return order;
+      })
+    );
+
+    showToast("↩️ Order status undone!");
+  }
+  // ─── Stock (modal based) ───────────────────────────────────────────────────
+
+  const stockModalProduct = products.find(
+    (p) => p.id === stockModalId
+  );
+
+  function openStockModal(id) {
+    const product = products.find((p) => p.id === id);
+
+    setStockModalId(id);
+    setStockInput(String(product?.stock ?? ""));
+  }
+
+  function closeStockModal() {
+    setStockModalId(null);
+    setStockInput("");
+  }
+
+  function adjustStockInput(delta) {
+    setStockInput((prev) => {
+      const current = Number(prev) || 0;
+      const next = current + delta;
+
+      return String(next < 0 ? 0 : next);
+    });
+  }
+
+  function saveStockUpdate() {
+    if (stockInput === "") {
+      alert("Valid quantity दर्ज करें।");
+      return;
+    }
+
+    const quantity = Number(stockInput);
 
     if (
       Number.isNaN(quantity) ||
@@ -236,7 +264,7 @@ function undoOrder(id) {
 
     setProducts((prev) =>
       prev.map((product) => {
-        if (product.id !== id) return product;
+        if (product.id !== stockModalId) return product;
 
         return {
           ...product,
@@ -252,123 +280,124 @@ function undoOrder(id) {
     );
 
     showToast("✅ Stock updated!");
+    closeStockModal();
   }
 
- 
-// ─── Remove Product ──────────────────────────────────────────────────────
 
-function removeProduct(id) {
-  if (
-    !window.confirm(
-      "क्या आप इस product को हटाना चाहते हैं?"
-    )
-  ) {
-    return;
+  // ─── Remove Product ──────────────────────────────────────────────────────
+
+  function removeProduct(id) {
+    if (
+      !window.confirm(
+        "क्या आप इस product को हटाना चाहते हैं?"
+      )
+    ) {
+      return;
+    }
+
+    // Delete product from Products
+    const productToRemove = products.find(
+      (product) => product.id === id
+    );
+
+    if (!productToRemove) return;
+
+    setProducts((prev) =>
+      prev.filter((product) => product.id !== id)
+    );
+
+    // Delete related orders from All Orders
+    setOrders((prev) =>
+      prev.filter(
+        (order) => order.product !== productToRemove.name
+      )
+    );
+
+    showToast(
+      `🗑️ ${productToRemove.name} removed with its orders`
+    );
   }
-
-  // Delete product from Products
-  const productToRemove = products.find(
-    (product) => product.id === id
-  );
-
-  if (!productToRemove) return;
-
-  setProducts((prev) =>
-    prev.filter((product) => product.id !== id)
-  );
-
-  // Delete related orders from All Orders
-  setOrders((prev) =>
-    prev.filter(
-      (order) => order.product !== productToRemove.name
-    )
-  );
-
-  showToast(
-    `🗑️ ${productToRemove.name} removed with its orders`
-  );
-}
   // ─── Add Product ─────────────────────────────────────────────────────────
-function handleAddProduct() {
-  const name = newProd.name.trim();
-  const quantity = Number(newProd.stock);
-  const price = Number(newProd.price);
+  function handleAddProduct() {
+    const name = newProd.name.trim();
+    const quantity = Number(newProd.stock);
+    const price = Number(newProd.price);
 
-  if (!name) {
-    alert("Product का नाम भरें।");
-    return;
+    if (!name) {
+      alert("Product का नाम भरें।");
+      return;
+    }
+
+    if (
+      newProd.stock === "" ||
+      Number.isNaN(quantity) ||
+      quantity < 0
+    ) {
+      alert("Valid stock quantity दर्ज करें।");
+      return;
+    }
+
+    if (
+      newProd.price !== "" &&
+      (Number.isNaN(price) || price < 0)
+    ) {
+      alert("Valid price दर्ज करें।");
+      return;
+    }
+
+    // ─── Create New Product ───
+    const newProduct = {
+      id: Date.now(),
+      name,
+      category: newProd.category,
+      stock: quantity,
+      price: price || 0,
+      status:
+        quantity === 0
+          ? "Out of Stock"
+          : quantity <= 5
+          ? "Low Stock"
+          : "In Stock",
+      image: newProd.image || null,
+    };
+
+    // Add to Products
+    setProducts((prev) => [
+      ...prev,
+      newProduct,
+    ]);
+
+    // ─── Automatically Add To All Orders ───
+    const newOrder = {
+      id: `#${String(orders.length + 1).padStart(3, "0")}`,
+      consumer: "Demo Customer",
+      product: name,
+      category: newProd.category,
+      quantity: 1,
+      status: "New Order",
+      date: "Today",
+    };
+
+    setOrders((prev) => [
+      ...prev,
+      newOrder,
+    ]);
+
+    // Reset form
+    setNewProd({
+      name: "",
+      category: "Vegetables",
+      stock: "",
+      price: "",
+      image: null,
+    });
+
+    setShowAddModal(false);
+
+    showToast(
+      `✅ ${name} added to Products & All Orders!`
+    );
   }
-
-  if (
-    newProd.stock === "" ||
-    Number.isNaN(quantity) ||
-    quantity < 0
-  ) {
-    alert("Valid stock quantity दर्ज करें।");
-    return;
-  }
-
-  if (
-    newProd.price !== "" &&
-    (Number.isNaN(price) || price < 0)
-  ) {
-    alert("Valid price दर्ज करें।");
-    return;
-  }
-
-  // ─── Create New Product ───
-  const newProduct = {
-    id: Date.now(),
-    name,
-    category: newProd.category,
-    stock: quantity,
-    price: price || 0,
-    status:
-      quantity === 0
-        ? "Out of Stock"
-        : quantity <= 5
-        ? "Low Stock"
-        : "In Stock",
-    image: newProd.image || null,
-  };
-
-  // Add to Products
-  setProducts((prev) => [
-    ...prev,
-    newProduct,
-  ]);
-
-  // ─── Automatically Add To All Orders ───
-  const newOrder = {
-    id: `#${String(orders.length + 1).padStart(3, "0")}`,
-    consumer: "Demo Customer",
-    product: name,
-    category: newProd.category,
-    quantity: 1,
-    status: "New Order",
-    date: "Today",
-  };
-
-  setOrders((prev) => [
-    ...prev,
-    newOrder,
-  ]);
-
-  // Reset form
-  setNewProd({
-    name: "",
-    category: "Vegetables",
-    stock: "",
-    price: "",
-    image: null,
-  });
-
-  setShowAddModal(false);
-
-  showToast(
-    `✅ ${name} added to Products & All Orders!`
-  );
-}
   function handleNewProductImage(file) {
     if (!file) return;
 
@@ -386,15 +415,15 @@ function handleAddProduct() {
 
   // ─── Navigation ──────────────────────────────────────────────────────────
 
-const navItems = [
-  { key: "home", label: "🏠 Home" },
-  { key: "orders", label: "📦 Orders" },
-  { key: "products", label: "🌾 Products" },
-  { key: "stock", label: "⚠️ Stock" },
-  { key: "sales", label: "₹ Sales" },
-  { key: "profit", label: "📈 Profit" },
-];
-  // ─── Product Card ─────────────────────────────────────────────────────────
+  const navItems = [
+    { key: "home", label: "🏠 Home" },
+    { key: "orders", label: "📦 Orders" },
+    { key: "products", label: "🌾 Products" },
+    { key: "stock", label: "⚠️ Stock" },
+    { key: "sales", label: "₹ Sales" },
+    { key: "profit", label: "📈 Profit" },
+  ];
+  // ─── Product Card (Products tab — has photo upload) ───────────────────────
 
   const ProductCard = ({ p }) => (
     <div className="kb-product-card">
@@ -461,7 +490,7 @@ const navItems = [
           <button
             className="kb-prod-btn kb-prod-update"
             onClick={() =>
-              updateStock(p.id)
+              openStockModal(p.id)
             }
           >
             📝 Stock
@@ -479,6 +508,44 @@ const navItems = [
         </div>
 
       </div>
+    </div>
+  );
+
+  // ─── Stock Card (Stock tab — NO photo upload, just qty + update) ──────────
+
+  const StockCard = ({ p }) => (
+    <div className="kb-stock-card">
+
+      <div className="kb-stock-icon">
+        {CAT_EMOJI[p.category]}
+      </div>
+
+      <div className="kb-stock-info">
+        <strong>{p.name}</strong>
+        <span>{p.category}</span>
+      </div>
+
+      <div className="kb-stock-qty">
+        <span
+          className={`kb-stock-badge ${
+            p.status === "In Stock"
+              ? "kb-si"
+              : p.status === "Low Stock"
+              ? "kb-sl"
+              : "kb-so"
+          }`}
+        >
+          {p.stock} left
+        </span>
+      </div>
+
+      <button
+        className="kb-stock-update-btn"
+        onClick={() => openStockModal(p.id)}
+      >
+        📝 Update Stock
+      </button>
+
     </div>
   );
 
@@ -518,21 +585,21 @@ const navItems = [
           </nav>
 
           <button
-  className="kb-farmer-btn"
-  onClick={() =>
-    setShowDrawer(true)
-  }
->
-  👨‍🌾{" "}
-  {profile.name.split(" ")[0]}
-</button>
+            className="kb-farmer-btn"
+            onClick={() =>
+              setShowDrawer(true)
+            }
+          >
+            👨‍🌾{" "}
+            {profile.name.split(" ")[0]}
+          </button>
 
-<button
-  className="kb-checkout-btn"
-  onClick={() => onNavigate("login")}
->
-  🛒 Checkout
-</button>
+          <button
+            className="kb-checkout-btn"
+            onClick={() => onNavigate("login")}
+          >
+           Logout
+          </button>
 
         </header>
 
@@ -1255,28 +1322,28 @@ const navItems = [
                               </td>
 
                               <td>
-<div className="kb-order-actions">
+                                <div className="kb-order-actions">
 
-  {order.status === "New Order" && (
-    <button
-      className="kb-order-action-btn"
-      onClick={() => advanceOrder(order.id)}
-    >
-      ✅ Mark Completed
-    </button>
-  )}
+                                  {order.status === "New Order" && (
+                                    <button
+                                      className="kb-order-action-btn"
+                                      onClick={() => advanceOrder(order.id)}
+                                    >
+                                      ✅ Mark Completed
+                                    </button>
+                                  )}
 
-  {order.status === "Completed" && (
-    <button
-      className="kb-order-action-btn kb-order-undo-btn"
-      onClick={() => undoOrder(order.id)}
-    >
-      ↩️ Undo
-    </button>
-  )}
+                                  {order.status === "Completed" && (
+                                    <button
+                                      className="kb-order-action-btn kb-order-undo-btn"
+                                      onClick={() => undoOrder(order.id)}
+                                    >
+                                      ↩️ Undo
+                                    </button>
+                                  )}
 
-</div>
-</td>
+                                </div>
+                              </td>
 
                             </tr>
 
@@ -1421,7 +1488,7 @@ const navItems = [
 
               ) : (
 
-                <div className="kb-product-grid">
+                <div className="kb-products-grid">
 
                   {filteredProducts.map(
                     (product) => (
@@ -1442,171 +1509,221 @@ const navItems = [
           {/* ═════════════════ SALES ═════════════════ */}
 
           {section === "sales" && (
-  <>
+            <>
 
-    <h1 className="kb-page-title">
-      ₹ Sales
-    </h1>
+              <h1 className="kb-page-title">
+                ₹ Sales
+              </h1>
 
-    <p className="kb-page-sub">
-      आपकी completed orders की
-      sales summary।
-    </p>
+              <p className="kb-page-sub">
+                आपकी completed orders की
+                sales summary।
+              </p>
 
-    {/* TOTAL SALES + COMPLETED ORDERS */}
-    <div className="kb-stats">
-      ...
-    </div>
+              {/* TOTAL SALES + COMPLETED ORDERS */}
+              <div className="kb-sales-grid">
 
-
-    {/* SALES DETAILS TABLE */}
-    <div className="kb-section">
-
-      ...
-      
-    </div>
-
-
-    {/* 👇 YAHAN GRAPH ADD KARNA HAI */}
-    <div className="kb-section kb-sales-chart-section">
-
-      <div className="kb-sales-chart-header">
-
-        <div>
-          <h2>📊 Sales Overview</h2>
-          <p>
-            Track your sales performance
-          </p>
-        </div>
-
-        <div className="kb-sales-toggle">
-
-          <button
-            className={
-              salesView === "month"
-                ? "active"
-                : ""
-            }
-            onClick={() =>
-              setSalesView("month")
-            }
-          >
-            Month
-          </button>
-
-          <button
-            className={
-              salesView === "year"
-                ? "active"
-                : ""
-            }
-            onClick={() =>
-              setSalesView("year")
-            }
-          >
-            Year
-          </button>
-
-        </div>
-
-      </div>
-
-
-      <div className="kb-sales-graph">
-
-        {salesView === "month" ? (
-
-          <div className="kb-bar-chart">
-
-            {[
-              { month: "Jan", sale: 12000 },
-              { month: "Feb", sale: 15500 },
-              { month: "Mar", sale: 9800 },
-              { month: "Apr", sale: 18200 },
-              { month: "May", sale: 22100 },
-              { month: "Jun", sale: 19600 },
-              { month: "Jul", sale: 24800 },
-              { month: "Aug", sale: 21400 },
-              { month: "Sep", sale: 27500 },
-              { month: "Oct", sale: 23100 },
-              { month: "Nov", sale: 29800 },
-              { month: "Dec", sale: 32500 },
-            ].map((item) => (
-
-              <div
-                className="kb-bar-column"
-                key={item.month}
-              >
-
-                <div className="kb-bar-value">
-                  ₹{item.sale}
+                <div className="kb-sales-card">
+                  <span>Total Sales</span>
+                  <strong>₹{totalSales}</strong>
+                  <small>From completed orders</small>
                 </div>
 
-                <div
-                  className="kb-bar"
-                  style={{
-                    height:
-                      `${(item.sale / 32500) * 180}px`,
-                  }}
-                />
-
-                <span>
-                  {item.month}
-                </span>
+                <div className="kb-sales-card">
+                  <span>Completed Orders</span>
+                  <strong>
+                    {orders.filter((o) => o.status === "Completed").length}
+                  </strong>
+                  <small>Out of {orders.length} total</small>
+                </div>
 
               </div>
 
-            ))}
 
-          </div>
+              {/* SALES DETAILS TABLE */}
+              <div className="kb-section">
 
-        ) : (
-
-          <div className="kb-bar-chart">
-
-            {[
-              { year: "2022", sale: 185000 },
-              { year: "2023", sale: 242000 },
-              { year: "2024", sale: 318000 },
-              { year: "2025", sale: 425000 },
-              { year: "2026", sale: 510000 },
-            ].map((item) => (
-
-              <div
-                className="kb-bar-column"
-                key={item.year}
-              >
-
-                <div className="kb-bar-value">
-                  ₹{item.sale}
+                <div className="kb-section-head">
+                  <h2>💰 Completed Sales</h2>
                 </div>
 
-                <div
-                  className="kb-bar"
-                  style={{
-                    height:
-                      `${(item.sale / 510000) * 180}px`,
-                  }}
-                />
+                <div className="kb-table-wrap">
+                  <table className="kb-table">
+                    <thead>
+                      <tr>
+                        <th>Order ID</th>
+                        <th>Consumer</th>
+                        <th>Product</th>
+                        <th>Qty</th>
+                        <th>Amount</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {orders
+                        .filter((o) => o.status === "Completed")
+                        .map((order) => {
+                          const product = products.find(
+                            (p) => p.name === order.product
+                          );
+                          const amount = (product?.price || 0) * order.quantity;
 
-                <span>
-                  {item.year}
-                </span>
+                          return (
+                            <tr key={order.id}>
+                              <td>{order.id}</td>
+                              <td>{order.consumer}</td>
+                              <td>{order.product}</td>
+                              <td>{order.quantity}</td>
+                              <td>₹{amount}</td>
+                            </tr>
+                          );
+                        })}
+                    </tbody>
+                  </table>
+                </div>
 
               </div>
 
-            ))}
 
-          </div>
+              {/* SALES GRAPH */}
+              <div className="kb-section kb-sales-chart-section">
 
-        )}
+                <div className="kb-sales-chart-header">
 
-      </div>
+                  <div>
+                    <h2>📊 Sales Overview</h2>
+                    <p>
+                      Track your sales performance
+                    </p>
+                  </div>
 
-    </div>
+                  <div className="kb-sales-toggle">
 
-  </>
-)}
+                    <button
+                      className={
+                        salesView === "month"
+                          ? "active"
+                          : ""
+                      }
+                      onClick={() =>
+                        setSalesView("month")
+                      }
+                    >
+                      Month
+                    </button>
+
+                    <button
+                      className={
+                        salesView === "year"
+                          ? "active"
+                          : ""
+                      }
+                      onClick={() =>
+                        setSalesView("year")
+                      }
+                    >
+                      Year
+                    </button>
+
+                  </div>
+
+                </div>
+
+
+                <div className="kb-sales-graph">
+
+                  {salesView === "month" ? (
+
+                    <div className="kb-bar-chart">
+
+                      {[
+                        { month: "Jan", sale: 12000 },
+                        { month: "Feb", sale: 15500 },
+                        { month: "Mar", sale: 9800 },
+                        { month: "Apr", sale: 18200 },
+                        { month: "May", sale: 22100 },
+                        { month: "Jun", sale: 19600 },
+                        { month: "Jul", sale: 24800 },
+                        { month: "Aug", sale: 21400 },
+                        { month: "Sep", sale: 27500 },
+                        { month: "Oct", sale: 23100 },
+                        { month: "Nov", sale: 29800 },
+                        { month: "Dec", sale: 32500 },
+                      ].map((item) => (
+
+                        <div
+                          className="kb-bar-column"
+                          key={item.month}
+                        >
+
+                          <div className="kb-bar-value">
+                            ₹{item.sale}
+                          </div>
+
+                          <div
+                            className="kb-bar"
+                            style={{
+                              height:
+                                `${(item.sale / 32500) * 180}px`,
+                            }}
+                          />
+
+                          <span>
+                            {item.month}
+                          </span>
+
+                        </div>
+
+                      ))}
+
+                    </div>
+
+                  ) : (
+
+                    <div className="kb-bar-chart">
+
+                      {[
+                        { year: "2022", sale: 185000 },
+                        { year: "2023", sale: 242000 },
+                        { year: "2024", sale: 318000 },
+                        { year: "2025", sale: 425000 },
+                        { year: "2026", sale: 510000 },
+                      ].map((item) => (
+
+                        <div
+                          className="kb-bar-column"
+                          key={item.year}
+                        >
+
+                          <div className="kb-bar-value">
+                            ₹{item.sale}
+                          </div>
+
+                          <div
+                            className="kb-bar"
+                            style={{
+                              height:
+                                `${(item.sale / 510000) * 180}px`,
+                            }}
+                          />
+
+                          <span>
+                            {item.year}
+                          </span>
+
+                        </div>
+
+                      ))}
+
+                    </div>
+
+                  )}
+
+                </div>
+
+              </div>
+
+            </>
+          )}
 
           {/* ═════════════════ PROFIT ═════════════════ */}
 
@@ -1715,264 +1832,263 @@ const navItems = [
 
             </>
           )}
-{/* STOCK */}
-{section === "stock" && (
-  <>
-    <h1 className="kb-page-title">
-      ⚠️ Stock
-    </h1>
+          {/* ═════════════════ STOCK ═════════════════ */}
+          {section === "stock" && (
+            <>
+              <h1 className="kb-page-title">
+                ⚠️ Stock
+              </h1>
 
-    <p className="kb-page-sub">
-      जिन products का stock कम है, वे यहाँ दिखाई देंगे।
-    </p>
+              <p className="kb-page-sub">
+                जिन products का stock कम है, वे यहाँ दिखाई देंगे। Photo यहाँ add करने की ज़रूरत नहीं — बस stock update करें।
+              </p>
 
-    <div className="kb-section">
+              <div className="kb-section">
 
-      <div className="kb-section-head">
-        <h2>⚠️ Low Stock Products</h2>
+                <div className="kb-section-head">
+                  <h2>⚠️ Low Stock Products</h2>
 
-        <span
-          style={{
-            fontSize: 13,
-            color: "#7a6a50",
-          }}
-        >
-          {lowStockProducts.length} products
-        </span>
-      </div>
+                  <span
+                    style={{
+                      fontSize: 13,
+                      color: "#7a6a50",
+                    }}
+                  >
+                    {lowStockProducts.length} products
+                  </span>
+                </div>
 
-      <div className="kb-product-grid">
-        {lowStockProducts.map((product) => (
-          <ProductCard
-            key={product.id}
-            p={product}
-          />
-        ))}
-      </div>
+                {lowStockProducts.length === 0 ? (
+                  <div
+                    style={{
+                      textAlign: "center",
+                      padding: "40px",
+                      color: "#7a6a50",
+                    }}
+                  >
+                    <div
+                      style={{
+                        fontSize: 45,
+                        marginBottom: 10,
+                      }}
+                    >
+                      🎉
+                    </div>
 
-      {lowStockProducts.length === 0 && (
-        <div
-          style={{
-            textAlign: "center",
-            padding: "40px",
-            color: "#7a6a50",
-          }}
-        >
-          <div
-            style={{
-              fontSize: 45,
-              marginBottom: 10,
-            }}
-          >
-            🎉
-          </div>
+                    <h3 style={{ color: "#3e582e" }}>
+                      Stock looks good!
+                    </h3>
 
-          <h3 style={{ color: "#3e582e" }}>
-            Stock looks good!
-          </h3>
+                    <p>
+                      सभी products का stock sufficient है।
+                    </p>
+                  </div>
+                ) : (
+                  <div className="kb-stock-list">
+                    {lowStockProducts.map((product) => (
+                      <StockCard
+                        key={product.id}
+                        p={product}
+                      />
+                    ))}
+                  </div>
+                )}
 
-          <p>
-            सभी products का stock sufficient है।
-          </p>
-        </div>
-      )}
-
-    </div>
-  </>
-)}
+              </div>
+            </>
+          )}
         </main>
 
         {/* ═════════════════ PROFILE DRAWER ═════════════════ */}
-{/* PROFILE DRAWER */}
-{showDrawer && (
-  <>
-    <div
-      className="kb-drawer-overlay"
-      onClick={() => setShowDrawer(false)}
-    />
-
-    <aside className="kb-drawer">
-
-      {/* PROFILE HEADER */}
-      <div className="kb-profile-header">
-
-        <div className="kb-profile-avatar">
-          👨‍🌾
-        </div>
-
-        <div>
-          <h2>My Profile</h2>
-          <p>Manage your account details</p>
-        </div>
-
-        <button
-          className="kb-profile-close"
-          onClick={() => setShowDrawer(false)}
-        >
-          ×
-        </button>
-
-      </div>
-
-
-      {/* PROFILE CONTENT */}
-      <div className="kb-profile-content">
-
-        {/* ACCOUNT INFORMATION */}
-        <div className="kb-profile-section-title">
-          <span>👤</span>
-
-          <div>
-            <h3>Account Information</h3>
-            <p>Your login details</p>
-          </div>
-        </div>
-
-
-        {/* NAME */}
-        <div className="kb-profile-field">
-
-          <label>Name</label>
-
-          <div className="kb-profile-input locked">
-
-            <span>👤</span>
-
-            <input
-              type="text"
-              value={profile.name}
-              readOnly
+        {showDrawer && (
+          <>
+            <div
+              className="kb-drawer-overlay"
+              onClick={() => setShowDrawer(false)}
             />
 
-            <span className="kb-lock">
-              🔒
-            </span>
+            <aside className="kb-drawer">
 
-          </div>
+              {/* PROFILE HEADER */}
+              <div className="kb-profile-header">
 
-          <small>
-            Name is linked to your account
-          </small>
+                <div className="kb-profile-avatar">
+                  👨‍🌾
+                </div>
 
-        </div>
+                <div>
+                  <h2>My Profile</h2>
+                  <p>Manage your account details</p>
+                </div>
 
+                <button
+                  className="kb-profile-close"
+                  onClick={() => setShowDrawer(false)}
+                >
+                  ×
+                </button>
 
-        {/* EMAIL */}
-        <div className="kb-profile-field">
-
-          <label>Email</label>
-
-          <div className="kb-profile-input locked">
-
-            <span>📧</span>
-
-            <input
-              type="email"
-              value={profile.email}
-              readOnly
-            />
-
-            <span className="kb-lock">
-              🔒
-            </span>
-
-          </div>
-
-          <small>
-            Email cannot be changed
-          </small>
-
-        </div>
+              </div>
 
 
-        {/* PERSONAL DETAILS */}
-        <div className="kb-profile-section-title kb-profile-second">
+              {/* PROFILE CONTENT */}
+              <div className="kb-profile-content">
 
-          <span>🌱</span>
+                {/* ACCOUNT INFORMATION */}
+                <div className="kb-profile-section-title">
+                  <span>👤</span>
 
-          <div>
-            <h3>Personal Details</h3>
-            <p>You can edit these details</p>
-          </div>
-
-        </div>
-
-
-        {/* PLACE */}
-        <div className="kb-profile-field">
-
-          <label>Place</label>
-
-          <div className="kb-profile-input">
-
-            <span>📍</span>
-
-            <input
-              type="text"
-              placeholder="Enter your village / city"
-              value={profile.place}
-              onChange={(e) =>
-                setProfile({
-                  ...profile,
-                  place: e.target.value,
-                })
-              }
-            />
-
-            <span className="kb-edit-icon">
-              ✏️
-            </span>
-
-          </div>
-
-        </div>
+                  <div>
+                    <h3>Account Information</h3>
+                    <p>Your login details</p>
+                  </div>
+                </div>
 
 
-        {/* DATE OF BIRTH */}
-        <div className="kb-profile-field">
+                {/* NAME */}
+                <div className="kb-profile-field">
 
-          <label>Date of Birth</label>
+                  <label>Name</label>
 
-          <div className="kb-profile-input">
+                  <div className="kb-profile-input locked">
 
-            <span>🎂</span>
+                    <span>👤</span>
 
-            <input
-              type="date"
-              value={profile.dob}
-              onChange={(e) =>
-                setProfile({
-                  ...profile,
-                  dob: e.target.value,
-                })
-              }
-            />
+                    <input
+                      type="text"
+                      value={profile.name}
+                      readOnly
+                    />
 
-            <span className="kb-edit-icon">
-              ✏️
-            </span>
+                    <span className="kb-lock">
+                      🔒
+                    </span>
 
-          </div>
+                  </div>
 
-        </div>
+                  <small>
+                    Name is linked to your account
+                  </small>
+
+                </div>
 
 
-        {/* SAVE BUTTON */}
-        <button
-          className="kb-profile-save"
-          onClick={() => {
-            showToast("✅ Profile updated successfully!");
-            setShowDrawer(false);
-          }}
-        >
-          💾 Save Changes
-        </button>
+                {/* EMAIL */}
+                <div className="kb-profile-field">
 
-      </div>
+                  <label>Email</label>
 
-    </aside>
-  </>
-)}
+                  <div className="kb-profile-input locked">
+
+                    <span>📧</span>
+
+                    <input
+                      type="email"
+                      value={profile.email}
+                      readOnly
+                    />
+
+                    <span className="kb-lock">
+                      🔒
+                    </span>
+
+                  </div>
+
+                  <small>
+                    Email cannot be changed
+                  </small>
+
+                </div>
+
+
+                {/* PERSONAL DETAILS */}
+                <div className="kb-profile-section-title kb-profile-second">
+
+                  <span>🌱</span>
+
+                  <div>
+                    <h3>Personal Details</h3>
+                    <p>You can edit these details</p>
+                  </div>
+
+                </div>
+
+
+                {/* PLACE */}
+                <div className="kb-profile-field">
+
+                  <label>Place</label>
+
+                  <div className="kb-profile-input">
+
+                    <span>📍</span>
+
+                    <input
+                      type="text"
+                      placeholder="Enter your village / city"
+                      value={profile.place}
+                      onChange={(e) =>
+                        setProfile({
+                          ...profile,
+                          place: e.target.value,
+                        })
+                      }
+                    />
+
+                    <span className="kb-edit-icon">
+                      ✏️
+                    </span>
+
+                  </div>
+
+                </div>
+
+
+                {/* DATE OF BIRTH */}
+                <div className="kb-profile-field">
+
+                  <label>Date of Birth</label>
+
+                  <div className="kb-profile-input">
+
+                    <span>🎂</span>
+
+                    <input
+                      type="date"
+                      value={profile.dob}
+                      onChange={(e) =>
+                        setProfile({
+                          ...profile,
+                          dob: e.target.value,
+                        })
+                      }
+                    />
+
+                    <span className="kb-edit-icon">
+                      ✏️
+                    </span>
+
+                  </div>
+
+                </div>
+
+
+                {/* SAVE BUTTON */}
+                <button
+                  className="kb-profile-save"
+                  onClick={() => {
+                    showToast("✅ Profile updated successfully!");
+                    setShowDrawer(false);
+                  }}
+                >
+                  💾 Save Changes
+                </button>
+
+              </div>
+
+            </aside>
+          </>
+        )}
         {/* ═════════════════ ADD PRODUCT MODAL ═════════════════ */}
 
         {showAddModal && (
@@ -1987,6 +2103,7 @@ const navItems = [
                 </h2>
 
                 <button
+                  className="kb-modal-close"
                   onClick={() =>
                     setShowAddModal(false)
                   }
@@ -1996,10 +2113,13 @@ const navItems = [
 
               </div>
 
-              <label>
-                Product Name
+              <div className="kb-form-group">
+                <label className="kb-form-label">
+                  Product Name
+                </label>
 
                 <input
+                  className="kb-form-input"
                   type="text"
                   value={newProd.name}
                   onChange={(e) =>
@@ -2010,13 +2130,15 @@ const navItems = [
                   }
                   placeholder="e.g. Potatoes"
                 />
+              </div>
 
-              </label>
-
-              <label>
-                Category
+              <div className="kb-form-group">
+                <label className="kb-form-label">
+                  Category
+                </label>
 
                 <select
+                  className="kb-form-select"
                   value={newProd.category}
                   onChange={(e) =>
                     setNewProd({
@@ -2042,13 +2164,15 @@ const navItems = [
                     ))}
 
                 </select>
+              </div>
 
-              </label>
-
-              <label>
-                Stock Quantity
+              <div className="kb-form-group">
+                <label className="kb-form-label">
+                  Stock Quantity
+                </label>
 
                 <input
+                  className="kb-form-input"
                   type="number"
                   min="0"
                   value={newProd.stock}
@@ -2060,13 +2184,15 @@ const navItems = [
                   }
                   placeholder="e.g. 25"
                 />
+              </div>
 
-              </label>
-
-              <label>
-                Price per kg
+              <div className="kb-form-group">
+                <label className="kb-form-label">
+                  Price per kg
+                </label>
 
                 <input
+                  className="kb-form-input"
                   type="number"
                   min="0"
                   value={newProd.price}
@@ -2078,42 +2204,50 @@ const navItems = [
                   }
                   placeholder="e.g. 40"
                 />
+              </div>
 
-              </label>
+              <div className="kb-form-group">
+                <label className="kb-form-label">
+                  Product Photo
+                </label>
 
-              <label>
-                Product Photo
-
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) =>
-                    handleNewProductImage(
-                      e.target.files[0]
-                    )
+                <div
+                  className="kb-img-upload-area"
+                  onClick={() =>
+                    newProdFileInput.current?.click()
                   }
-                />
+                >
+                  {newProd.image ? (
+                    <img
+                      className="kb-img-preview"
+                      src={newProd.image}
+                      alt="Preview"
+                    />
+                  ) : (
+                    <>
+                      <span style={{ fontSize: 26 }}>📷</span>
+                      <p>Click to upload a product photo</p>
+                    </>
+                  )}
 
-              </label>
-
-              {newProd.image && (
-                <img
-                  src={newProd.image}
-                  alt="Preview"
-                  style={{
-                    width: 100,
-                    height: 100,
-                    objectFit: "cover",
-                    borderRadius: 12,
-                    marginTop: 5,
-                  }}
-                />
-              )}
+                  <input
+                    ref={newProdFileInput}
+                    type="file"
+                    accept="image/*"
+                    style={{ display: "none" }}
+                    onChange={(e) =>
+                      handleNewProductImage(
+                        e.target.files[0]
+                      )
+                    }
+                  />
+                </div>
+              </div>
 
               <div className="kb-modal-actions">
 
                 <button
-                  className="kb-prod-btn"
+                  className="kb-modal-cancel"
                   onClick={() =>
                     setShowAddModal(false)
                   }
@@ -2122,10 +2256,122 @@ const navItems = [
                 </button>
 
                 <button
-                  className="kb-add-btn"
+                  className="kb-modal-save"
                   onClick={handleAddProduct}
                 >
                   Add Product
+                </button>
+
+              </div>
+
+            </div>
+
+          </div>
+        )}
+
+        {/* ═════════════════ UPDATE STOCK MODAL ═════════════════ */}
+
+        {stockModalProduct && (
+          <div className="kb-modal-overlay">
+
+            <div className="kb-modal">
+
+              <div className="kb-modal-head">
+                <h2>📝 Update Stock</h2>
+
+                <button
+                  className="kb-modal-close"
+                  onClick={closeStockModal}
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div className="kb-stock-modal-product">
+
+                <div className="kb-stock-icon">
+                  {stockModalProduct.image ? (
+                    <img
+                      src={stockModalProduct.image}
+                      alt={stockModalProduct.name}
+                    />
+                  ) : (
+                    CAT_EMOJI[stockModalProduct.category]
+                  )}
+                </div>
+
+                <div className="kb-stock-info">
+                  <strong>{stockModalProduct.name}</strong>
+                  <span>
+                    {stockModalProduct.category} · Current: {stockModalProduct.stock}
+                  </span>
+                </div>
+
+              </div>
+
+              <div className="kb-form-group">
+                <label className="kb-form-label">
+                  New Stock Quantity
+                </label>
+
+                <div className="kb-qty-stepper">
+
+                  <button
+                    type="button"
+                    onClick={() => adjustStockInput(-5)}
+                  >
+                    −5
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => adjustStockInput(-1)}
+                  >
+                    −1
+                  </button>
+
+                  <input
+                    className="kb-form-input"
+                    type="number"
+                    min="0"
+                    value={stockInput}
+                    onChange={(e) =>
+                      setStockInput(e.target.value)
+                    }
+                    placeholder="e.g. 25"
+                  />
+
+                  <button
+                    type="button"
+                    onClick={() => adjustStockInput(1)}
+                  >
+                    +1
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => adjustStockInput(5)}
+                  >
+                    +5
+                  </button>
+
+                </div>
+              </div>
+
+              <div className="kb-modal-actions">
+
+                <button
+                  className="kb-modal-cancel"
+                  onClick={closeStockModal}
+                >
+                  Cancel
+                </button>
+
+                <button
+                  className="kb-modal-save"
+                  onClick={saveStockUpdate}
+                >
+                  Save
                 </button>
 
               </div>

@@ -15,10 +15,12 @@ import Signup from "./pages/auth/Signup";
 
 // ROLE
 import AdminPage from "./pages/admin/AdminPage";
+import BulkBuyerPage from "./pages/bulkbuyer/bulkbuyer";
 import FarmerPage from "./pages/farmer/FarmerPage";
 import GovernmentPage from "./pages/government/GovernmentPage";
 import FPOPage from "./pages/fpo/FPOPage";
 import ConsumerPage from "./pages/consumer/Consumerpage";
+
 
 // OTHER
 import CartPage from "./pages/cart/cartpage";
@@ -44,6 +46,9 @@ function AppRoutes() {
 
       case "FPO":
         return "/fpo";
+
+      case "BULKBUYER":
+        return "/bulkbuyer";
 
       default:
         return "/";
@@ -131,6 +136,14 @@ function AppRoutes() {
         <Route path="/fpo" element={<FPOPage />} />
       </Route>
 
+      <Route element={<ProtectedRoute allowedRoles={["BULKBUYER"]} />}>
+      <Route
+     path="/bulkbuyer"
+     element={<div style={{ padding: "50px", fontSize: "30px" }}>
+      BULK BUYER WORKING
+      </div>}
+      />
+      </Route>
       {/* ================= OTHER PROTECTED ROUTES ================= */}
 
       <Route element={<ProtectedRoute allowedRoles={["CONSUMER"]} />}>
