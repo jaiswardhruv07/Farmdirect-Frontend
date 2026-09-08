@@ -328,6 +328,10 @@ const REGIONAL_DATA = [
   },
 ];
 
+const TOP_SELLING_REGION = [...REGIONAL_DATA].sort(
+  (a, b) => b.sales - a.sales
+)[0]?.region || "N/A";
+
 const MONTHLY_SALES = [
   { month: "Jan", value: 18 },
   { month: "Feb", value: 25 },
@@ -347,6 +351,7 @@ function GovernmentPage({ user, onNavigate }) {
   const [section, setSection] = useState("dashboard");
   const [userType, setUserType] = useState("all");
   const [reportType, setReportType] = useState("farmer");
+  const [orderStatus, setOrderStatus] = useState("all");
   const [profileOpen, setProfileOpen] = useState(false);
 
   const totalFarmers = 120;
@@ -360,6 +365,13 @@ function GovernmentPage({ user, onNavigate }) {
   const pendingOrders = ORDERS.filter(
     (order) => order.status === "New Order"
   );
+
+  const filteredOrders =
+    orderStatus === "pending"
+      ? ORDERS.filter((order) => order.status === "New Order")
+      : orderStatus === "completed"
+      ? ORDERS.filter((order) => order.status === "Completed")
+      : ORDERS;
 
   function goToSection(name) {
     setSection(name);
@@ -897,8 +909,7 @@ function GovernmentPage({ user, onNavigate }) {
                 <tr>
                   <th>Product</th>
                   <th>Category</th>
-                  <th>Farmer</th>
-                  <th>Region</th>
+                  <th>Top Region to Sell</th>
                   <th>Price</th>
                   <th>Stock</th>
                   <th>Sold</th>
@@ -918,7 +929,7 @@ function GovernmentPage({ user, onNavigate }) {
                     </td>
 
                     <td>{product.category}</td>
-                    <td>{product.farmer}</td>
+                    <td>{TOP_SELLING_REGION}</td>
                     <td>{product.region}</td>
                     <td>₹{product.price}</td>
                     <td>{product.stock}</td>
@@ -982,6 +993,29 @@ function GovernmentPage({ user, onNavigate }) {
           </div>
         </div>
 
+        <div className="gov-filter-tabs">
+          <button
+            className={orderStatus === "all" ? "active" : ""}
+            onClick={() => setOrderStatus("all")}
+          >
+            All Orders
+          </button>
+
+          <button
+            className={orderStatus === "pending" ? "active" : ""}
+            onClick={() => setOrderStatus("pending")}
+          >
+            Pending
+          </button>
+
+          <button
+            className={orderStatus === "completed" ? "active" : ""}
+            onClick={() => setOrderStatus("completed")}
+          >
+            Complete Orders
+          </button>
+        </div>
+
         <div className="gov-card">
           <div className="gov-table-wrap">
             <table className="gov-table">
@@ -999,7 +1033,7 @@ function GovernmentPage({ user, onNavigate }) {
               </thead>
 
               <tbody>
-                {ORDERS.map((order) => (
+                {filteredOrders.map((order) => (
                   <tr key={order.id}>
                     <td>
                       <strong>{order.id}</strong>
@@ -1134,8 +1168,7 @@ function GovernmentPage({ user, onNavigate }) {
             <table className="gov-table">
               <thead>
                 <tr>
-                  <th>Farmer</th>
-                  <th>Region</th>
+                  <th>Top Region to Sell</th>
                   <th>Products</th>
                   <th>Orders</th>
                   <th>Total Sales</th>
@@ -1234,7 +1267,7 @@ function GovernmentPage({ user, onNavigate }) {
               <table className="gov-table">
                 <thead>
                   <tr>
-                    <th>Farmer</th>
+                    <th>Top Region to Sell</th>
                     <th>Region</th>
                     <th>District</th>
                     <th>Products</th>
@@ -1437,7 +1470,7 @@ function GovernmentPage({ user, onNavigate }) {
               <div>
                 <h2>🌾 Agricultural Product Report</h2>
                 <p>
-                  Product category, availability and revenue report
+                  Product category, availability, top selling region and revenue report
                 </p>
               </div>
             </div>
@@ -1448,7 +1481,7 @@ function GovernmentPage({ user, onNavigate }) {
                   <tr>
                     <th>Product</th>
                     <th>Category</th>
-                    <th>Farmer</th>
+                    <th>Top Region to Sell</th>
                     <th>Region</th>
                     <th>Price</th>
                     <th>Stock</th>
@@ -1464,8 +1497,7 @@ function GovernmentPage({ user, onNavigate }) {
                         {product.emoji} {product.name}
                       </td>
                       <td>{product.category}</td>
-                      <td>{product.farmer}</td>
-                      <td>{product.region}</td>
+                      <td>{TOP_SELLING_REGION}</td>
                       <td>₹{product.price}</td>
                       <td>{product.stock}</td>
                       <td>{product.sold}</td>
@@ -1515,12 +1547,12 @@ function GovernmentPage({ user, onNavigate }) {
 
         <div className="government-brand">
           <span className="government-brand-icon">
-            🌾
+            <img src="/LESS.WEBP" alt="Kisaan Connect logo" />
           </span>
 
           <div>
             <strong>
-              Kisaan <em>Bazar</em>
+              Kisaan <em>Connect</em>
             </strong>
 
             <small>Government Panel</small>
@@ -1705,7 +1737,7 @@ function GovernmentPage({ user, onNavigate }) {
 
       <footer className="government-footer">
         <span>
-          Kisaan Bazar • Government Panel
+          Kisaan Connect • Government Panel
         </span>
 
         <span>

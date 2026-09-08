@@ -93,6 +93,7 @@ const PRODUCTS = [
     name: "Tomatoes",
     category: "Vegetables",
     farmer: "Ramesh Kumar",
+    region: "West Bengal",
     price: 30,
     stock: 20,
     sold: 42,
@@ -104,6 +105,7 @@ const PRODUCTS = [
     name: "Mangoes",
     category: "Fruits",
     farmer: "Sita Ram",
+    region: "Bihar",
     price: 80,
     stock: 5,
     sold: 28,
@@ -115,6 +117,7 @@ const PRODUCTS = [
     name: "Milk",
     category: "Dairy",
     farmer: "Mohan Lal",
+    region: "Uttar Pradesh",
     price: 50,
     stock: 15,
     sold: 24,
@@ -126,6 +129,7 @@ const PRODUCTS = [
     name: "Spinach",
     category: "Vegetables",
     farmer: "Sunita Devi",
+    region: "Jharkhand",
     price: 20,
     stock: 8,
     sold: 18,
@@ -137,6 +141,7 @@ const PRODUCTS = [
     name: "Bananas",
     category: "Fruits",
     farmer: "Hari Singh",
+    region: "Punjab",
     price: 40,
     stock: 3,
     sold: 16,
@@ -148,6 +153,7 @@ const PRODUCTS = [
     name: "Wheat",
     category: "Grains",
     farmer: "Ramesh Kumar",
+    region: "West Bengal",
     price: 25,
     stock: 0,
     sold: 12,
@@ -207,12 +213,28 @@ const ORDERS = [
     status: "New Order",
     date: "2 days ago",
   },
+ ];
+
+// Regional Agriculture Report data is referenced from the Government page.
+const REGIONAL_DATA = [
+  { region: "West Bengal", farmers: 32, fpos: 5, products: 148, orders: 620, sales: 480000 },
+  { region: "Bihar", farmers: 26, fpos: 4, products: 112, orders: 510, sales: 390000 },
+  { region: "Uttar Pradesh", farmers: 24, fpos: 3, products: 105, orders: 470, sales: 350000 },
+  { region: "Jharkhand", farmers: 18, fpos: 3, products: 82, orders: 390, sales: 280000 },
+  { region: "Punjab", farmers: 20, fpos: 3, products: 93, orders: 490, sales: 350000 },
 ];
+
+const TOP_SELLING_REGION = [...REGIONAL_DATA].sort(
+  (a, b) => b.sales - a.sales
+)[0]?.region || "N/A";
 
 function AdminPage({ onNavigate, user }) {
   const [section, setSection] = useState("dashboard");
   const [reportType, setReportType] = useState("farmer");
   const [userType, setUserType] = useState("all");
+  const [orderStatus, setOrderStatus] = useState("all");
+  const [salesPeriod, setSalesPeriod] = useState("month");
+  const [profileOpen, setProfileOpen] = useState(false);
 
   const totalFarmers = FARMERS.length;
   const totalConsumers = CONSUMERS.length;
@@ -239,6 +261,128 @@ function AdminPage({ onNavigate, user }) {
       product.status === "Out of Stock"
   );
 
+  const salesData = {
+    month: {
+      label: "This Month",
+      revenue: 78240,
+      orders: 184,
+      average: 425,
+      growth: "↑ 22% this month",
+      bars: [18, 25, 20, 29, 34, 39, 32, 30, 42, 35, 44, 50],
+    },
+    year: {
+      label: "This Year",
+      revenue: 684920,
+      orders: 1840,
+      average: 372,
+      growth: "↑ 31% this year",
+      bars: [38, 42, 48, 45, 52, 58, 61, 66, 70, 76, 82, 90],
+    },
+  };
+
+  function renderSales() {
+    const stats = salesData[salesPeriod];
+
+    return (
+      <>
+        <div className="admin-title-row">
+          <div>
+            <h1>₹ Sales</h1>
+            <p>Sales statistics and revenue performance</p>
+          </div>
+          <div className="sales-period-toggle">
+            <button className={salesPeriod === "month" ? "active" : ""} onClick={() => setSalesPeriod("month")}>Month</button>
+            <button className={salesPeriod === "year" ? "active" : ""} onClick={() => setSalesPeriod("year")}>Year</button>
+          </div>
+        </div>
+
+        <div className="admin-stats sales-stats">
+          <div className="admin-stat-card">
+            <div className="stat-icon green">₹</div>
+            <div>
+              <span>Total Revenue</span>
+              <strong>₹{stats.revenue.toLocaleString()}</strong>
+              <small>{stats.growth}</small>
+            </div>
+          </div>
+          <div className="admin-stat-card">
+            <div className="stat-icon gold">📦</div>
+            <div>
+              <span>Total Sales Orders</span>
+              <strong>{stats.orders.toLocaleString()}</strong>
+              <small>Completed orders</small>
+            </div>
+          </div>
+          <div className="admin-stat-card">
+            <div className="stat-icon green">↗</div>
+            <div>
+              <span>Average Order Value</span>
+              <strong>₹{stats.average.toLocaleString()}</strong>
+              <small>{stats.label}</small>
+            </div>
+          </div>
+        </div>
+
+        <div className="admin-card sales-detail-card">
+          <div className="card-heading">
+            <div>
+              <h2>📊 {stats.label} Sales Statistics</h2>
+              <p>Revenue trend for the selected period</p>
+            </div>
+          </div>
+          <div className="bar-chart sales-page-chart">
+            {stats.bars.map((height, index) => {
+              const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+              return (
+                <div className="bar-column" key={months[index]}>
+                  <span>₹{height}k</span>
+                  <div className="bar" style={{ height: `${height * 3.2}px` }} />
+                  <small>{months[index]}</small>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </>
+    );
+  }
+
+  function renderLowStock() {
+    return (
+      <>
+        <div className="admin-title-row">
+          <div>
+            <h1>⚠️ Low Stock Products</h1>
+            <p>Only products that need stock attention</p>
+          </div>
+        </div>
+        <div className="admin-card">
+          <div className="table-wrap">
+            <table className="admin-table">
+              <thead>
+                <tr>
+                  <th>Product</th><th>Category</th><th>Top Region to Sell</th><th>Price</th><th>Stock</th><th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {lowStockProducts.map((product) => (
+                  <tr key={product.id}>
+                    <td><div className="table-product"><span>{product.emoji}</span><strong>{product.name}</strong></div></td>
+                    <td>{product.category}</td>
+                    <td>{TOP_SELLING_REGION}</td>
+                    <td>₹{product.price}/kg</td>
+                    <td>{product.stock}</td>
+                    <td><span className={product.stock === 0 ? "status out" : "status low"}>{product.status}</span></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </>
+    );
+  }
+
   function renderDashboard() {
     return (
       <>
@@ -246,7 +390,7 @@ function AdminPage({ onNavigate, user }) {
           <div>
             <h1>Admin Dashboard</h1>
             <p>
-              Complete overview of your Kisaan Bazar marketplace
+              Complete overview of your Kisaan Connect marketplace
             </p>
           </div>
 
@@ -260,7 +404,10 @@ function AdminPage({ onNavigate, user }) {
 
         <div className="admin-stats">
 
-          <div className="admin-stat-card">
+          <div
+            className="admin-stat-card clickable-stat"
+            onClick={() => setSection("users")}
+          >
             <div className="stat-icon green">
               👥
             </div>
@@ -272,7 +419,10 @@ function AdminPage({ onNavigate, user }) {
             </div>
           </div>
 
-          <div className="admin-stat-card">
+          <div
+            className="admin-stat-card clickable-stat"
+            onClick={() => setSection("users")}
+          >
             <div className="stat-icon green">
               👨‍🌾
             </div>
@@ -284,7 +434,10 @@ function AdminPage({ onNavigate, user }) {
             </div>
           </div>
 
-          <div className="admin-stat-card">
+          <div
+            className="admin-stat-card clickable-stat"
+            onClick={() => setSection("users")}
+          >
             <div className="stat-icon gold">
               🧑
             </div>
@@ -296,7 +449,10 @@ function AdminPage({ onNavigate, user }) {
             </div>
           </div>
 
-          <div className="admin-stat-card">
+          <div
+            className="admin-stat-card clickable-stat"
+            onClick={() => setSection("lowstock")}
+          >
             <div className="stat-icon green">
               🌾
             </div>
@@ -308,7 +464,10 @@ function AdminPage({ onNavigate, user }) {
             </div>
           </div>
 
-          <div className="admin-stat-card">
+          <div
+            className="admin-stat-card clickable-stat"
+            onClick={() => setSection("orders")}
+          >
             <div className="stat-icon gold">
               📦
             </div>
@@ -320,7 +479,10 @@ function AdminPage({ onNavigate, user }) {
             </div>
           </div>
 
-          <div className="admin-stat-card">
+          <div
+            className="admin-stat-card clickable-stat"
+            onClick={() => setSection("sales")}
+          >
             <div className="stat-icon green">
               ₹
             </div>
@@ -332,6 +494,34 @@ function AdminPage({ onNavigate, user }) {
             </div>
           </div>
 
+        </div>
+
+        {/* AGRICULTURE REPORT CARDS */}
+
+        <div className="admin-stats">
+          <div
+            className="admin-stat-card clickable-stat"
+            onClick={() => { setSection("reports"); setReportType("regional"); }}
+          >
+            <div className="stat-icon green">📍</div>
+            <div>
+              <span>Regional Agriculture Report</span>
+              <strong>{REGIONAL_DATA.length} Regions</strong>
+              <small>View regional report →</small>
+            </div>
+          </div>
+
+          <div
+            className="admin-stat-card clickable-stat"
+            onClick={() => { setSection("reports"); setReportType("product"); }}
+          >
+            <div className="stat-icon gold">🌾</div>
+            <div>
+              <span>Agriculture Product Report</span>
+              <strong>{totalProducts} Products</strong>
+              <small>View product report →</small>
+            </div>
+          </div>
         </div>
 
         {/* MAIN DASHBOARD GRID */}
@@ -348,7 +538,7 @@ function AdminPage({ onNavigate, user }) {
                 <p>Revenue & order trends</p>
               </div>
 
-              <button>Month ▾</button>
+              <button onClick={() => setSection("sales")}>View Sales →</button>
             </div>
 
             <div className="bar-chart">
@@ -446,6 +636,9 @@ function AdminPage({ onNavigate, user }) {
                 <h2>⏰ Pending Orders</h2>
                 <p>Orders that need attention</p>
               </div>
+              <button className="view-btn" onClick={() => { setOrderStatus("pending"); setSection("orders"); }}>
+                View All →
+              </button>
             </div>
 
             <div className="pending-list">
@@ -875,7 +1068,7 @@ function AdminPage({ onNavigate, user }) {
                 <tr>
                   <th>Product</th>
                   <th>Category</th>
-                  <th>Farmer</th>
+                  <th>Top Region to Sell</th>
                   <th>Price</th>
                   <th>Stock</th>
                   <th>Sold</th>
@@ -905,7 +1098,7 @@ function AdminPage({ onNavigate, user }) {
 
                     <td>{product.category}</td>
 
-                    <td>{product.farmer}</td>
+                    <td>{TOP_SELLING_REGION}</td>
 
                     <td>
                       ₹{product.price}/kg
@@ -958,6 +1151,15 @@ function AdminPage({ onNavigate, user }) {
               Monitor all marketplace orders
             </p>
           </div>
+        </div>
+
+        <div className="order-filter-row">
+          <label htmlFor="order-status-filter">Status</label>
+          <select id="order-status-filter" value={orderStatus} onChange={(e) => setOrderStatus(e.target.value)}>
+            <option value="all">All Orders</option>
+            <option value="pending">Pending</option>
+            <option value="completed">Completed</option>
+          </select>
         </div>
 
         <div className="admin-stats order-mini-stats">
@@ -1027,7 +1229,9 @@ function AdminPage({ onNavigate, user }) {
 
               <tbody>
 
-                {ORDERS.map((order) => (
+                {ORDERS
+                  .filter((order) => orderStatus === "all" || (orderStatus === "pending" ? order.status === "New Order" : order.status === "Completed"))
+                  .map((order) => (
 
                   <tr key={order.id}>
 
@@ -1091,220 +1295,151 @@ function AdminPage({ onNavigate, user }) {
     return (
       <>
         <div className="admin-title-row">
-
           <div>
             <h1>📊 Reports</h1>
-            <p>
-              Detailed marketplace performance reports
-            </p>
+            <p>Detailed marketplace and agriculture performance reports</p>
           </div>
-
         </div>
 
         <div className="report-tabs">
-
-          <button
-            className={
-              reportType === "farmer"
-                ? "active"
-                : ""
-            }
-            onClick={() =>
-              setReportType("farmer")
-            }
-          >
+          <button className={reportType === "farmer" ? "active" : ""} onClick={() => setReportType("farmer")}>
             👨‍🌾 Farmer Report
           </button>
-
-          <button
-            className={
-              reportType === "consumer"
-                ? "active"
-                : ""
-            }
-            onClick={() =>
-              setReportType("consumer")
-            }
-          >
+          <button className={reportType === "consumer" ? "active" : ""} onClick={() => setReportType("consumer")}>
             🧑 Consumer Report
           </button>
-
+          <button className={reportType === "regional" ? "active" : ""} onClick={() => setReportType("regional")}>
+            📍 Regional Agriculture Report
+          </button>
+          <button className={reportType === "product" ? "active" : ""} onClick={() => setReportType("product")}>
+            🌾 Agriculture Product Report
+          </button>
         </div>
 
-        {reportType === "farmer" ? (
-
+        {reportType === "farmer" && (
           <div className="admin-card report-card">
-
             <div className="card-heading">
               <div>
-                <h2>
-                  👨‍🌾 Farmer Performance Report
-                </h2>
-
-                <p>
-                  Sales and product performance of farmers
-                </p>
+                <h2>👨‍🌾 Farmer Performance Report</h2>
+                <p>Sales and product performance of farmers</p>
               </div>
             </div>
-
             <div className="table-wrap">
-
               <table className="admin-table">
-
-                <thead>
-                  <tr>
-                    <th>Farmer</th>
-                    <th>Region</th>
-                    <th>Products</th>
-                    <th>Total Sales</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-
+                <thead><tr><th>Farmer</th><th>Region</th><th>Products</th><th>Total Sales</th><th>Status</th></tr></thead>
                 <tbody>
-
                   {FARMERS.map((farmer) => (
-
                     <tr key={farmer.id}>
-
-                      <td>
-                        <strong>
-                          {farmer.name}
-                        </strong>
-                      </td>
-
-                      <td>
-                        {farmer.location}
-                      </td>
-
-                      <td>
-                        {farmer.products}
-                      </td>
-
-                      <td>
-                        ₹
-                        {farmer.sales.toLocaleString()}
-                      </td>
-
-                      <td>
-                        <span className="status completed">
-                          {farmer.status}
-                        </span>
-                      </td>
-
+                      <td><strong>{farmer.name}</strong></td>
+                      <td>{farmer.location}</td>
+                      <td>{farmer.products}</td>
+                      <td>₹{farmer.sales.toLocaleString()}</td>
+                      <td><span className="status completed">{farmer.status}</span></td>
                     </tr>
-
                   ))}
-
                 </tbody>
-
               </table>
-
             </div>
-
           </div>
-
-        ) : (
-
-          <div className="admin-card report-card">
-
-            <div className="card-heading">
-              <div>
-                <h2>
-                  🧑 Consumer Purchase Report
-                </h2>
-
-                <p>
-                  Consumer orders and purchase activity
-                </p>
-              </div>
-            </div>
-
-            <div className="table-wrap">
-
-              <table className="admin-table">
-
-                <thead>
-                  <tr>
-                    <th>Consumer</th>
-                    <th>Email</th>
-                    <th>Total Orders</th>
-                    <th>Total Spent</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-
-                <tbody>
-
-                  {CONSUMERS.map((consumer) => (
-
-                    <tr key={consumer.id}>
-
-                      <td>
-                        <strong>
-                          {consumer.name}
-                        </strong>
-                      </td>
-
-                      <td>
-                        {consumer.email}
-                      </td>
-
-                      <td>
-                        {consumer.orders}
-                      </td>
-
-                      <td>
-                        ₹
-                        {consumer.spent.toLocaleString()}
-                      </td>
-
-                      <td>
-                        <span className="status completed">
-                          {consumer.status}
-                        </span>
-                      </td>
-
-                    </tr>
-
-                  ))}
-
-                </tbody>
-
-              </table>
-
-            </div>
-
-          </div>
-
         )}
 
-        {/* REPORT SUMMARY */}
+        {reportType === "consumer" && (
+          <div className="admin-card report-card">
+            <div className="card-heading">
+              <div>
+                <h2>🧑 Consumer Purchase Report</h2>
+                <p>Consumer orders and purchase activity</p>
+              </div>
+            </div>
+            <div className="table-wrap">
+              <table className="admin-table">
+                <thead><tr><th>Consumer</th><th>Email</th><th>Total Orders</th><th>Total Spent</th><th>Status</th></tr></thead>
+                <tbody>
+                  {CONSUMERS.map((consumer) => (
+                    <tr key={consumer.id}>
+                      <td><strong>{consumer.name}</strong></td>
+                      <td>{consumer.email}</td>
+                      <td>{consumer.orders}</td>
+                      <td>₹{consumer.spent.toLocaleString()}</td>
+                      <td><span className="status completed">{consumer.status}</span></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {reportType === "regional" && (
+          <div className="admin-card report-card">
+            <div className="card-heading">
+              <div>
+                <h2>📍 Regional Agriculture Report</h2>
+                <p>Regional farmers, FPOs, products, orders and total sales</p>
+              </div>
+              <div className="report-highlight">
+                <span>Top Region to Sell</span>
+                <strong>{TOP_SELLING_REGION}</strong>
+              </div>
+            </div>
+            <div className="table-wrap">
+              <table className="admin-table">
+                <thead>
+                  <tr><th>Region</th><th>Farmers</th><th>FPOs</th><th>Products</th><th>Orders</th><th>Total Sales</th></tr>
+                </thead>
+                <tbody>
+                  {REGIONAL_DATA.map((region) => (
+                    <tr key={region.region}>
+                      <td><strong>{region.region}</strong></td>
+                      <td>{region.farmers}</td>
+                      <td>{region.fpos}</td>
+                      <td>{region.products}</td>
+                      <td>{region.orders}</td>
+                      <td>₹{region.sales.toLocaleString()}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {reportType === "product" && (
+          <div className="admin-card report-card">
+            <div className="card-heading">
+              <div>
+                <h2>🌾 Agriculture Product Report</h2>
+                <p>Product category, availability, top selling region and revenue report</p>
+              </div>
+            </div>
+            <div className="table-wrap">
+              <table className="admin-table">
+                <thead>
+                  <tr><th>Product</th><th>Category</th><th>Top Region to Sell</th><th>Price</th><th>Stock</th><th>Sold</th><th>Revenue</th></tr>
+                </thead>
+                <tbody>
+                  {PRODUCTS.map((product) => (
+                    <tr key={product.id}>
+                      <td>{product.emoji} {product.name}</td>
+                      <td>{product.category}</td>
+                      <td><strong>{TOP_SELLING_REGION}</strong></td>
+                      <td>₹{product.price}/kg</td>
+                      <td>{product.stock}</td>
+                      <td>{product.sold}</td>
+                      <td>₹{(product.price * product.sold).toLocaleString()}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
 
         <div className="report-summary">
-
-          <div>
-            <span>Total Farmers</span>
-            <strong>{totalFarmers}</strong>
-          </div>
-
-          <div>
-            <span>Total Consumers</span>
-            <strong>{totalConsumers}</strong>
-          </div>
-
-          <div>
-            <span>Total Products</span>
-            <strong>{totalProducts}</strong>
-          </div>
-
-          <div>
-            <span>Completed Sales</span>
-            <strong>
-              ₹{totalSales.toLocaleString()}
-            </strong>
-          </div>
-
+          <div><span>Total Farmers</span><strong>{totalFarmers}</strong></div>
+          <div><span>Total Consumers</span><strong>{totalConsumers}</strong></div>
+          <div><span>Total Products</span><strong>{totalProducts}</strong></div>
+          <div><span>Completed Sales</span><strong>₹{totalSales.toLocaleString()}</strong></div>
         </div>
       </>
     );
@@ -1328,7 +1463,10 @@ function AdminPage({ onNavigate, user }) {
         return renderReports();
 
       case "sales":
-        return renderDashboard();
+        return renderSales();
+
+      case "lowstock":
+        return renderLowStock();
 
       default:
         return renderDashboard();
@@ -1344,12 +1482,12 @@ function AdminPage({ onNavigate, user }) {
 
         <div className="admin-brand">
           <span className="brand-icon">
-            🌾
+            <img src="/LESS.WEBP" alt="Kisaan Connect logo" />
           </span>
 
           <div>
             <strong>
-              Kisaan <em>Bazar</em>
+              Kisaan <em>Connect</em>
             </strong>
 
             <small>Admin Panel</small>
@@ -1358,18 +1496,23 @@ function AdminPage({ onNavigate, user }) {
 
      <div className="admin-header-right">
 
-  <span className="notification">
-    🔔
-  </span>
-
-  <div className="admin-user">
+  <button className="admin-user admin-profile-trigger" onClick={() => setProfileOpen((open) => !open)}>
     <div className="admin-avatar">
-      A
+      {(user?.name || "Admin").charAt(0).toUpperCase()}
     </div>
-
-    <span>Admin</span>
+    <span>{user?.name || "Admin"}</span>
     <span>⌄</span>
-  </div>
+  </button>
+
+  {profileOpen && (
+    <div className="admin-profile-card">
+      <div className="admin-profile-avatar">
+        {(user?.name || "Admin").charAt(0).toUpperCase()}
+      </div>
+      <strong>{user?.name || "Admin"}</strong>
+      <span>{user?.email || "admin@kisaanconnect.com"}</span>
+    </div>
+  )}
 
   <button
     className="admin-logout-btn"
@@ -1479,11 +1622,6 @@ function AdminPage({ onNavigate, user }) {
               </span>
             </button>
 
-            <button>
-              <span>⚙️</span>
-              Settings
-            </button>
-
           </div>
 
           {/* SIDEBAR BOTTOM */}
@@ -1518,7 +1656,7 @@ function AdminPage({ onNavigate, user }) {
 
       <footer className="admin-footer">
         <span>
-          Kisaan Bazar • Admin Panel
+          Kisaan Connect • Admin Panel
         </span>
 
         <span>

@@ -1207,3 +1207,87 @@
   color: #2f2a1e;
   transform: translateY(-1px);
 }
+.brand-icon {
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.brand-icon img {
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+  display: block;
+  border-radius: 8px;
+}
+.clickable-stat { cursor: pointer; transition: 0.2s ease; }
+.clickable-stat:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(68,78,54,0.10); }
+.sales-period-toggle {
+  display: flex; gap: 4px; padding: 4px; background: #fffdf7;
+  border: 1px solid #ded5c1; border-radius: 10px;
+}
+.sales-period-toggle button {
+  border: none; background: transparent; color: #647057; border-radius: 7px;
+  padding: 8px 14px; font-size: 12px; font-weight: 700; cursor: pointer;
+}
+.sales-period-toggle button.active { background: #4a5d3a; color: white; }
+.sales-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.sales-detail-card { min-height: 390px; }
+.sales-page-chart { height: 280px; }
+.order-filter-row {
+  display: flex; align-items: center; justify-content: flex-end; gap: 9px; margin-bottom: 15px;
+}
+.order-filter-row label { color: #746d5e; font-size: 12px; font-weight: 700; }
+.order-filter-row select {
+  border: 1px solid #ded5c1; background: #fffdf7; color: #50613f;
+  border-radius: 8px; padding: 8px 12px; font-size: 12px; font-weight: 600; cursor: pointer;
+}
+.admin-profile-trigger { border: none; background: transparent; cursor: pointer; padding: 3px 5px; }
+.admin-profile-trigger:hover { background: #f5f0e4; border-radius: 9px; }
+.admin-profile-card {
+  position: absolute; top: 65px; right: 105px; z-index: 20; min-width: 220px;
+  background: #fffdf7; border: 1px solid #ded5c1; border-radius: 12px;
+  padding: 15px; box-shadow: 0 12px 30px rgba(48,58,43,0.14);
+  display: flex; flex-direction: column; align-items: center; gap: 5px;
+}
+.admin-profile-card strong { color: #304628; font-size: 14px; }
+.admin-profile-card > span { color: #817661; font-size: 11px; }
+.admin-profile-avatar {
+  width: 42px; height: 42px; border-radius: 50%; background: #4a5d3a; color: white;
+  display: flex; align-items: center; justify-content: center; font-weight: 700; margin-bottom: 3px;
+}
+@media (max-width: 850px) {
+  .sales-stats { grid-template-columns: 1fr; }
+  .admin-profile-card { right: 20px; }
+}
+
+
+/* Agriculture report additions */
+.report-highlight {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+  padding: 10px 14px;
+  border: 1px solid #ded5c1;
+  border-radius: 10px;
+  background: #fffdf7;
+}
+
+.report-highlight span {
+  font-size: 11px;
+  color: #7a806f;
+}
+
+.report-highlight strong {
+  color: #4c6c3b;
+  font-size: 15px;
+}
+
+@media (max-width: 700px) {
+  .report-highlight {
+    align-items: flex-start;
+  }
+}

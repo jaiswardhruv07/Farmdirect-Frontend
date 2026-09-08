@@ -561,7 +561,7 @@ export default function FarmerDashboard({ farmer, onNavigate }) {
         <header className="kb-nav">
 
           <div className="kb-logo">
-            🌾 Kisaan<em>Bazar</em>
+            <img className="kb-logo-image" src="/LESS.WEBP" alt="Kisaan Connect logo" /> <span>Kisaan<em>Connect</em></span>
           </div>
 
           <nav className="kb-nav-links">

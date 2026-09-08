@@ -1323,11 +1323,13 @@ function FPOPage({ user, onNavigate }) {
 
       <header className="fpo-header">
         <div className="fpo-brand">
-          <div className="fpo-brand-icon">🌾</div>
+          <div className="fpo-brand-icon">
+  <img src="/LESS.WEBP" alt="Kisaan Connect logo" />
+</div>
 
           <div>
             <strong>
-              Kisaan <em>Bazar</em>
+              Kisaan <em>Connect</em>
             </strong>
 
             <small>FPO Panel</small>
@@ -1402,7 +1404,7 @@ function FPOPage({ user, onNavigate }) {
 
       <div className="fpo-profile-info-row">
         <span>Organisation</span>
-        <strong>Kisaan Bazar FPO</strong>
+        <strong>Kisaan Connect FPO</strong>
       </div>
 
       <div className="fpo-profile-info-row">
@@ -1453,7 +1455,7 @@ function FPOPage({ user, onNavigate }) {
 
               <div className="fpo-profile-info-row">
                 <span>Organisation</span>
-                <strong>Kisaan Bazar FPO</strong>
+                <strong>Kisaan Connect FPO</strong>
               </div>
 
               <div className="fpo-profile-info-row">
@@ -1580,7 +1582,7 @@ function FPOPage({ user, onNavigate }) {
 
       <footer className="fpo-footer">
         <span>
-          © 2026 Kisaan Bazar • FPO Management Panel
+          © 2026 Kisaan Connect • FPO Management Panel
         </span>
 
         <span>
