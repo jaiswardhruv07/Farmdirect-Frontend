@@ -1,5 +1,6 @@
 import { useState } from "react";
 import "./fpo.css";
+import { useAuth } from "../../context/AuthContext";
 
 /* ================= FARMER DATA ================= */
 
@@ -12,7 +13,7 @@ const FARMERS = [
     products: 8,
     orders: 42,
     sales: 48200,
-    status: "Active",
+    status: "Active"
   },
   {
     id: "F002",
@@ -22,7 +23,7 @@ const FARMERS = [
     products: 6,
     orders: 28,
     sales: 32450,
-    status: "Active",
+    status: "Active"
   },
   {
     id: "F003",
@@ -32,7 +33,7 @@ const FARMERS = [
     products: 5,
     orders: 24,
     sales: 28760,
-    status: "Active",
+    status: "Active"
   },
   {
     id: "F004",
@@ -42,7 +43,7 @@ const FARMERS = [
     products: 4,
     orders: 18,
     sales: 18320,
-    status: "Active",
+    status: "Active"
   },
   {
     id: "F005",
@@ -52,8 +53,8 @@ const FARMERS = [
     products: 7,
     orders: 16,
     sales: 12680,
-    status: "Inactive",
-  },
+    status: "Inactive"
+  }
 ];
 
 /* ================= PRODUCT DATA ================= */
@@ -73,13 +74,13 @@ const PRODUCTS = [
     farmers: [
       { name: "Ramesh Kumar", quantity: "420 kg", rating: 4.8 },
       { name: "Sita Ram", quantity: "310 kg", rating: 4.6 },
-      { name: "Mohan Lal", quantity: "285 kg", rating: 4.5 },
+      { name: "Mohan Lal", quantity: "285 kg", rating: 4.5 }
     ],
     regionalPerformance: [
       { region: "West Bengal", sold: "420 kg", revenue: "₹17,640" },
       { region: "Bihar", sold: "310 kg", revenue: "₹13,020" },
-      { region: "Uttar Pradesh", sold: "285 kg", revenue: "₹11,970" },
-    ],
+      { region: "Uttar Pradesh", sold: "285 kg", revenue: "₹11,970" }
+    ]
   },
   {
     id: "P002",
@@ -95,13 +96,13 @@ const PRODUCTS = [
     farmers: [
       { name: "Ramesh Kumar", quantity: "360 kg", rating: 4.9 },
       { name: "Mohan Lal", quantity: "280 kg", rating: 4.7 },
-      { name: "Sita Ram", quantity: "190 kg", rating: 4.5 },
+      { name: "Sita Ram", quantity: "190 kg", rating: 4.5 }
     ],
     regionalPerformance: [
       { region: "West Bengal", sold: "360 kg", revenue: "₹30,600" },
       { region: "Uttar Pradesh", sold: "280 kg", revenue: "₹23,800" },
-      { region: "Bihar", sold: "190 kg", revenue: "₹16,150" },
-    ],
+      { region: "Bihar", sold: "190 kg", revenue: "₹16,150" }
+    ]
   },
   {
     id: "P003",
@@ -117,13 +118,13 @@ const PRODUCTS = [
     farmers: [
       { name: "Hari Singh", quantity: "520 L", rating: 4.8 },
       { name: "Sunita Devi", quantity: "410 L", rating: 4.6 },
-      { name: "Ramesh Kumar", quantity: "350 L", rating: 4.5 },
+      { name: "Ramesh Kumar", quantity: "350 L", rating: 4.5 }
     ],
     regionalPerformance: [
       { region: "Punjab", sold: "520 L", revenue: "₹30,160" },
       { region: "Jharkhand", sold: "410 L", revenue: "₹23,780" },
-      { region: "West Bengal", sold: "350 L", revenue: "₹20,300" },
-    ],
+      { region: "West Bengal", sold: "350 L", revenue: "₹20,300" }
+    ]
   },
   {
     id: "P004",
@@ -139,13 +140,13 @@ const PRODUCTS = [
     farmers: [
       { name: "Sita Ram", quantity: "280 kg", rating: 4.7 },
       { name: "Sunita Devi", quantity: "190 kg", rating: 4.5 },
-      { name: "Mohan Lal", quantity: "150 kg", rating: 4.4 },
+      { name: "Mohan Lal", quantity: "150 kg", rating: 4.4 }
     ],
     regionalPerformance: [
       { region: "Bihar", sold: "280 kg", revenue: "₹8,960" },
       { region: "Jharkhand", sold: "190 kg", revenue: "₹6,080" },
-      { region: "Uttar Pradesh", sold: "150 kg", revenue: "₹4,800" },
-    ],
+      { region: "Uttar Pradesh", sold: "150 kg", revenue: "₹4,800" }
+    ]
   },
   {
     id: "P005",
@@ -161,13 +162,13 @@ const PRODUCTS = [
     farmers: [
       { name: "Sita Ram", quantity: "390 kg", rating: 4.6 },
       { name: "Ramesh Kumar", quantity: "320 kg", rating: 4.5 },
-      { name: "Sunita Devi", quantity: "240 kg", rating: 4.4 },
+      { name: "Sunita Devi", quantity: "240 kg", rating: 4.4 }
     ],
     regionalPerformance: [
       { region: "Bihar", sold: "390 kg", revenue: "₹18,720" },
       { region: "West Bengal", sold: "320 kg", revenue: "₹15,360" },
-      { region: "Jharkhand", sold: "240 kg", revenue: "₹11,520" },
-    ],
+      { region: "Jharkhand", sold: "240 kg", revenue: "₹11,520" }
+    ]
   },
   {
     id: "P006",
@@ -183,14 +184,14 @@ const PRODUCTS = [
     farmers: [
       { name: "Hari Singh", quantity: "720 kg", rating: 4.9 },
       { name: "Mohan Lal", quantity: "510 kg", rating: 4.7 },
-      { name: "Sita Ram", quantity: "420 kg", rating: 4.6 },
+      { name: "Sita Ram", quantity: "420 kg", rating: 4.6 }
     ],
     regionalPerformance: [
       { region: "Punjab", sold: "720 kg", revenue: "₹27,360" },
       { region: "Uttar Pradesh", sold: "510 kg", revenue: "₹19,380" },
-      { region: "Bihar", sold: "420 kg", revenue: "₹15,960" },
-    ],
-  },
+      { region: "Bihar", sold: "420 kg", revenue: "₹15,960" }
+    ]
+  }
 ];
 
 /* ================= ORDER DATA ================= */
@@ -203,7 +204,7 @@ const ORDERS = [
     quantity: "40 kg",
     amount: 1680,
     status: "Completed",
-    date: "06 Sep 2026",
+    date: "06 Sep 2026"
   },
   {
     id: "#FPO-008",
@@ -212,7 +213,7 @@ const ORDERS = [
     quantity: "25 kg",
     amount: 2125,
     status: "Completed",
-    date: "05 Sep 2026",
+    date: "05 Sep 2026"
   },
   {
     id: "#FPO-009",
@@ -221,7 +222,7 @@ const ORDERS = [
     quantity: "60 L",
     amount: 3480,
     status: "New",
-    date: "05 Sep 2026",
+    date: "05 Sep 2026"
   },
   {
     id: "#FPO-010",
@@ -230,7 +231,7 @@ const ORDERS = [
     quantity: "30 kg",
     amount: 960,
     status: "Completed",
-    date: "04 Sep 2026",
+    date: "04 Sep 2026"
   },
   {
     id: "#FPO-011",
@@ -239,8 +240,8 @@ const ORDERS = [
     quantity: "80 kg",
     amount: 3040,
     status: "New",
-    date: "04 Sep 2026",
-  },
+    date: "04 Sep 2026"
+  }
 ];
 
 /* ================= REGIONAL DATA ================= */
@@ -253,7 +254,7 @@ const REGIONS = [
     orders: 520,
     sold: "4,820 kg",
     rating: 4.7,
-    revenue: 428000,
+    revenue: 428000
   },
   {
     region: "Bihar",
@@ -262,7 +263,7 @@ const REGIONS = [
     orders: 430,
     sold: "4,120 kg",
     rating: 4.5,
-    revenue: 356000,
+    revenue: 356000
   },
   {
     region: "Uttar Pradesh",
@@ -271,7 +272,7 @@ const REGIONS = [
     orders: 390,
     sold: "3,760 kg",
     rating: 4.6,
-    revenue: 328000,
+    revenue: 328000
   },
   {
     region: "Jharkhand",
@@ -280,7 +281,7 @@ const REGIONS = [
     orders: 310,
     sold: "2,940 kg",
     rating: 4.4,
-    revenue: 246000,
+    revenue: 246000
   },
   {
     region: "Punjab",
@@ -289,19 +290,18 @@ const REGIONS = [
     orders: 460,
     sold: "4,580 kg",
     rating: 4.8,
-    revenue: 398000,
-  },
+    revenue: 398000
+  }
 ];
 
 /* ================= MONTHLY SALES ================= */
 
-const MONTHLY_SALES = [
-  18, 25, 20, 29, 34, 39, 32, 30, 42, 35, 44, 50,
-];
+const MONTHLY_SALES = [18, 25, 20, 29, 34, 39, 32, 30, 42, 35, 44, 50];
 
 /* ================= COMPONENT ================= */
 
 function FPOPage({ user, onNavigate }) {
+  const { logout } = useAuth();
   const [section, setSection] = useState("dashboard");
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [reportType, setReportType] = useState("farmer");
@@ -319,10 +319,10 @@ function FPOPage({ user, onNavigate }) {
 
   const totalOrders = ORDERS.length;
 
- const navigate = (page) => {
-  setSection(page);
-  setProfileOpen(false);
-};
+  const navigate = (page) => {
+    setSection(page);
+    setProfileOpen(false);
+  };
   /* ================= DASHBOARD ================= */
 
   const renderDashboard = () => (
@@ -342,10 +342,7 @@ function FPOPage({ user, onNavigate }) {
       </div>
 
       <div className="fpo-stats">
-        <button
-          className="fpo-stat-card"
-          onClick={() => navigate("farmers")}
-        >
+        <button className="fpo-stat-card" onClick={() => navigate("farmers")}>
           <div className="fpo-stat-icon green">👨‍🌾</div>
           <div>
             <span>Total Farmers</span>
@@ -362,10 +359,7 @@ function FPOPage({ user, onNavigate }) {
           </div>
         </div>
 
-        <button
-          className="fpo-stat-card"
-          onClick={() => navigate("products")}
-        >
+        <button className="fpo-stat-card" onClick={() => navigate("products")}>
           <div className="fpo-stat-icon green">🌾</div>
           <div>
             <span>Products</span>
@@ -374,10 +368,7 @@ function FPOPage({ user, onNavigate }) {
           </div>
         </button>
 
-        <button
-          className="fpo-stat-card"
-          onClick={() => navigate("orders")}
-        >
+        <button className="fpo-stat-card" onClick={() => navigate("orders")}>
           <div className="fpo-stat-icon gold">📦</div>
           <div>
             <span>Orders</span>
@@ -445,20 +436,22 @@ function FPOPage({ user, onNavigate }) {
                   style={{ height: `${value * 3.2}px` }}
                 ></div>
                 <small>
-                  {[
-                    "Jan",
-                    "Feb",
-                    "Mar",
-                    "Apr",
-                    "May",
-                    "Jun",
-                    "Jul",
-                    "Aug",
-                    "Sep",
-                    "Oct",
-                    "Nov",
-                    "Dec",
-                  ][index]}
+                  {
+                    [
+                      "Jan",
+                      "Feb",
+                      "Mar",
+                      "Apr",
+                      "May",
+                      "Jun",
+                      "Jul",
+                      "Aug",
+                      "Sep",
+                      "Oct",
+                      "Nov",
+                      "Dec"
+                    ][index]
+                  }
                 </small>
               </div>
             ))}
@@ -473,10 +466,7 @@ function FPOPage({ user, onNavigate }) {
             <p>Farmers generating the highest sales</p>
           </div>
 
-          <button
-            className="fpo-view-btn"
-            onClick={() => navigate("farmers")}
-          >
+          <button className="fpo-view-btn" onClick={() => navigate("farmers")}>
             View Farmers
           </button>
         </div>
@@ -569,10 +559,7 @@ function FPOPage({ user, onNavigate }) {
               <p>Latest farmer orders</p>
             </div>
 
-            <button
-              className="fpo-view-btn"
-              onClick={() => navigate("orders")}
-            >
+            <button className="fpo-view-btn" onClick={() => navigate("orders")}>
               View All
             </button>
           </div>
@@ -591,9 +578,7 @@ function FPOPage({ user, onNavigate }) {
 
                   <span
                     className={`fpo-status ${
-                      order.status === "Completed"
-                        ? "completed"
-                        : "new"
+                      order.status === "Completed" ? "completed" : "new"
                     }`}
                   >
                     {order.status}
@@ -684,17 +669,13 @@ function FPOPage({ user, onNavigate }) {
                   <td>{farmer.orders}</td>
 
                   <td>
-                    <strong>
-                      ₹{farmer.sales.toLocaleString()}
-                    </strong>
+                    <strong>₹{farmer.sales.toLocaleString()}</strong>
                   </td>
 
                   <td>
                     <span
                       className={`fpo-status ${
-                        farmer.status === "Active"
-                          ? "completed"
-                          : "low"
+                        farmer.status === "Active" ? "completed" : "low"
                       }`}
                     >
                       {farmer.status}
@@ -795,9 +776,7 @@ function FPOPage({ user, onNavigate }) {
                     <td>{product.sold.toLocaleString()} kg</td>
 
                     <td>
-                      <strong>
-                        ₹{product.revenue.toLocaleString()}
-                      </strong>
+                      <strong>₹{product.revenue.toLocaleString()}</strong>
                     </td>
 
                     <td>{product.topRegion}</td>
@@ -854,9 +833,7 @@ function FPOPage({ user, onNavigate }) {
 
         <div className="fpo-detail-stat">
           <span>Total Revenue</span>
-          <strong>
-            ₹{selectedProduct.revenue.toLocaleString()}
-          </strong>
+          <strong>₹{selectedProduct.revenue.toLocaleString()}</strong>
         </div>
 
         <div className="fpo-detail-stat">
@@ -879,18 +856,14 @@ function FPOPage({ user, onNavigate }) {
               <div className="fpo-top-farmer" key={farmer.name}>
                 <div className="fpo-rank">{index + 1}</div>
 
-                <div className="fpo-performance-avatar">
-                  👨‍🌾
-                </div>
+                <div className="fpo-performance-avatar">👨‍🌾</div>
 
                 <div className="fpo-top-farmer-info">
                   <strong>{farmer.name}</strong>
                   <span>{farmer.quantity} sold</span>
                 </div>
 
-                <div className="fpo-rating">
-                  ⭐ {farmer.rating}
-                </div>
+                <div className="fpo-rating">⭐ {farmer.rating}</div>
               </div>
             ))}
           </div>
@@ -922,7 +895,7 @@ function FPOPage({ user, onNavigate }) {
                   <div
                     className="fpo-rating-fill"
                     style={{
-                      width: `${(farmer.rating / 5) * 100}%`,
+                      width: `${(farmer.rating / 5) * 100}%`
                     }}
                   ></div>
                 </div>
@@ -1040,17 +1013,13 @@ function FPOPage({ user, onNavigate }) {
                   <td>{order.quantity}</td>
 
                   <td>
-                    <strong>
-                      ₹{order.amount.toLocaleString()}
-                    </strong>
+                    <strong>₹{order.amount.toLocaleString()}</strong>
                   </td>
 
                   <td>
                     <span
                       className={`fpo-status ${
-                        order.status === "Completed"
-                          ? "completed"
-                          : "new"
+                        order.status === "Completed" ? "completed" : "new"
                       }`}
                     >
                       {order.status}
@@ -1074,9 +1043,7 @@ function FPOPage({ user, onNavigate }) {
       <div className="fpo-title-row">
         <div>
           <h1>Reports</h1>
-          <p>
-            Detailed farmer, regional and agricultural product reports.
-          </p>
+          <p>Detailed farmer, regional and agricultural product reports.</p>
         </div>
       </div>
 
@@ -1142,17 +1109,13 @@ function FPOPage({ user, onNavigate }) {
                     <td>{farmer.orders}</td>
 
                     <td>
-                      <strong>
-                        ₹{farmer.sales.toLocaleString()}
-                      </strong>
+                      <strong>₹{farmer.sales.toLocaleString()}</strong>
                     </td>
 
                     <td>
                       <span
                         className={`fpo-status ${
-                          farmer.status === "Active"
-                            ? "completed"
-                            : "low"
+                          farmer.status === "Active" ? "completed" : "low"
                         }`}
                       >
                         {farmer.status}
@@ -1172,8 +1135,8 @@ function FPOPage({ user, onNavigate }) {
             <div>
               <h2>Regional Agriculture Report</h2>
               <p>
-                Farmer benefit, product sales and marketplace performance
-                by region.
+                Farmer benefit, product sales and marketplace performance by
+                region.
               </p>
             </div>
           </div>
@@ -1207,9 +1170,7 @@ function FPOPage({ user, onNavigate }) {
                     <td>⭐ {region.rating}</td>
 
                     <td>
-                      <strong>
-                        ₹{region.revenue.toLocaleString()}
-                      </strong>
+                      <strong>₹{region.revenue.toLocaleString()}</strong>
                     </td>
                   </tr>
                 ))}
@@ -1241,9 +1202,7 @@ function FPOPage({ user, onNavigate }) {
           <div className="fpo-card-heading">
             <div>
               <h2>Agricultural Product Report</h2>
-              <p>
-                Product-wise sales, revenue and top-performing regions.
-              </p>
+              <p>Product-wise sales, revenue and top-performing regions.</p>
             </div>
           </div>
 
@@ -1277,9 +1236,7 @@ function FPOPage({ user, onNavigate }) {
                     <td>{product.sold.toLocaleString()} kg</td>
 
                     <td>
-                      <strong>
-                        ₹{product.revenue.toLocaleString()}
-                      </strong>
+                      <strong>₹{product.revenue.toLocaleString()}</strong>
                     </td>
 
                     <td>{product.topRegion}</td>
@@ -1318,7 +1275,6 @@ function FPOPage({ user, onNavigate }) {
 
   return (
     <div className="fpo-page">
-
       {/* HEADER */}
 
       <header className="fpo-header">
@@ -1335,115 +1291,79 @@ function FPOPage({ user, onNavigate }) {
         </div>
 
         <div className="fpo-header-right">
-
-          <div className="fpo-notification">
-            🔔
-          </div>
+          <div className="fpo-notification">🔔</div>
           <div className="fpo-header-right">
+            <button
+              className="fpo-user"
+              onClick={() => setProfileOpen(!profileOpen)}
+            >
+              <div className="fpo-avatar">F</div>
 
- 
+              <div className="fpo-user-text">
+                <strong>{user?.name || "FPO Manager"}</strong>
 
-  <button
-    className="fpo-user"
-    onClick={() => setProfileOpen(!profileOpen)}
-  >
-    <div className="fpo-avatar">
-      F
-    </div>
+                <span>{user?.email || "fpo@kisaanbazar.com"}</span>
+              </div>
 
-    <div className="fpo-user-text">
-      <strong>
-        {user?.name || "FPO Manager"}
-      </strong>
+              <span className="fpo-profile-arrow">
+                {profileOpen ? "⌃" : "⌄"}
+              </span>
+            </button>
 
-      <span>
-        {user?.email || "fpo@kisaanbazar.com"}
-      </span>
-    </div>
+            {/* LOGOUT BUTTON */}
+            <button className="fpo-logout-btn" onClick={logout}>
+              Logout
+            </button>
 
-    <span className="fpo-profile-arrow">
-      {profileOpen ? "⌃" : "⌄"}
-    </span>
-  </button>
+            {profileOpen && (
+              <div className="fpo-profile-panel">
+                <div className="fpo-profile-top">
+                  <div className="fpo-large-avatar">🌾</div>
 
-  {/* LOGOUT BUTTON */}
-  <button
-    className="fpo-logout-btn"
-    onClick={() => onNavigate("login")}
-  >
-    Logout
-  </button>
+                  <div>
+                    <strong>{user?.name || "FPO Manager"}</strong>
 
-  {profileOpen && (
-    <div className="fpo-profile-panel">
+                    <span>Farmer Producer Organisation</span>
+                  </div>
+                </div>
 
-      <div className="fpo-profile-top">
+                <div className="fpo-profile-info-row">
+                  <span>Role</span>
+                  <strong>FPO Manager</strong>
+                </div>
 
-        <div className="fpo-large-avatar">
-          🌾
-        </div>
+                <div className="fpo-profile-info-row">
+                  <span>Organisation</span>
+                  <strong>Kisaan Bazar FPO</strong>
+                </div>
 
-        <div>
-          <strong>
-            {user?.name || "FPO Manager"}
-          </strong>
+                <div className="fpo-profile-info-row">
+                  <span>Farmers</span>
+                  <strong>120</strong>
+                </div>
 
-          <span>
-            Farmer Producer Organisation
-          </span>
-        </div>
+                <div className="fpo-profile-info-row">
+                  <span>Regions</span>
+                  <strong>12</strong>
+                </div>
 
-      </div>
+                <button className="fpo-information-btn">
+                  Add / Update Information
+                </button>
+              </div>
+            )}
+          </div>
 
-      <div className="fpo-profile-info-row">
-        <span>Role</span>
-        <strong>FPO Manager</strong>
-      </div>
-
-      <div className="fpo-profile-info-row">
-        <span>Organisation</span>
-        <strong>Kisaan Bazar FPO</strong>
-      </div>
-
-      <div className="fpo-profile-info-row">
-        <span>Farmers</span>
-        <strong>120</strong>
-      </div>
-
-      <div className="fpo-profile-info-row">
-        <span>Regions</span>
-        <strong>12</strong>
-      </div>
-
-      <button className="fpo-information-btn">
-        Add / Update Information
-      </button>
-
-    </div>
-  )}
-
-</div>
-
-          
           {profileOpen && (
             <div className="fpo-profile-panel">
-
               <div className="fpo-profile-top">
-
-                <div className="fpo-large-avatar">
-                  🌾
-                </div>
+                <div className="fpo-large-avatar">🌾</div>
 
                 <div>
-                  <strong>
-                    {user?.name || "FPO Manager"}
-                  </strong>
+                  <strong>{user?.name || "FPO Manager"}</strong>
 
-                  <span>
-                    Farmer Producer Organisation
-                  </span>
+                  <span>Farmer Producer Organisation</span>
                 </div>
-
               </div>
 
               <div className="fpo-profile-info-row">
@@ -1469,23 +1389,18 @@ function FPOPage({ user, onNavigate }) {
               <button className="fpo-information-btn">
                 Add / Update Information
               </button>
-
             </div>
           )}
-
         </div>
       </header>
 
       {/* BODY */}
 
       <div className="fpo-layout">
-
         {/* SIDEBAR */}
 
         <aside className="fpo-sidebar">
-
           <div className="fpo-sidebar-menu">
-
             <button
               className={section === "dashboard" ? "active" : ""}
               onClick={() => {
@@ -1512,9 +1427,7 @@ function FPOPage({ user, onNavigate }) {
 
             <button
               className={
-                section === "products" && !selectedProduct
-                  ? "active"
-                  : ""
+                section === "products" && !selectedProduct ? "active" : ""
               }
               onClick={() => {
                 setSelectedProduct(null);
@@ -1549,45 +1462,29 @@ function FPOPage({ user, onNavigate }) {
               <span>Reports</span>
               <span className="fpo-menu-arrow">›</span>
             </button>
-
           </div>
 
           <div className="fpo-sidebar-bottom">
-            <div className="fpo-illustration">
-              👨‍🌾🌾
-            </div>
+            <div className="fpo-illustration">👨‍🌾🌾</div>
 
-            <strong>
-              Empowering Farmers
-            </strong>
+            <strong>Empowering Farmers</strong>
 
-            <span>
-              Stronger Farmers • Better Markets
-            </span>
+            <span>Stronger Farmers • Better Markets</span>
           </div>
-
         </aside>
 
         {/* MAIN */}
 
-        <main className="fpo-main">
-          {renderContent()}
-        </main>
-
+        <main className="fpo-main">{renderContent()}</main>
       </div>
 
       {/* FOOTER */}
 
       <footer className="fpo-footer">
-        <span>
-          © 2026 Kisaan Bazar • FPO Management Panel
-        </span>
+        <span>© 2026 Kisaan Bazar • FPO Management Panel</span>
 
-        <span>
-          Empowering Farmers • Building Better Markets
-        </span>
+        <span>Empowering Farmers • Building Better Markets</span>
       </footer>
-
     </div>
   );
 }

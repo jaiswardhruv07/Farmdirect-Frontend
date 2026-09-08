@@ -12,7 +12,7 @@ import AdminPage from "./pages/admin/AdminPage";
 import BulkBuyerPage from "./pages/bulkbuyer/bulkbuyer";
 import FarmerPage from "./pages/farmer/FarmerPage";
 import GovernmentPage from "./pages/government/GovernmentPage";
-import FPOPage from "./pages/fpo/FPOPage";
+import FPOPage from "./pages/fpo/fpo";
 import ConsumerPage from "./pages/consumer/Consumerpage";
 
 // OTHER
