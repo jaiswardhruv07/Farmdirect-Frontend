@@ -1,5 +1,6 @@
 import { useState } from "react";
 import "./adminpage.css";
+import { useAuth } from "../../context/AuthContext";
 
 const FARMERS = [
   {
@@ -8,7 +9,7 @@ const FARMERS = [
     location: "West Bengal",
     products: 8,
     sales: 48200,
-    status: "Active",
+    status: "Active"
   },
   {
     id: "F002",
@@ -16,7 +17,7 @@ const FARMERS = [
     location: "Bihar",
     products: 6,
     sales: 32450,
-    status: "Active",
+    status: "Active"
   },
   {
     id: "F003",
@@ -24,7 +25,7 @@ const FARMERS = [
     location: "Uttar Pradesh",
     products: 5,
     sales: 28760,
-    status: "Active",
+    status: "Active"
   },
   {
     id: "F004",
@@ -32,7 +33,7 @@ const FARMERS = [
     location: "Jharkhand",
     products: 4,
     sales: 18320,
-    status: "Active",
+    status: "Active"
   },
   {
     id: "F005",
@@ -40,8 +41,8 @@ const FARMERS = [
     location: "Punjab",
     products: 7,
     sales: 12680,
-    status: "Active",
-  },
+    status: "Active"
+  }
 ];
 
 const CONSUMERS = [
@@ -51,7 +52,7 @@ const CONSUMERS = [
     email: "rahul@gmail.com",
     orders: 12,
     spent: 4260,
-    status: "Active",
+    status: "Active"
   },
   {
     id: "C002",
@@ -59,7 +60,7 @@ const CONSUMERS = [
     email: "priya@gmail.com",
     orders: 9,
     spent: 3180,
-    status: "Active",
+    status: "Active"
   },
   {
     id: "C003",
@@ -67,7 +68,7 @@ const CONSUMERS = [
     email: "anita@gmail.com",
     orders: 7,
     spent: 2860,
-    status: "Active",
+    status: "Active"
   },
   {
     id: "C004",
@@ -75,7 +76,7 @@ const CONSUMERS = [
     email: "suresh@gmail.com",
     orders: 6,
     spent: 2420,
-    status: "Active",
+    status: "Active"
   },
   {
     id: "C005",
@@ -83,8 +84,8 @@ const CONSUMERS = [
     email: "neha@gmail.com",
     orders: 5,
     spent: 1980,
-    status: "Active",
-  },
+    status: "Active"
+  }
 ];
 
 const PRODUCTS = [
@@ -97,7 +98,7 @@ const PRODUCTS = [
     stock: 20,
     sold: 42,
     emoji: "🍅",
-    status: "In Stock",
+    status: "In Stock"
   },
   {
     id: 2,
@@ -108,7 +109,7 @@ const PRODUCTS = [
     stock: 5,
     sold: 28,
     emoji: "🥭",
-    status: "Low Stock",
+    status: "Low Stock"
   },
   {
     id: 3,
@@ -119,7 +120,7 @@ const PRODUCTS = [
     stock: 15,
     sold: 24,
     emoji: "🥛",
-    status: "In Stock",
+    status: "In Stock"
   },
   {
     id: 4,
@@ -130,7 +131,7 @@ const PRODUCTS = [
     stock: 8,
     sold: 18,
     emoji: "🥬",
-    status: "Low Stock",
+    status: "Low Stock"
   },
   {
     id: 5,
@@ -141,7 +142,7 @@ const PRODUCTS = [
     stock: 3,
     sold: 16,
     emoji: "🍌",
-    status: "Low Stock",
+    status: "Low Stock"
   },
   {
     id: 6,
@@ -152,8 +153,8 @@ const PRODUCTS = [
     stock: 0,
     sold: 12,
     emoji: "🌾",
-    status: "Out of Stock",
-  },
+    status: "Out of Stock"
+  }
 ];
 
 const ORDERS = [
@@ -165,7 +166,7 @@ const ORDERS = [
     quantity: "2 kg",
     total: 60,
     status: "New Order",
-    date: "Today",
+    date: "Today"
   },
   {
     id: "#008",
@@ -175,7 +176,7 @@ const ORDERS = [
     quantity: "1 kg",
     total: 80,
     status: "New Order",
-    date: "Today",
+    date: "Today"
   },
   {
     id: "#009",
@@ -185,7 +186,7 @@ const ORDERS = [
     quantity: "3 kg",
     total: 60,
     status: "Completed",
-    date: "Yesterday",
+    date: "Yesterday"
   },
   {
     id: "#010",
@@ -195,7 +196,7 @@ const ORDERS = [
     quantity: "2 L",
     total: 100,
     status: "Completed",
-    date: "Yesterday",
+    date: "Yesterday"
   },
   {
     id: "#011",
@@ -205,11 +206,12 @@ const ORDERS = [
     quantity: "2 kg",
     total: 80,
     status: "New Order",
-    date: "2 days ago",
-  },
+    date: "2 days ago"
+  }
 ];
 
 function AdminPage({ onNavigate, user }) {
+  const { logout } = useAuth();
   const [section, setSection] = useState("dashboard");
   const [reportType, setReportType] = useState("farmer");
   const [userType, setUserType] = useState("all");
@@ -222,21 +224,15 @@ function AdminPage({ onNavigate, user }) {
   const totalOrders = ORDERS.length;
 
   const totalSales = ORDERS.reduce(
-    (sum, order) =>
-      order.status === "Completed"
-        ? sum + order.total
-        : sum,
+    (sum, order) => (order.status === "Completed" ? sum + order.total : sum),
     0
   );
 
-  const pendingOrders = ORDERS.filter(
-    (order) => order.status === "New Order"
-  );
+  const pendingOrders = ORDERS.filter((order) => order.status === "New Order");
 
   const lowStockProducts = PRODUCTS.filter(
     (product) =>
-      product.status === "Low Stock" ||
-      product.status === "Out of Stock"
+      product.status === "Low Stock" || product.status === "Out of Stock"
   );
 
   function renderDashboard() {
@@ -245,9 +241,7 @@ function AdminPage({ onNavigate, user }) {
         <div className="admin-title-row">
           <div>
             <h1>Admin Dashboard</h1>
-            <p>
-              Complete overview of your Kisaan Bazar marketplace
-            </p>
+            <p>Complete overview of your Kisaan Bazar marketplace</p>
           </div>
 
           <div className="admin-date">
@@ -259,11 +253,8 @@ function AdminPage({ onNavigate, user }) {
         {/* STAT CARDS */}
 
         <div className="admin-stats">
-
           <div className="admin-stat-card">
-            <div className="stat-icon green">
-              👥
-            </div>
+            <div className="stat-icon green">👥</div>
 
             <div>
               <span>Total Users</span>
@@ -273,9 +264,7 @@ function AdminPage({ onNavigate, user }) {
           </div>
 
           <div className="admin-stat-card">
-            <div className="stat-icon green">
-              👨‍🌾
-            </div>
+            <div className="stat-icon green">👨‍🌾</div>
 
             <div>
               <span>Total Farmers</span>
@@ -285,9 +274,7 @@ function AdminPage({ onNavigate, user }) {
           </div>
 
           <div className="admin-stat-card">
-            <div className="stat-icon gold">
-              🧑
-            </div>
+            <div className="stat-icon gold">🧑</div>
 
             <div>
               <span>Total Consumers</span>
@@ -297,9 +284,7 @@ function AdminPage({ onNavigate, user }) {
           </div>
 
           <div className="admin-stat-card">
-            <div className="stat-icon green">
-              🌾
-            </div>
+            <div className="stat-icon green">🌾</div>
 
             <div>
               <span>Total Products</span>
@@ -309,9 +294,7 @@ function AdminPage({ onNavigate, user }) {
           </div>
 
           <div className="admin-stat-card">
-            <div className="stat-icon gold">
-              📦
-            </div>
+            <div className="stat-icon gold">📦</div>
 
             <div>
               <span>Total Orders</span>
@@ -321,9 +304,7 @@ function AdminPage({ onNavigate, user }) {
           </div>
 
           <div className="admin-stat-card">
-            <div className="stat-icon green">
-              ₹
-            </div>
+            <div className="stat-icon green">₹</div>
 
             <div>
               <span>Total Sales</span>
@@ -331,17 +312,14 @@ function AdminPage({ onNavigate, user }) {
               <small>↑ 22% this month</small>
             </div>
           </div>
-
         </div>
 
         {/* MAIN DASHBOARD GRID */}
 
         <div className="admin-dashboard-grid">
-
           {/* SALES GRAPH */}
 
           <div className="admin-card sales-card">
-
             <div className="card-heading">
               <div>
                 <h2>📊 Sales Overview</h2>
@@ -352,10 +330,8 @@ function AdminPage({ onNavigate, user }) {
             </div>
 
             <div className="bar-chart">
-
               {[18, 25, 20, 29, 34, 39, 32, 30, 42, 35, 44, 50].map(
                 (height, index) => {
-
                   const months = [
                     "Jan",
                     "Feb",
@@ -368,7 +344,7 @@ function AdminPage({ onNavigate, user }) {
                     "Sep",
                     "Oct",
                     "Nov",
-                    "Dec",
+                    "Dec"
                   ];
 
                   return (
@@ -378,7 +354,7 @@ function AdminPage({ onNavigate, user }) {
                       <div
                         className="bar"
                         style={{
-                          height: `${height * 3.2}px`,
+                          height: `${height * 3.2}px`
                         }}
                       />
 
@@ -387,15 +363,12 @@ function AdminPage({ onNavigate, user }) {
                   );
                 }
               )}
-
             </div>
-
           </div>
 
           {/* TOP PRODUCTS */}
 
           <div className="admin-card">
-
             <div className="card-heading">
               <div>
                 <h2>🏆 Top Selling Products</h2>
@@ -404,43 +377,29 @@ function AdminPage({ onNavigate, user }) {
             </div>
 
             <div className="top-list">
+              {PRODUCTS.slice(0, 5).map((product, index) => (
+                <div className="top-item" key={product.id}>
+                  <div className="rank">{index + 1}</div>
 
-              {PRODUCTS.slice(0, 5).map(
-                (product, index) => (
+                  <div className="product-mini">{product.emoji}</div>
 
-                  <div className="top-item" key={product.id}>
-
-                    <div className="rank">
-                      {index + 1}
-                    </div>
-
-                    <div className="product-mini">
-                      {product.emoji}
-                    </div>
-
-                    <div className="top-info">
-                      <strong>{product.name}</strong>
-                      <span>{product.category}</span>
-                    </div>
-
-                    <div className="top-sales">
-                      <strong>{product.sold}</strong>
-                      <span>orders</span>
-                    </div>
-
+                  <div className="top-info">
+                    <strong>{product.name}</strong>
+                    <span>{product.category}</span>
                   </div>
 
-                )
-              )}
-
+                  <div className="top-sales">
+                    <strong>{product.sold}</strong>
+                    <span>orders</span>
+                  </div>
+                </div>
+              ))}
             </div>
-
           </div>
 
           {/* PENDING ORDERS */}
 
           <div className="admin-card">
-
             <div className="card-heading">
               <div>
                 <h2>⏰ Pending Orders</h2>
@@ -449,60 +408,40 @@ function AdminPage({ onNavigate, user }) {
             </div>
 
             <div className="pending-list">
-
               {pendingOrders.map((order) => (
-
-                <div
-                  className="pending-item"
-                  key={order.id}
-                >
-
+                <div className="pending-item" key={order.id}>
                   <div>
                     <strong>{order.id}</strong>
                     <span>{order.product}</span>
                     <small>{order.consumer}</small>
                   </div>
 
-                  <span className="status new">
-                    New Order
-                  </span>
-
+                  <span className="status new">New Order</span>
                 </div>
-
               ))}
-
             </div>
-
           </div>
-
         </div>
 
         {/* LOWER GRID */}
 
         <div className="admin-lower-grid">
-
           {/* RECENT ORDERS */}
 
           <div className="admin-card recent-card">
-
             <div className="card-heading">
               <div>
                 <h2>📦 Recent Orders</h2>
                 <p>Latest orders from consumers</p>
               </div>
 
-              <button
-                className="view-btn"
-                onClick={() => setSection("orders")}
-              >
+              <button className="view-btn" onClick={() => setSection("orders")}>
                 View All →
               </button>
             </div>
 
             <div className="table-wrap">
-
               <table className="admin-table">
-
                 <thead>
                   <tr>
                     <th>Order</th>
@@ -515,11 +454,8 @@ function AdminPage({ onNavigate, user }) {
                 </thead>
 
                 <tbody>
-
                   {ORDERS.map((order) => (
-
                     <tr key={order.id}>
-
                       <td>{order.id}</td>
                       <td>{order.consumer}</td>
                       <td>{order.farmer}</td>
@@ -537,25 +473,17 @@ function AdminPage({ onNavigate, user }) {
                           {order.status}
                         </span>
                       </td>
-
                     </tr>
-
                   ))}
-
                 </tbody>
-
               </table>
-
             </div>
-
           </div>
 
           {/* TOP FARMERS */}
 
           <div className="admin-card">
-
             <div className="card-heading">
-
               <div>
                 <h2>👨‍🌾 Top Farmers</h2>
                 <p>By total sales</p>
@@ -570,57 +498,34 @@ function AdminPage({ onNavigate, user }) {
               >
                 View All →
               </button>
-
             </div>
 
             <div className="farmer-list">
+              {FARMERS.map((farmer, index) => (
+                <div className="farmer-item" key={farmer.id}>
+                  <span className="farmer-rank">
+                    {index === 0 ? "👑" : index + 1}
+                  </span>
 
-              {FARMERS.map(
-                (farmer, index) => (
+                  <div className="farmer-avatar">👨‍🌾</div>
 
-                  <div
-                    className="farmer-item"
-                    key={farmer.id}
-                  >
-
-                    <span className="farmer-rank">
-                      {index === 0
-                        ? "👑"
-                        : index + 1}
-                    </span>
-
-                    <div className="farmer-avatar">
-                      👨‍🌾
-                    </div>
-
-                    <div className="farmer-info">
-                      <strong>
-                        {farmer.name}
-                      </strong>
-                      <span>
-                        {farmer.products} products
-                      </span>
-                    </div>
-
-                    <strong className="farmer-sales">
-                      ₹{farmer.sales.toLocaleString()}
-                    </strong>
-
+                  <div className="farmer-info">
+                    <strong>{farmer.name}</strong>
+                    <span>{farmer.products} products</span>
                   </div>
 
-                )
-              )}
-
+                  <strong className="farmer-sales">
+                    ₹{farmer.sales.toLocaleString()}
+                  </strong>
+                </div>
+              ))}
             </div>
-
           </div>
 
           {/* LOW STOCK */}
 
           <div className="admin-card">
-
             <div className="card-heading">
-
               <div>
                 <h2>⚠️ Low Stock Products</h2>
                 <p>Products that need attention</p>
@@ -632,56 +537,32 @@ function AdminPage({ onNavigate, user }) {
               >
                 View All →
               </button>
-
             </div>
 
             <div className="low-stock-list">
+              {lowStockProducts.map((product) => (
+                <div className="low-stock-item" key={product.id}>
+                  <div className="product-mini">{product.emoji}</div>
 
-              {lowStockProducts.map(
-                (product) => (
+                  <div>
+                    <strong>{product.name}</strong>
 
-                  <div
-                    className="low-stock-item"
-                    key={product.id}
-                  >
-
-                    <div className="product-mini">
-                      {product.emoji}
-                    </div>
-
-                    <div>
-                      <strong>
-                        {product.name}
-                      </strong>
-
-                      <span>
-                        {product.category}
-                      </span>
-                    </div>
-
-                    <span className="stock-number">
-                      {product.stock} left
-                    </span>
-
-                    <span
-                      className={
-                        product.stock === 0
-                          ? "status out"
-                          : "status low"
-                      }
-                    >
-                      {product.status}
-                    </span>
-
+                    <span>{product.category}</span>
                   </div>
 
-                )
-              )}
+                  <span className="stock-number">{product.stock} left</span>
 
+                  <span
+                    className={
+                      product.stock === 0 ? "status out" : "status low"
+                    }
+                  >
+                    {product.status}
+                  </span>
+                </div>
+              ))}
             </div>
-
           </div>
-
         </div>
       </>
     );
@@ -706,7 +587,6 @@ function AdminPage({ onNavigate, user }) {
         </div>
 
         <div className="filter-tabs">
-
           <button
             className={userType === "all" ? "active" : ""}
             onClick={() => setUserType("all")}
@@ -715,29 +595,22 @@ function AdminPage({ onNavigate, user }) {
           </button>
 
           <button
-            className={
-              userType === "farmers" ? "active" : ""
-            }
+            className={userType === "farmers" ? "active" : ""}
             onClick={() => setUserType("farmers")}
           >
             👨‍🌾 Farmers ({totalFarmers})
           </button>
 
           <button
-            className={
-              userType === "consumers" ? "active" : ""
-            }
+            className={userType === "consumers" ? "active" : ""}
             onClick={() => setUserType("consumers")}
           >
             🧑 Consumers ({totalConsumers})
           </button>
-
         </div>
 
         {userType === "all" ? (
-
           <div className="user-summary-grid">
-
             <div
               className="user-summary-card"
               onClick={() => setUserType("farmers")}
@@ -757,69 +630,40 @@ function AdminPage({ onNavigate, user }) {
               <p>Consumers</p>
               <span>View Consumer Accounts →</span>
             </div>
-
           </div>
-
         ) : (
-
           <div className="admin-card">
-
             <div className="table-wrap">
-
               <table className="admin-table">
-
                 <thead>
-
                   <tr>
                     <th>ID</th>
                     <th>Name</th>
-                    <th>
-                      {userType === "farmers"
-                        ? "Location"
-                        : "Email"}
-                    </th>
+                    <th>{userType === "farmers" ? "Location" : "Email"}</th>
 
-                    <th>
-                      {userType === "farmers"
-                        ? "Products"
-                        : "Orders"}
-                    </th>
+                    <th>{userType === "farmers" ? "Products" : "Orders"}</th>
 
-                    <th>
-                      {userType === "farmers"
-                        ? "Sales"
-                        : "Spent"}
-                    </th>
+                    <th>{userType === "farmers" ? "Sales" : "Spent"}</th>
 
                     <th>Status</th>
                   </tr>
-
                 </thead>
 
                 <tbody>
-
                   {users.map((user) => (
-
                     <tr key={user.id}>
-
                       <td>{user.id}</td>
 
                       <td>
-                        <strong>
-                          {user.name}
-                        </strong>
+                        <strong>{user.name}</strong>
                       </td>
 
                       <td>
-                        {userType === "farmers"
-                          ? user.location
-                          : user.email}
+                        {userType === "farmers" ? user.location : user.email}
                       </td>
 
                       <td>
-                        {userType === "farmers"
-                          ? user.products
-                          : user.orders}
+                        {userType === "farmers" ? user.products : user.orders}
                       </td>
 
                       <td>
@@ -831,23 +675,14 @@ function AdminPage({ onNavigate, user }) {
                       </td>
 
                       <td>
-                        <span className="status completed">
-                          {user.status}
-                        </span>
+                        <span className="status completed">{user.status}</span>
                       </td>
-
                     </tr>
-
                   ))}
-
                 </tbody>
-
               </table>
-
             </div>
-
           </div>
-
         )}
       </>
     );
@@ -859,18 +694,13 @@ function AdminPage({ onNavigate, user }) {
         <div className="admin-title-row">
           <div>
             <h1>🌾 Products</h1>
-            <p>
-              All products listed by farmers
-            </p>
+            <p>All products listed by farmers</p>
           </div>
         </div>
 
         <div className="admin-card">
-
           <div className="table-wrap">
-
             <table className="admin-table product-table">
-
               <thead>
                 <tr>
                   <th>Product</th>
@@ -884,22 +714,13 @@ function AdminPage({ onNavigate, user }) {
               </thead>
 
               <tbody>
-
                 {PRODUCTS.map((product) => (
-
                   <tr key={product.id}>
-
                     <td>
                       <div className="table-product">
+                        <span>{product.emoji}</span>
 
-                        <span>
-                          {product.emoji}
-                        </span>
-
-                        <strong>
-                          {product.name}
-                        </strong>
-
+                        <strong>{product.name}</strong>
                       </div>
                     </td>
 
@@ -907,42 +728,30 @@ function AdminPage({ onNavigate, user }) {
 
                     <td>{product.farmer}</td>
 
-                    <td>
-                      ₹{product.price}/kg
-                    </td>
+                    <td>₹{product.price}/kg</td>
 
                     <td>{product.stock}</td>
 
                     <td>{product.sold}</td>
 
                     <td>
-
                       <span
                         className={
-                          product.status ===
-                          "In Stock"
+                          product.status === "In Stock"
                             ? "status completed"
-                            : product.status ===
-                              "Out of Stock"
-                            ? "status out"
-                            : "status low"
+                            : product.status === "Out of Stock"
+                              ? "status out"
+                              : "status low"
                         }
                       >
                         {product.status}
                       </span>
-
                     </td>
-
                   </tr>
-
                 ))}
-
               </tbody>
-
             </table>
-
           </div>
-
         </div>
       </>
     );
@@ -954,18 +763,13 @@ function AdminPage({ onNavigate, user }) {
         <div className="admin-title-row">
           <div>
             <h1>📦 Orders</h1>
-            <p>
-              Monitor all marketplace orders
-            </p>
+            <p>Monitor all marketplace orders</p>
           </div>
         </div>
 
         <div className="admin-stats order-mini-stats">
-
           <div className="admin-stat-card">
-            <div className="stat-icon green">
-              📦
-            </div>
+            <div className="stat-icon green">📦</div>
 
             <div>
               <span>Total Orders</span>
@@ -974,44 +778,29 @@ function AdminPage({ onNavigate, user }) {
           </div>
 
           <div className="admin-stat-card">
-            <div className="stat-icon gold">
-              ⏰
-            </div>
+            <div className="stat-icon gold">⏰</div>
 
             <div>
               <span>Pending</span>
-              <strong>
-                {pendingOrders.length}
-              </strong>
+              <strong>{pendingOrders.length}</strong>
             </div>
           </div>
 
           <div className="admin-stat-card">
-            <div className="stat-icon green">
-              ✅
-            </div>
+            <div className="stat-icon green">✅</div>
 
             <div>
               <span>Completed</span>
               <strong>
-                {
-                  ORDERS.filter(
-                    (o) =>
-                      o.status === "Completed"
-                  ).length
-                }
+                {ORDERS.filter((o) => o.status === "Completed").length}
               </strong>
             </div>
           </div>
-
         </div>
 
         <div className="admin-card">
-
           <div className="table-wrap">
-
             <table className="admin-table">
-
               <thead>
                 <tr>
                   <th>Order ID</th>
@@ -1026,62 +815,40 @@ function AdminPage({ onNavigate, user }) {
               </thead>
 
               <tbody>
-
                 {ORDERS.map((order) => (
-
                   <tr key={order.id}>
-
                     <td>
                       <strong>{order.id}</strong>
                     </td>
 
-                    <td>
-                      {order.consumer}
-                    </td>
+                    <td>{order.consumer}</td>
+
+                    <td>{order.farmer}</td>
+
+                    <td>{order.product}</td>
+
+                    <td>{order.quantity}</td>
+
+                    <td>₹{order.total}</td>
 
                     <td>
-                      {order.farmer}
-                    </td>
-
-                    <td>
-                      {order.product}
-                    </td>
-
-                    <td>
-                      {order.quantity}
-                    </td>
-
-                    <td>
-                      ₹{order.total}
-                    </td>
-
-                    <td>
-
                       <span
                         className={
-                          order.status ===
-                          "Completed"
+                          order.status === "Completed"
                             ? "status completed"
                             : "status new"
                         }
                       >
                         {order.status}
                       </span>
-
                     </td>
 
                     <td>{order.date}</td>
-
                   </tr>
-
                 ))}
-
               </tbody>
-
             </table>
-
           </div>
-
         </div>
       </>
     );
@@ -1091,66 +858,40 @@ function AdminPage({ onNavigate, user }) {
     return (
       <>
         <div className="admin-title-row">
-
           <div>
             <h1>📊 Reports</h1>
-            <p>
-              Detailed marketplace performance reports
-            </p>
+            <p>Detailed marketplace performance reports</p>
           </div>
-
         </div>
 
         <div className="report-tabs">
-
           <button
-            className={
-              reportType === "farmer"
-                ? "active"
-                : ""
-            }
-            onClick={() =>
-              setReportType("farmer")
-            }
+            className={reportType === "farmer" ? "active" : ""}
+            onClick={() => setReportType("farmer")}
           >
             👨‍🌾 Farmer Report
           </button>
 
           <button
-            className={
-              reportType === "consumer"
-                ? "active"
-                : ""
-            }
-            onClick={() =>
-              setReportType("consumer")
-            }
+            className={reportType === "consumer" ? "active" : ""}
+            onClick={() => setReportType("consumer")}
           >
             🧑 Consumer Report
           </button>
-
         </div>
 
         {reportType === "farmer" ? (
-
           <div className="admin-card report-card">
-
             <div className="card-heading">
               <div>
-                <h2>
-                  👨‍🌾 Farmer Performance Report
-                </h2>
+                <h2>👨‍🌾 Farmer Performance Report</h2>
 
-                <p>
-                  Sales and product performance of farmers
-                </p>
+                <p>Sales and product performance of farmers</p>
               </div>
             </div>
 
             <div className="table-wrap">
-
               <table className="admin-table">
-
                 <thead>
                   <tr>
                     <th>Farmer</th>
@@ -1162,68 +903,41 @@ function AdminPage({ onNavigate, user }) {
                 </thead>
 
                 <tbody>
-
                   {FARMERS.map((farmer) => (
-
                     <tr key={farmer.id}>
-
                       <td>
-                        <strong>
-                          {farmer.name}
-                        </strong>
+                        <strong>{farmer.name}</strong>
                       </td>
 
-                      <td>
-                        {farmer.location}
-                      </td>
+                      <td>{farmer.location}</td>
 
-                      <td>
-                        {farmer.products}
-                      </td>
+                      <td>{farmer.products}</td>
 
-                      <td>
-                        ₹
-                        {farmer.sales.toLocaleString()}
-                      </td>
+                      <td>₹{farmer.sales.toLocaleString()}</td>
 
                       <td>
                         <span className="status completed">
                           {farmer.status}
                         </span>
                       </td>
-
                     </tr>
-
                   ))}
-
                 </tbody>
-
               </table>
-
             </div>
-
           </div>
-
         ) : (
-
           <div className="admin-card report-card">
-
             <div className="card-heading">
               <div>
-                <h2>
-                  🧑 Consumer Purchase Report
-                </h2>
+                <h2>🧑 Consumer Purchase Report</h2>
 
-                <p>
-                  Consumer orders and purchase activity
-                </p>
+                <p>Consumer orders and purchase activity</p>
               </div>
             </div>
 
             <div className="table-wrap">
-
               <table className="admin-table">
-
                 <thead>
                   <tr>
                     <th>Consumer</th>
@@ -1235,54 +949,34 @@ function AdminPage({ onNavigate, user }) {
                 </thead>
 
                 <tbody>
-
                   {CONSUMERS.map((consumer) => (
-
                     <tr key={consumer.id}>
-
                       <td>
-                        <strong>
-                          {consumer.name}
-                        </strong>
+                        <strong>{consumer.name}</strong>
                       </td>
 
-                      <td>
-                        {consumer.email}
-                      </td>
+                      <td>{consumer.email}</td>
 
-                      <td>
-                        {consumer.orders}
-                      </td>
+                      <td>{consumer.orders}</td>
 
-                      <td>
-                        ₹
-                        {consumer.spent.toLocaleString()}
-                      </td>
+                      <td>₹{consumer.spent.toLocaleString()}</td>
 
                       <td>
                         <span className="status completed">
                           {consumer.status}
                         </span>
                       </td>
-
                     </tr>
-
                   ))}
-
                 </tbody>
-
               </table>
-
             </div>
-
           </div>
-
         )}
 
         {/* REPORT SUMMARY */}
 
         <div className="report-summary">
-
           <div>
             <span>Total Farmers</span>
             <strong>{totalFarmers}</strong>
@@ -1300,11 +994,8 @@ function AdminPage({ onNavigate, user }) {
 
           <div>
             <span>Completed Sales</span>
-            <strong>
-              ₹{totalSales.toLocaleString()}
-            </strong>
+            <strong>₹{totalSales.toLocaleString()}</strong>
           </div>
-
         </div>
       </>
     );
@@ -1337,15 +1028,11 @@ function AdminPage({ onNavigate, user }) {
 
   return (
     <div className="admin-page">
-
       {/* TOP HEADER */}
 
       <header className="admin-header">
-
         <div className="admin-brand">
-          <span className="brand-icon">
-            🌾
-          </span>
+          <span className="brand-icon">🌾</span>
 
           <div>
             <strong>
@@ -1356,176 +1043,107 @@ function AdminPage({ onNavigate, user }) {
           </div>
         </div>
 
-     <div className="admin-header-right">
+        <div className="admin-header-right">
+          <span className="notification">🔔</span>
 
-  <span className="notification">
-    🔔
-  </span>
+          <div className="admin-user">
+            <div className="admin-avatar">A</div>
 
-  <div className="admin-user">
-    <div className="admin-avatar">
-      A
-    </div>
+            <span>Admin</span>
+            <span>⌄</span>
+          </div>
 
-    <span>Admin</span>
-    <span>⌄</span>
-  </div>
-
-  <button
-    className="admin-logout-btn"
-    onClick={() => onNavigate("login")}
-  >
-    Logout
-  </button>
-
-</div>  
-
+          <button className="admin-logout-btn" onClick={logout}>
+            Logout
+          </button>
+        </div>
       </header>
 
       {/* BODY */}
 
       <div className="admin-layout">
-
         {/* SIDEBAR */}
 
         <aside className="admin-sidebar">
-
           <div className="sidebar-menu">
-
             <button
-              className={
-                section === "dashboard"
-                  ? "active"
-                  : ""
-              }
-              onClick={() =>
-                setSection("dashboard")
-              }
+              className={section === "dashboard" ? "active" : ""}
+              onClick={() => setSection("dashboard")}
             >
               <span>🏠</span>
               Dashboard
             </button>
 
             <button
-              className={
-                section === "users"
-                  ? "active"
-                  : ""
-              }
-              onClick={() =>
-                setSection("users")
-              }
+              className={section === "users" ? "active" : ""}
+              onClick={() => setSection("users")}
             >
               <span>👥</span>
               Users
             </button>
 
             <button
-              className={
-                section === "products"
-                  ? "active"
-                  : ""
-              }
-              onClick={() =>
-                setSection("products")
-              }
+              className={section === "products" ? "active" : ""}
+              onClick={() => setSection("products")}
             >
               <span>🌾</span>
               Products
             </button>
 
             <button
-              className={
-                section === "orders"
-                  ? "active"
-                  : ""
-              }
-              onClick={() =>
-                setSection("orders")
-              }
+              className={section === "orders" ? "active" : ""}
+              onClick={() => setSection("orders")}
             >
               <span>📦</span>
               Orders
             </button>
 
             <button
-              className={
-                section === "sales"
-                  ? "active"
-                  : ""
-              }
-              onClick={() =>
-                setSection("sales")
-              }
+              className={section === "sales" ? "active" : ""}
+              onClick={() => setSection("sales")}
             >
               <span>₹</span>
               Sales
             </button>
 
             <button
-              className={
-                section === "reports"
-                  ? "active"
-                  : ""
-              }
-              onClick={() =>
-                setSection("reports")
-              }
+              className={section === "reports" ? "active" : ""}
+              onClick={() => setSection("reports")}
             >
               <span>📊</span>
               Reports
-              <span className="menu-arrow">
-                ▾
-              </span>
+              <span className="menu-arrow">▾</span>
             </button>
 
             <button>
               <span>⚙️</span>
               Settings
             </button>
-
           </div>
 
           {/* SIDEBAR BOTTOM */}
 
           <div className="sidebar-bottom">
+            <div className="farmer-illustration">👨‍🌾🌾</div>
 
-            <div className="farmer-illustration">
-              👨‍🌾🌾
-            </div>
+            <strong>Empowering Farmers</strong>
 
-            <strong>
-              Empowering Farmers
-            </strong>
-
-            <span>
-              Building a Better Tomorrow
-            </span>
-
+            <span>Building a Better Tomorrow</span>
           </div>
-
         </aside>
 
         {/* MAIN CONTENT */}
 
-        <main className="admin-main">
-          {renderContent()}
-        </main>
-
+        <main className="admin-main">{renderContent()}</main>
       </div>
 
       {/* FOOTER */}
 
       <footer className="admin-footer">
-        <span>
-          Kisaan Bazar • Admin Panel
-        </span>
+        <span>Kisaan Bazar • Admin Panel</span>
 
-        <span>
-          Better Farming • Better Food • A Stronger India 🌾
-        </span>
+        <span>Better Farming • Better Food • A Stronger India 🌾</span>
       </footer>
-
     </div>
   );
 }

@@ -1,10 +1,4 @@
-import {
-  BrowserRouter,
-  Routes,
-  Route,
-  Navigate,
-  useNavigate
-} from "react-router-dom";
+import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 
 import { useAuth } from "./context/AuthContext";
 import ProtectedRoute from "./routes/ProtectedRoute";
@@ -154,7 +148,7 @@ function AppRoutes() {
           isAuthenticated ? (
             <Navigate to={getDashboardPath(user?.role)} replace />
           ) : (
-            <Navigate to="/" replace />
+            <Navigate to="/login" replace />
           )
         }
       />
@@ -163,11 +157,7 @@ function AppRoutes() {
 }
 
 function App() {
-  return (
-    <BrowserRouter>
-      <AppRoutes />
-    </BrowserRouter>
-  );
+  return <AppRoutes />;
 }
 
 export default App;

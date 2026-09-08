@@ -1,8 +1,11 @@
 import { createContext, useContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
+  const navigate = useNavigate();
+
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -46,14 +49,14 @@ export const AuthProvider = ({ children }) => {
 
     setToken(null);
     setUser(null);
+
+    navigate("/login", { replace: true });
   };
 
-  // Check whether the authenticated user has a specific permission
   const hasPermission = (permission) => {
     return user?.permissions?.includes(permission) ?? false;
   };
 
-  // Check whether the authenticated user has at least one permission
   const hasAnyPermission = (permissions) => {
     if (!Array.isArray(permissions)) {
       return false;
