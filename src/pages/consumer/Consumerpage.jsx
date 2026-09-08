@@ -1,5 +1,85 @@
 import React, { useState, useEffect } from "react";
 
+// Product images
+import tomato from "../../assets/tomato.jpg";
+import broccoli from "../../assets/broccoli.jpg";
+import potato from "../../assets/potato.jpg";
+import apple from "../../assets/apple.jpg";
+import banana from "../../assets/banana.jpg";
+import mango from "../../assets/mango.jpg";
+import rice from "../../assets/rice.jpg";
+import wheat from "../../assets/wheat.jpg";
+import corn from "../../assets/corn.jpg";
+import milk from "../../assets/milk.jpg";
+import paneer from "../../assets/paneer.jpg";
+import curd from "../../assets/curd.jpg";
+
+// Farmer listing images
+import tom1 from "../../assets/tom1.jpg";
+import tom2 from "../../assets/tom2.jpg";
+import tom3 from "../../assets/tom3.jpg";
+import tom4 from "../../assets/tom4.jpg";
+import tom5 from "../../assets/tom5.jpg";
+
+import boc1 from "../../assets/boc1.jpg";
+import boc2 from "../../assets/boc2.jpg";
+import boc3 from "../../assets/boc3.jpg";
+import boc4 from "../../assets/boc4.jpg";
+
+import po1 from "../../assets/po1.jpg";
+import po2 from "../../assets/po2.jpg";
+import po3 from "../../assets/po3.jpg";
+import po4 from "../../assets/po4.jpg";
+import po5 from "../../assets/po5.jpg";
+
+import ap1 from "../../assets/ap1.jpg";
+import ap2 from "../../assets/ap2.jpg";
+import ap3 from "../../assets/ap3.jpg";
+import ap4 from "../../assets/ap4.jpg";
+import ap5 from "../../assets/ap5.jpg";
+
+import ba1 from "../../assets/ba1.jpg";
+import ba2 from "../../assets/ba2.jpg";
+import ba3 from "../../assets/ba3.jpg";
+import ba4 from "../../assets/ba4.jpg";
+
+import man1 from "../../assets/man1.jpg";
+import man2 from "../../assets/man2.jpg";
+import man3 from "../../assets/man3.jpg";
+import man4 from "../../assets/man4.jpg";
+import man5 from "../../assets/man5.jpg";
+
+import ri1 from "../../assets/ri1.jpg";
+import ri2 from "../../assets/ri2.jpg";
+import ri3 from "../../assets/ri3.jpg";
+import ri4 from "../../assets/ri4.jpg";
+import ri5 from "../../assets/ri5.jpg";
+
+import co1 from "../../assets/co1.jpg";
+import co2 from "../../assets/co2.jpg";
+import co3 from "../../assets/co3.jpg";
+import co4 from "../../assets/co4.jpg";
+import co5 from "../../assets/co5.jpg";
+import co6 from "../../assets/co6.jpg";
+
+import mi1 from "../../assets/mi1.jpg";
+import mi2 from "../../assets/mi2.jpg";
+import mi3 from "../../assets/mi3.jpg";
+import mi4 from "../../assets/mi4.jpg";
+import mi5 from "../../assets/mi5.jpg";
+
+import pa1 from "../../assets/pa1.jpg";
+import pa2 from "../../assets/pa2.jpg";
+import pa3 from "../../assets/pa3.jpg";
+
+import cu1 from "../../assets/cu1.jpg";
+import cu2 from "../../assets/cu2.jpg";
+import cu3 from "../../assets/cu3.jpg";
+import cu4 from "../../assets/cu4.jpg";
+import cu5 from "../../assets/cu5.jpg";
+
+import logo from "../../assets/less.webp";
+
 function ConsumerPage({
   onNavigate,
   onAddToCart,
@@ -71,120 +151,52 @@ function ConsumerPage({
 
   const productImages = {
     1: {
-      main: "/src/assets/tomato.jpg",
-      farmers: [
-        "src/assets/tom1.jpg",
-        "src/assets/tom2.jpg",
-        "src/assets/tom3.jpg",
-        "src/assets/tom4.jpg",
-        "src/assets/tom5.jpg"
-      ]
+      main: tomato,
+      farmers: [tom1, tom2, tom3, tom4, tom5]
     },
     2: {
-      main: "src/assets/broccoli.jpg",
-      farmers: [
-        "src/assets/boc1.jpg",
-        "src/assets/boc2.jpg",
-        "src/assets/boc3.jpg",
-        "src/assets/boc4.jpg"
-      ]
+      main: broccoli,
+      farmers: [boc1, boc2, boc3, boc4]
     },
     3: {
-      main: "src/assets/potato.jpg",
-      farmers: [
-        "src/assets/po1.jpg",
-        "src/assets/po2.jpg",
-        "src/assets/po3.jpg",
-        "src/assets/po4.jpg",
-        "src/assets/po5.jpg"
-      ]
+      main: potato,
+      farmers: [po1, po2, po3, po4, po5]
     },
     4: {
-      main: "src/assets/apple.jpg",
-      farmers: [
-        "src/assets/ap1.jpg",
-        "src/assets/ap2.jpg",
-        "src/assets/ap3.jpg",
-        "src/assets/ap4.jpg",
-        "src/assets/ap5.jpg"
-      ]
+      main: apple,
+      farmers: [ap1, ap2, ap3, ap4, ap5]
     },
     5: {
-      main: "src/assets/banana.jpg",
-      farmers: [
-        "src/assets/ba1.jpg",
-        "src/assets/ba2.jpg",
-        "src/assets/ba3.jpg",
-        "src/assets/ba4.jpg"
-      ]
+      main: banana,
+      farmers: [ba1, ba2, ba3, ba4]
     },
     6: {
-      main: "src/assets/mango.jpg",
-      farmers: [
-        "src/assets/man1.jpg",
-        "src/assets/man2.jpg",
-        "src/assets/man3.jpg",
-        "src/assets/man4.jpg",
-        "src/assets/man5.jpg"
-      ]
+      main: mango,
+      farmers: [man1, man2, man3, man4, man5]
     },
     7: {
-      main: "src/assets/rice.jpg",
-      farmers: [
-        "src/assets/ri1.jpg",
-        "src/assets/ri2.jpg",
-        "src/assets/ri3.jpg",
-        "src/assets/ri4.jpg",
-        "src/assets/ri5.jpg"
-      ]
+      main: rice,
+      farmers: [ri1, ri2, ri3, ri4, ri5]
     },
     8: {
-      main: "src/assets/wheat.jpg",
-      farmers: [
-        "src/assets/wi1.jpg",
-        "src/assets/wi2.jpg",
-        "src/assets/wi3.jpg",
-        "src/assets/wi4.jpg"
-      ]
+      main: wheat,
+      farmers: [wheat, wheat, wheat, wheat]
     },
     9: {
-      main: "src/assets/corn.jpg",
-      farmers: [
-        "src/assets/co1.jpg",
-        "src/assets/co2.jpg",
-        "src/assets/co3.jpg",
-        "src/assets/co4.jpg",
-        "src/assets/co5.jpg",
-        "src/assets/co6.jpg"
-      ]
+      main: corn,
+      farmers: [co1, co2, co3, co4, co5, co6]
     },
     10: {
-      main: "src/assets/milk.jpg",
-      farmers: [
-        "src/assets/mi1.jpg",
-        "src/assets/mi2.jpg",
-        "src/assets/mi3.jpg",
-        "src/assets/mi4.jpg",
-        "src/assets/mi5.jpg"
-      ]
+      main: milk,
+      farmers: [mi1, mi2, mi3, mi4, mi5]
     },
     11: {
-      main: "src/assets/paneer.jpg",
-      farmers: [
-        "src/assets/pa1.jpg",
-        "src/assets/pa2.jpg",
-        "src/assets/pa3.jpg"
-      ]
+      main: paneer,
+      farmers: [pa1, pa2, pa3]
     },
     12: {
-      main: "src/assets/curd.jpg",
-      farmers: [
-        "src/assets/cu1.jpg",
-        "src/assets/cu2.jpg",
-        "src/assets/cu3.jpg",
-        "src/assets/cu4.jpg",
-        "src/assets/cu5.jpg"
-      ]
+      main: curd,
+      farmers: [cu1, cu2, cu3, cu4, cu5]
     }
   };
 
@@ -384,7 +396,7 @@ function ConsumerPage({
         <div className="consumer-brand">
           <img
             className="consumer-brand-icon"
-            src="/less.webp"
+            src={logo}
             alt="Kisaan connect logo"
           />
           <div>
