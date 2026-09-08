@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { useState } from "react";
 import {
   BrowserRouter,
@@ -6,6 +7,9 @@ import {
   Navigate,
   useNavigate,
 } from "react-router-dom";
+=======
+import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
+>>>>>>> fc9dc84f5e2e4584eaff5dd59ea7d6f2db881c32
 
 import { useAuth } from "./context/AuthContext";
 import ProtectedRoute from "./routes/ProtectedRoute";
@@ -19,7 +23,7 @@ import AdminPage from "./pages/admin/AdminPage";
 import BulkBuyerPage from "./pages/bulkbuyer/bulkbuyer";
 import FarmerPage from "./pages/farmer/FarmerPage";
 import GovernmentPage from "./pages/government/GovernmentPage";
-import FPOPage from "./pages/fpo/FPOPage";
+import FPOPage from "./pages/fpo/fpo";
 import ConsumerPage from "./pages/consumer/Consumerpage";
 
 function AppRoutes() {
@@ -294,10 +298,14 @@ function AppRoutes() {
               replace
             />
           ) : (
+<<<<<<< HEAD
             <Navigate
               to="/"
               replace
             />
+=======
+            <Navigate to="/login" replace />
+>>>>>>> fc9dc84f5e2e4584eaff5dd59ea7d6f2db881c32
           )
         }
       />
@@ -307,11 +315,7 @@ function AppRoutes() {
 }
 
 function App() {
-  return (
-    <BrowserRouter>
-      <AppRoutes />
-    </BrowserRouter>
-  );
+  return <AppRoutes />;
 }
 
 export default App;

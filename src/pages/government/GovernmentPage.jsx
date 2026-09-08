@@ -1,6 +1,6 @@
 import { useState } from "react";
 import "./GovermentPage.css";
-
+import {useAuth} from "../../context/AuthContext"
 const FARMERS = [
   {
     id: "F001",
@@ -348,6 +348,7 @@ const MONTHLY_SALES = [
 ];
 
 function GovernmentPage({ user, onNavigate }) {
+  const {logout}=useAuth();
   const [section, setSection] = useState("dashboard");
   const [userType, setUserType] = useState("all");
   const [reportType, setReportType] = useState("farmer");
@@ -1587,7 +1588,7 @@ function GovernmentPage({ user, onNavigate }) {
           </button>
           <button
   className="government-logout-btn"
-  onClick={() => onNavigate("login")}
+  onClick={logout}
 >
   Logout
 </button>
