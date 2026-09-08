@@ -1356,7 +1356,6 @@ function FPOPage({ user, onNavigate }) {
             )}
           </div>
 
-<<<<<<< HEAD
       <div className="fpo-profile-info-row">
         <span>Role</span>
         <strong>FPO Manager</strong>
@@ -1387,8 +1386,6 @@ function FPOPage({ user, onNavigate }) {
 </div>
 
           
-=======
->>>>>>> fc9dc84f5e2e4584eaff5dd59ea7d6f2db881c32
           {profileOpen && (
             <div className="fpo-profile-panel">
               <div className="fpo-profile-top">
@@ -1516,13 +1513,9 @@ function FPOPage({ user, onNavigate }) {
       {/* FOOTER */}
 
       <footer className="fpo-footer">
-<<<<<<< HEAD
         <span>
           © 2026 Kisaan Connect • FPO Management Panel
         </span>
-=======
-        <span>© 2026 Kisaan Bazar • FPO Management Panel</span>
->>>>>>> fc9dc84f5e2e4584eaff5dd59ea7d6f2db881c32
 
         <span>Empowering Farmers • Building Better Markets</span>
       </footer>
