@@ -3,7 +3,7 @@ import { registerUser } from "../../services/authService";
 import "./signup.css";
 
 const ROLE_IDS = {
-  FARMER: "6a9ac66d2aed80625001f8ea",
+  FARMER: "6a9d8dd1ecd1c65b9f33ab28",
   CONSUMER: "6a9ac66d2aed80625001f8ed"
 };
 
