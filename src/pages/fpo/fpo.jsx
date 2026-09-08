@@ -1280,8 +1280,8 @@ function FPOPage({ user, onNavigate }) {
       <header className="fpo-header">
         <div className="fpo-brand">
           <div className="fpo-brand-icon">
-  <img src="/LESS.WEBP" alt="Kisaan Connect logo" />
-</div>
+            <img src="/LESS.WEBP" alt="Kisaan Connect logo" />
+          </div>
 
           <div>
             <strong>
@@ -1356,36 +1356,32 @@ function FPOPage({ user, onNavigate }) {
             )}
           </div>
 
-      <div className="fpo-profile-info-row">
-        <span>Role</span>
-        <strong>FPO Manager</strong>
-      </div>
+          <div className="fpo-profile-info-row">
+            <span>Role</span>
+            <strong>FPO Manager</strong>
+          </div>
 
-      <div className="fpo-profile-info-row">
-        <span>Organisation</span>
-        <strong>Kisaan Connect FPO</strong>
-      </div>
+          <div className="fpo-profile-info-row">
+            <span>Organisation</span>
+            <strong>Kisaan Connect FPO</strong>
+          </div>
 
-      <div className="fpo-profile-info-row">
-        <span>Farmers</span>
-        <strong>120</strong>
-      </div>
+          <div className="fpo-profile-info-row">
+            <span>Farmers</span>
+            <strong>120</strong>
+          </div>
 
-      <div className="fpo-profile-info-row">
-        <span>Regions</span>
-        <strong>12</strong>
-      </div>
+          <div className="fpo-profile-info-row">
+            <span>Regions</span>
+            <strong>12</strong>
+          </div>
 
-      <button className="fpo-information-btn">
-        Add / Update Information
-      </button>
+          <button className="fpo-information-btn">
+            Add / Update Information
+          </button>
+        </div>
 
-    </div>
-  )}
-
-</div>
-
-          
+        <div>
           {profileOpen && (
             <div className="fpo-profile-panel">
               <div className="fpo-profile-top">
@@ -1513,9 +1509,7 @@ function FPOPage({ user, onNavigate }) {
       {/* FOOTER */}
 
       <footer className="fpo-footer">
-        <span>
-          © 2026 Kisaan Connect • FPO Management Panel
-        </span>
+        <span>© 2026 Kisaan Connect • FPO Management Panel</span>
 
         <span>Empowering Farmers • Building Better Markets</span>
       </footer>

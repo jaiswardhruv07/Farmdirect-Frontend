@@ -1,15 +1,11 @@
-<<<<<<< HEAD
 import { useState } from "react";
 import {
   BrowserRouter,
   Routes,
   Route,
   Navigate,
-  useNavigate,
+  useNavigate
 } from "react-router-dom";
-=======
-import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
->>>>>>> fc9dc84f5e2e4584eaff5dd59ea7d6f2db881c32
 
 import { useAuth } from "./context/AuthContext";
 import ProtectedRoute from "./routes/ProtectedRoute";
@@ -37,16 +33,14 @@ function AppRoutes() {
 
   const handleAddToCart = (product) => {
     setCart((prevCart) => {
-      const existing = prevCart.find(
-        (item) => item.id === product.id
-      );
+      const existing = prevCart.find((item) => item.id === product.id);
 
       if (existing) {
         return prevCart.map((item) =>
           item.id === product.id
             ? {
                 ...item,
-                quantity: (item.quantity || 1) + 1,
+                quantity: (item.quantity || 1) + 1
               }
             : item
         );
@@ -56,16 +50,14 @@ function AppRoutes() {
         ...prevCart,
         {
           ...product,
-          quantity: 1,
-        },
+          quantity: 1
+        }
       ];
     });
   };
 
   const handleRemoveFromCart = (productId) => {
-    setCart((prevCart) =>
-      prevCart.filter((item) => item.id !== productId)
-    );
+    setCart((prevCart) => prevCart.filter((item) => item.id !== productId));
   };
 
   const handleUpdateQuantity = (productId, quantity) => {
@@ -74,7 +66,7 @@ function AppRoutes() {
         item.id === productId
           ? {
               ...item,
-              quantity: Math.max(1, quantity),
+              quantity: Math.max(1, quantity)
             }
           : item
       )
@@ -126,17 +118,13 @@ function AppRoutes() {
 
   return (
     <Routes>
-
       {/* ================= AUTH ================= */}
 
       <Route
         path="/"
         element={
           isAuthenticated ? (
-            <Navigate
-              to={getDashboardPath(user?.role)}
-              replace
-            />
+            <Navigate to={getDashboardPath(user?.role)} replace />
           ) : (
             <LoginPage
               onLogin={handleLogin}
@@ -153,10 +141,7 @@ function AppRoutes() {
         path="/login"
         element={
           isAuthenticated ? (
-            <Navigate
-              to={getDashboardPath(user?.role)}
-              replace
-            />
+            <Navigate to={getDashboardPath(user?.role)} replace />
           ) : (
             <LoginPage
               onLogin={handleLogin}
@@ -173,60 +158,35 @@ function AppRoutes() {
         path="/signup"
         element={
           isAuthenticated ? (
-            <Navigate
-              to={getDashboardPath(user?.role)}
-              replace
-            />
+            <Navigate to={getDashboardPath(user?.role)} replace />
           ) : (
-            <Signup
-              onBackToLogin={() => navigate("/")}
-            />
+            <Signup onBackToLogin={() => navigate("/")} />
           )
         }
       />
 
       {/* ================= PROTECTED ROLE ROUTES ================= */}
 
-      <Route
-        element={
-          <ProtectedRoute allowedRoles={["FARMER"]} />
-        }
-      >
-        <Route
-          path="/farmer"
-          element={<FarmerPage />}
-        />
+      <Route element={<ProtectedRoute allowedRoles={["FARMER"]} />}>
+        <Route path="/farmer" element={<FarmerPage />} />
       </Route>
 
       {/* ================= CONSUMER ================= */}
 
-      <Route
-        element={
-          <ProtectedRoute allowedRoles={["CONSUMER"]} />
-        }
-      >
+      <Route element={<ProtectedRoute allowedRoles={["CONSUMER"]} />}>
         <Route
           path="/consumer"
           element={
             <ConsumerPage
               user={user}
-
               cart={cart}
-
               cartCount={cart.reduce(
-                (total, item) =>
-                  total + (item.quantity || 1),
+                (total, item) => total + (item.quantity || 1),
                 0
               )}
-
               onAddToCart={handleAddToCart}
-
               onRemove={handleRemoveFromCart}
-
-              onUpdateQuantity={
-                handleUpdateQuantity
-              }
-
+              onUpdateQuantity={handleUpdateQuantity}
               onClearCart={handleClearCart}
             />
           }
@@ -235,56 +195,26 @@ function AppRoutes() {
 
       {/* ================= ADMIN ================= */}
 
-      <Route
-        element={
-          <ProtectedRoute allowedRoles={["ADMIN"]} />
-        }
-      >
-        <Route
-          path="/admin"
-          element={<AdminPage />}
-        />
+      <Route element={<ProtectedRoute allowedRoles={["ADMIN"]} />}>
+        <Route path="/admin" element={<AdminPage />} />
       </Route>
 
       {/* ================= GOVERNMENT ================= */}
 
-      <Route
-        element={
-          <ProtectedRoute
-            allowedRoles={["GOVERNMENT_OFFICER"]}
-          />
-        }
-      >
-        <Route
-          path="/government"
-          element={<GovernmentPage />}
-        />
+      <Route element={<ProtectedRoute allowedRoles={["GOVERNMENT_OFFICER"]} />}>
+        <Route path="/government" element={<GovernmentPage />} />
       </Route>
 
       {/* ================= FPO ================= */}
 
-      <Route
-        element={
-          <ProtectedRoute allowedRoles={["FPO"]} />
-        }
-      >
-        <Route
-          path="/fpo"
-          element={<FPOPage />}
-        />
+      <Route element={<ProtectedRoute allowedRoles={["FPO"]} />}>
+        <Route path="/fpo" element={<FPOPage />} />
       </Route>
 
       {/* ================= BULK BUYER ================= */}
 
-      <Route
-        element={
-          <ProtectedRoute allowedRoles={["BULK_BUYER"]} />
-        }
-      >
-        <Route
-          path="/bulkbuyer"
-          element={<BulkBuyerPage />}
-        />
+      <Route element={<ProtectedRoute allowedRoles={["BULK_BUYER"]} />}>
+        <Route path="/bulkbuyer" element={<BulkBuyerPage />} />
       </Route>
 
       {/* ================= FALLBACK ================= */}
@@ -293,23 +223,12 @@ function AppRoutes() {
         path="*"
         element={
           isAuthenticated ? (
-            <Navigate
-              to={getDashboardPath(user?.role)}
-              replace
-            />
+            <Navigate to={getDashboardPath(user?.role)} replace />
           ) : (
-<<<<<<< HEAD
-            <Navigate
-              to="/"
-              replace
-            />
-=======
-            <Navigate to="/login" replace />
->>>>>>> fc9dc84f5e2e4584eaff5dd59ea7d6f2db881c32
+            <Navigate to="/" replace />
           )
         }
       />
-
     </Routes>
   );
 }

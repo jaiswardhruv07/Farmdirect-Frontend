@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 
-
 function ConsumerPage({
   onNavigate,
   onAddToCart,
@@ -10,7 +9,7 @@ function ConsumerPage({
   cart = [],
   onRemove,
   onUpdateQuantity,
-  onClearCart,
+  onClearCart
 }) {
   const [address, setAddress] = useState("");
   const [isEditingAddress, setIsEditingAddress] = useState(false);
@@ -67,26 +66,126 @@ function ConsumerPage({
     { id: "F002", name: "Sita Ram", region: "Bihar" },
     { id: "F003", name: "Mohan Lal", region: "Uttar Pradesh" },
     { id: "F004", name: "Sunita Devi", region: "Jharkhand" },
-    { id: "F005", name: "Hari Singh", region: "Punjab" },
+    { id: "F005", name: "Hari Singh", region: "Punjab" }
   ];
 
   const productImages = {
-    1: { main: "/tomato.jpg", farmers: ["/tom1.jpg", "/tom2.jpg", "/tom3.jpg", "/tom4.jpg", "/tom5.jpg"] },
-    2: { main: "/broccoli.jpg", farmers: ["/boc1.jpg", "/boc2.jpg", "/boc3.jpg", "/boc4.jpg"] },
-    3: { main: "/potato.jpg", farmers: ["/po1.jpg", "/po2.jpg", "/po3.jpg", "/po4.jpg", "/po5.jpg"] },
-    4: { main: "/apple.jpg", farmers: ["/ap1.jpg", "/ap2.jpg", "/ap3.jpg", "/ap4.jpg", "/ap5.jpg"] },
-    5: { main: "/banana.jpg", farmers: ["/ba1.jpg", "/ba2.jpg", "/ba3.jpg", "/ba4.jpg"] },
+    1: {
+      main: "/src/assets/tomato.jpg",
+      farmers: [
+        "src/assets/tom1.jpg",
+        "src/assets/tom2.jpg",
+        "src/assets/tom3.jpg",
+        "src/assets/tom4.jpg",
+        "src/assets/tom5.jpg"
+      ]
+    },
+    2: {
+      main: "src/assets/broccoli.jpg",
+      farmers: [
+        "src/assets/boc1.jpg",
+        "src/assets/boc2.jpg",
+        "src/assets/boc3.jpg",
+        "src/assets/boc4.jpg"
+      ]
+    },
+    3: {
+      main: "src/assets/potato.jpg",
+      farmers: [
+        "src/assets/po1.jpg",
+        "src/assets/po2.jpg",
+        "src/assets/po3.jpg",
+        "src/assets/po4.jpg",
+        "src/assets/po5.jpg"
+      ]
+    },
+    4: {
+      main: "src/assets/apple.jpg",
+      farmers: [
+        "src/assets/ap1.jpg",
+        "src/assets/ap2.jpg",
+        "src/assets/ap3.jpg",
+        "src/assets/ap4.jpg",
+        "src/assets/ap5.jpg"
+      ]
+    },
+    5: {
+      main: "src/assets/banana.jpg",
+      farmers: [
+        "src/assets/ba1.jpg",
+        "src/assets/ba2.jpg",
+        "src/assets/ba3.jpg",
+        "src/assets/ba4.jpg"
+      ]
+    },
     6: {
-  main: "/mango.jpg",
-  farmers: ["/man1.jpg", "/man2.jpg", "/man3.jpg", "/man4.jpg", "/man5.jpg"]
-},
-    7: { main: "/rice.jpg", farmers: ["/ri1.jpg", "/ri2.jpg", "/ri3.jpg", "/ri4.jpg", "/ri5.jpg"] },
-    8: { main: "/wheat.jpg", farmers: ["/wi1.jpg", "/wi2.jpg", "/wi3.jpg", "/wi4.jpg"] },
-    9: { main: "/corn.jpg", farmers: ["/co1.jpg", "/co2.jpg", "/co3.jpg", "/co4.jpg", "/co5.jpg", "/co6.jpg"] },
-    10: { main: "/milk.jpg", farmers: ["/mi1.jpg", "/mi2.jpg", "/mi3.jpg", "/mi4.jpg", "/mi5.jpg"] },
-    11: { main: "/paneer.jpg", farmers: ["/pa1.jpg", "/pa2.jpg", "/pa3.jpg"] },
-    12: { main: "/curd.jpg", farmers: ["/cu1.jpg", "/cu2.jpg", "/cu3.jpg", "/cu4.jpg", "/cu5.jpg"] },
-    
+      main: "src/assets/mango.jpg",
+      farmers: [
+        "src/assets/man1.jpg",
+        "src/assets/man2.jpg",
+        "src/assets/man3.jpg",
+        "src/assets/man4.jpg",
+        "src/assets/man5.jpg"
+      ]
+    },
+    7: {
+      main: "src/assets/rice.jpg",
+      farmers: [
+        "src/assets/ri1.jpg",
+        "src/assets/ri2.jpg",
+        "src/assets/ri3.jpg",
+        "src/assets/ri4.jpg",
+        "src/assets/ri5.jpg"
+      ]
+    },
+    8: {
+      main: "src/assets/wheat.jpg",
+      farmers: [
+        "src/assets/wi1.jpg",
+        "src/assets/wi2.jpg",
+        "src/assets/wi3.jpg",
+        "src/assets/wi4.jpg"
+      ]
+    },
+    9: {
+      main: "src/assets/corn.jpg",
+      farmers: [
+        "src/assets/co1.jpg",
+        "src/assets/co2.jpg",
+        "src/assets/co3.jpg",
+        "src/assets/co4.jpg",
+        "src/assets/co5.jpg",
+        "src/assets/co6.jpg"
+      ]
+    },
+    10: {
+      main: "src/assets/milk.jpg",
+      farmers: [
+        "src/assets/mi1.jpg",
+        "src/assets/mi2.jpg",
+        "src/assets/mi3.jpg",
+        "src/assets/mi4.jpg",
+        "src/assets/mi5.jpg"
+      ]
+    },
+    11: {
+      main: "src/assets/paneer.jpg",
+      farmers: [
+        "src/assets/pa1.jpg",
+        "src/assets/pa2.jpg",
+        "src/assets/pa3.jpg"
+      ]
+    },
+    12: {
+      main: "src/assets/curd.jpg",
+      farmers: [
+        "src/assets/cu1.jpg",
+        "src/assets/cu2.jpg",
+        "src/assets/cu3.jpg",
+        "src/assets/cu4.jpg",
+        "src/assets/cu5.jpg"
+      ]
+    }
   };
 
   function createFarmerListings(productId, productName, basePrice) {
@@ -104,7 +203,7 @@ function ConsumerPage({
         region: farmer.region,
         price: basePrice + (index - 2) * 2,
         stock: 40 + ((productId + index * 7) % 45),
-        image,
+        image
       };
     });
   }
@@ -121,42 +220,55 @@ function ConsumerPage({
     { id: 9, name: "Corn", category: "Grains", price: 60 },
     { id: 10, name: "Milk", category: "Dairy", price: 60 },
     { id: 11, name: "Paneer", category: "Dairy", price: 90 },
-    { id: 12, name: "Curd", category: "Dairy", price: 50 },
+    { id: 12, name: "Curd", category: "Dairy", price: 50 }
   ].map((product) => {
-    const farmerListings = createFarmerListings(product.id, product.name, product.price);
+    const farmerListings = createFarmerListings(
+      product.id,
+      product.name,
+      product.price
+    );
 
     return {
       ...product,
       farmerListings,
-      image: productImages[product.id]?.main,
+      image: productImages[product.id]?.main
     };
   });
 
   const newProducts = [
     { id: 101, name: "Fresh Spinach", category: "Vegetables", price: 35 },
     { id: 102, name: "Fresh Strawberry", category: "Fruits", price: 150 },
-    { id: 103, name: "Fresh Butter", category: "Dairy", price: 110 },
+    { id: 103, name: "Fresh Butter", category: "Dairy", price: 110 }
   ].map((product) => {
-    const farmerListings = createFarmerListings(product.id, product.name, product.price);
+    const farmerListings = createFarmerListings(
+      product.id,
+      product.name,
+      product.price
+    );
     return {
       ...product,
       farmerListings,
-      image: farmerListings[0]?.image,
+      image: farmerListings[0]?.image
     };
   });
 
-  const categories = ["All", ...Array.from(new Set(products.map((p) => p.category)))];
+  const categories = [
+    "All",
+    ...Array.from(new Set(products.map((p) => p.category)))
+  ];
 
   const searchResults = [...products, ...newProducts].filter((product) =>
     product.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const filteredProducts = products.filter((product) =>
-    selectedCategory === "All" || product.category === selectedCategory
+  const filteredProducts = products.filter(
+    (product) =>
+      selectedCategory === "All" || product.category === selectedCategory
   );
 
-  const filteredNewProducts = newProducts.filter((product) =>
-    selectedCategory === "All" || product.category === selectedCategory
+  const filteredNewProducts = newProducts.filter(
+    (product) =>
+      selectedCategory === "All" || product.category === selectedCategory
   );
 
   function handleSaveAddress() {
@@ -168,17 +280,30 @@ function ConsumerPage({
   }
 
   const cartSubtotal = cart.reduce(
-    (sum, item) => sum + item.price * (item.quantity || 1), 0
+    (sum, item) => sum + item.price * (item.quantity || 1),
+    0
   );
 
   const cartDiscount = cart.reduce((sum, item) => {
     const quantity = item.quantity || 1;
-    const percent = quantity >= 100 ? 20 : quantity >= 50 ? 15 : quantity >= 20 ? 10 : quantity >= 10 ? 5 : 0;
+    const percent =
+      quantity >= 100
+        ? 20
+        : quantity >= 50
+          ? 15
+          : quantity >= 20
+            ? 10
+            : quantity >= 10
+              ? 5
+              : 0;
     return sum + (item.price * quantity * percent) / 100;
   }, 0);
 
   const cartTotal = cartSubtotal - cartDiscount;
-  const cartItemCount = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
+  const cartItemCount = cart.reduce(
+    (sum, item) => sum + (item.quantity || 1),
+    0
+  );
 
   function openConsumerView(view) {
     if (view === "payment" && cart.length === 0) {
@@ -186,7 +311,9 @@ function ConsumerPage({
       return;
     }
     if (view === "payment") {
-      setPaymentAddress(address || localStorage.getItem("kb_saved_address") || "");
+      setPaymentAddress(
+        address || localStorage.getItem("kb_saved_address") || ""
+      );
     }
     setConsumerView(view);
   }
@@ -212,7 +339,7 @@ function ConsumerPage({
       address: paymentAddress.trim(),
       coupon: coupon.trim(),
       paymentMethod,
-      status: "Order Successful",
+      status: "Order Successful"
     };
 
     setOrders((previous) => [newOrder, ...previous]);
@@ -255,17 +382,28 @@ function ConsumerPage({
 
       <header className="consumer-header">
         <div className="consumer-brand">
-          <img className="consumer-brand-icon" src="/less.webp" alt="Kisaan connect logo" />
+          <img
+            className="consumer-brand-icon"
+            src="/less.webp"
+            alt="Kisaan connect logo"
+          />
           <div>
-            <strong>Kisaan <em>Connect</em></strong>
+            <strong>
+              Kisaan <em>Connect</em>
+            </strong>
             <small>Consumer Panel</small>
           </div>
         </div>
 
         <div className="consumer-header-right">
           <span className="consumer-notification">🔔</span>
-          <button className="consumer-user" onClick={() => setProfileOpen(!profileOpen)}>
-            <span className="consumer-avatar">{user?.name?.charAt(0)?.toUpperCase() || "C"}</span>
+          <button
+            className="consumer-user"
+            onClick={() => setProfileOpen(!profileOpen)}
+          >
+            <span className="consumer-avatar">
+              {user?.name?.charAt(0)?.toUpperCase() || "C"}
+            </span>
             <span className="consumer-user-info">
               <strong>{user?.name || "Consumer"}</strong>
               <small>{user?.email || "Consumer Account"}</small>
@@ -275,17 +413,28 @@ function ConsumerPage({
 
           {profileOpen && (
             <div className="consumer-profile-panel">
-              <div className="consumer-profile-avatar">{user?.name?.charAt(0)?.toUpperCase() || "C"}</div>
+              <div className="consumer-profile-avatar">
+                {user?.name?.charAt(0)?.toUpperCase() || "C"}
+              </div>
               <h3>{user?.name || "Consumer"}</h3>
               <p className="consumer-profile-role">Consumer</p>
               <div className="consumer-profile-info">
-                <div><span>Email</span><strong>{user?.email || "Not available"}</strong></div>
-                <div><span>Delivery Address</span><strong>{address || "Not added"}</strong></div>
+                <div>
+                  <span>Email</span>
+                  <strong>{user?.email || "Not available"}</strong>
+                </div>
+                <div>
+                  <span>Delivery Address</span>
+                  <strong>{address || "Not added"}</strong>
+                </div>
               </div>
-              <button className="consumer-profile-action" onClick={() => {
-                setProfileOpen(false);
-                onProfile?.();
-              }}>
+              <button
+                className="consumer-profile-action"
+                onClick={() => {
+                  setProfileOpen(false);
+                  onProfile?.();
+                }}
+              >
                 View / Update Profile
               </button>
             </div>
@@ -296,16 +445,32 @@ function ConsumerPage({
       <div className="consumer-layout">
         <aside className="consumer-sidebar">
           <div className="consumer-sidebar-menu">
-            <button className={isHome ? "active" : ""} onClick={() => {
-              setIsHome(true); setConsumerView("home"); setSelectedCategory("All"); setSearchTerm("");
-            }}>
-              <span>🏠</span><span>Home</span><span className="consumer-menu-arrow">›</span>
+            <button
+              className={isHome ? "active" : ""}
+              onClick={() => {
+                setIsHome(true);
+                setConsumerView("home");
+                setSelectedCategory("All");
+                setSearchTerm("");
+              }}
+            >
+              <span>🏠</span>
+              <span>Home</span>
+              <span className="consumer-menu-arrow">›</span>
             </button>
 
-            <button className={!isHome ? "active" : ""} onClick={() => {
-              setIsHome(false); setConsumerView("home"); setSelectedCategory("All"); setSearchTerm("");
-            }}>
-              <span>🛍️</span><span>Items</span><span className="consumer-menu-arrow">›</span>
+            <button
+              className={!isHome ? "active" : ""}
+              onClick={() => {
+                setIsHome(false);
+                setConsumerView("home");
+                setSelectedCategory("All");
+                setSearchTerm("");
+              }}
+            >
+              <span>🛍️</span>
+              <span>Items</span>
+              <span className="consumer-menu-arrow">›</span>
             </button>
 
             {!isHome && (
@@ -313,7 +478,11 @@ function ConsumerPage({
                 {categories.map((cat) => (
                   <button
                     key={cat}
-                    className={selectedCategory === cat ? "category-btn active" : "category-btn"}
+                    className={
+                      selectedCategory === cat
+                        ? "category-btn active"
+                        : "category-btn"
+                    }
                     onClick={() => setSelectedCategory(cat)}
                   >
                     {cat}
@@ -322,12 +491,22 @@ function ConsumerPage({
               </div>
             )}
 
-            <button className={consumerView === "cart" ? "active" : ""} onClick={() => openConsumerView("cart")}>
-              <span>🛒</span><span>Cart{cartCount > 0 ? ` (${cartCount})` : ""}</span><span className="consumer-menu-arrow">›</span>
+            <button
+              className={consumerView === "cart" ? "active" : ""}
+              onClick={() => openConsumerView("cart")}
+            >
+              <span>🛒</span>
+              <span>Cart{cartCount > 0 ? ` (${cartCount})` : ""}</span>
+              <span className="consumer-menu-arrow">›</span>
             </button>
 
-            <button className={consumerView === "orders" ? "active" : ""} onClick={() => setConsumerView("orders")}>
-              <span>📦</span><span>Orders</span><span className="consumer-menu-arrow">›</span>
+            <button
+              className={consumerView === "orders" ? "active" : ""}
+              onClick={() => setConsumerView("orders")}
+            >
+              <span>📦</span>
+              <span>Orders</span>
+              <span className="consumer-menu-arrow">›</span>
             </button>
           </div>
 
@@ -353,16 +532,37 @@ function ConsumerPage({
                       autoFocus
                     />
                     <button onClick={handleSaveAddress}>Save</button>
-                    <button onClick={() => { setIsEditingAddress(false); setAddressInput(""); }}>Cancel</button>
+                    <button
+                      onClick={() => {
+                        setIsEditingAddress(false);
+                        setAddressInput("");
+                      }}
+                    >
+                      Cancel
+                    </button>
                   </div>
                 ) : address ? (
                   <p>
                     <span className="address-icon">📍</span>
-                    <span><strong>Delivering to:</strong> {address}</span>
-                    <button onClick={() => { setAddressInput(address); setIsEditingAddress(true); }}>Change</button>
+                    <span>
+                      <strong>Delivering to:</strong> {address}
+                    </span>
+                    <button
+                      onClick={() => {
+                        setAddressInput(address);
+                        setIsEditingAddress(true);
+                      }}
+                    >
+                      Change
+                    </button>
                   </p>
                 ) : (
-                  <button className="add-address-btn" onClick={() => setIsEditingAddress(true)}>📍 + Add your address</button>
+                  <button
+                    className="add-address-btn"
+                    onClick={() => setIsEditingAddress(true)}
+                  >
+                    📍 + Add your address
+                  </button>
                 )}
               </div>
 
@@ -379,15 +579,23 @@ function ConsumerPage({
 
                 {searchTerm.trim() && (
                   <div className="search-results">
-                    {searchResults.length > 0 ? searchResults.map((product) => (
-                      <div
-                        key={product.id}
-                        className="search-result-item"
-                        onClick={() => { setSelectedProduct(product); setSearchTerm(""); }}
-                      >
-                        <span>{product.name}</span><small>{product.category}</small>
-                      </div>
-                    )) : <div className="no-search-result">No products found</div>}
+                    {searchResults.length > 0 ? (
+                      searchResults.map((product) => (
+                        <div
+                          key={product.id}
+                          className="search-result-item"
+                          onClick={() => {
+                            setSelectedProduct(product);
+                            setSearchTerm("");
+                          }}
+                        >
+                          <span>{product.name}</span>
+                          <small>{product.category}</small>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="no-search-result">No products found</div>
+                    )}
                   </div>
                 )}
               </div>
@@ -405,21 +613,38 @@ function ConsumerPage({
               <h2>New Products</h2>
               <div className="product-grid">
                 {filteredNewProducts.map((product) => (
-                  <div className="product-card" key={product.id} onClick={() => setSelectedProduct(product)}>
-                    <ProductImage product={product} className="product-card-image" />
+                  <div
+                    className="product-card"
+                    key={product.id}
+                    onClick={() => setSelectedProduct(product)}
+                  >
+                    <ProductImage
+                      product={product}
+                      className="product-card-image"
+                    />
                     <p>{product.name}</p>
-                    <p>From ₹{Math.min(...product.farmerListings.map((item) => item.price))}/kg</p>
-                    <small>{product.farmerListings.length} farmer listings</small>
-                    <button onClick={(e) => {
-                      e.stopPropagation();
-                      handleConsumerAddToCart({
-                        ...product,
-                        ...product.farmerListings[0],
-                        id: product.farmerListings[0].id,
-                        name: product.name,
-                        image: product.farmerListings[0].image,
-                      });
-                    }}>
+                    <p>
+                      From ₹
+                      {Math.min(
+                        ...product.farmerListings.map((item) => item.price)
+                      )}
+                      /kg
+                    </p>
+                    <small>
+                      {product.farmerListings.length} farmer listings
+                    </small>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleConsumerAddToCart({
+                          ...product,
+                          ...product.farmerListings[0],
+                          id: product.farmerListings[0].id,
+                          name: product.name,
+                          image: product.farmerListings[0].image
+                        });
+                      }}
+                    >
                       Add to Cart
                     </button>
                   </div>
@@ -428,26 +653,48 @@ function ConsumerPage({
 
               <h2>All Items</h2>
               <div className="product-grid">
-                {filteredProducts.length > 0 ? filteredProducts.map((product) => (
-                  <div className="product-card" key={product.id} onClick={() => setSelectedProduct(product)}>
-                    <ProductImage product={product} className="product-card-image" />
-                    <p>{product.name}</p>
-                    <p>From ₹{Math.min(...product.farmerListings.map((item) => item.price))}/kg</p>
-                    <small>{product.category} • {product.farmerListings.length} farmer listings</small>
-                    <button onClick={(e) => {
-                      e.stopPropagation();
-                      handleConsumerAddToCart({
-                        ...product,
-                        ...product.farmerListings[0],
-                        id: product.farmerListings[0].id,
-                        name: product.name,
-                        image: product.farmerListings[0].image,
-                      });
-                    }}>
-                      Add to Cart
-                    </button>
-                  </div>
-                )) : <p>No products found.</p>}
+                {filteredProducts.length > 0 ? (
+                  filteredProducts.map((product) => (
+                    <div
+                      className="product-card"
+                      key={product.id}
+                      onClick={() => setSelectedProduct(product)}
+                    >
+                      <ProductImage
+                        product={product}
+                        className="product-card-image"
+                      />
+                      <p>{product.name}</p>
+                      <p>
+                        From ₹
+                        {Math.min(
+                          ...product.farmerListings.map((item) => item.price)
+                        )}
+                        /kg
+                      </p>
+                      <small>
+                        {product.category} • {product.farmerListings.length}{" "}
+                        farmer listings
+                      </small>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleConsumerAddToCart({
+                            ...product,
+                            ...product.farmerListings[0],
+                            id: product.farmerListings[0].id,
+                            name: product.name,
+                            image: product.farmerListings[0].image
+                          });
+                        }}
+                      >
+                        Add to Cart
+                      </button>
+                    </div>
+                  ))
+                ) : (
+                  <p>No products found.</p>
+                )}
               </div>
             </>
           )}
@@ -455,10 +702,15 @@ function ConsumerPage({
           {consumerView === "cart" && (
             <section className="consumer-inner-view cart-page">
               <div className="cart-navbar">
-                <button type="button" onClick={() => setConsumerView("home")}>← Back to Shopping</button>
+                <button type="button" onClick={() => setConsumerView("home")}>
+                  ← Back to Shopping
+                </button>
                 <div className="cart-heading">
                   <span className="cart-heading-icon">🛒</span>
-                  <div><h1>Your Cart</h1><p>Your fresh picks, all in one place</p></div>
+                  <div>
+                    <h1>Your Cart</h1>
+                    <p>Your fresh picks, all in one place</p>
+                  </div>
                 </div>
               </div>
 
@@ -467,30 +719,73 @@ function ConsumerPage({
                   <div className="empty-cart-icon">🛒</div>
                   <h2>Your Cart is Empty</h2>
                   <p>Looks like you haven't added anything to your cart yet.</p>
-                  <button type="button" className="start-shopping-btn" onClick={() => setConsumerView("home")}>Start Shopping →</button>
+                  <button
+                    type="button"
+                    className="start-shopping-btn"
+                    onClick={() => setConsumerView("home")}
+                  >
+                    Start Shopping →
+                  </button>
                 </div>
               ) : (
                 <div className="cart-content">
                   <div className="cart-items-section">
-                    <div className="items-heading"><h2>Shopping Bag</h2><span>{cart.length} {cart.length === 1 ? "item" : "items"}</span></div>
+                    <div className="items-heading">
+                      <h2>Shopping Bag</h2>
+                      <span>
+                        {cart.length} {cart.length === 1 ? "item" : "items"}
+                      </span>
+                    </div>
                     <div className="cart-items">
                       {cart.map((item) => (
                         <div className="cart-item" key={item.id}>
-                          <ProductImage product={item} className="cart-product-image" />
+                          <ProductImage
+                            product={item}
+                            className="cart-product-image"
+                          />
                           <div className="cart-product-details">
                             <div className="product-name-row">
                               <h3>{item.name}</h3>
-                              <button type="button" className="remove-btn" onClick={() => onRemove?.(item.id)} title="Remove item">♡ Remove</button>
+                              <button
+                                type="button"
+                                className="remove-btn"
+                                onClick={() => onRemove?.(item.id)}
+                                title="Remove item"
+                              >
+                                ♡ Remove
+                              </button>
                             </div>
                             <p className="product-description">
-                              {item.farmer ? `${item.farmer} • ${item.region || "Farmer listing"}` : "Fresh product from KisaanBazar"}
+                              {item.farmer
+                                ? `${item.farmer} • ${item.region || "Farmer listing"}`
+                                : "Fresh product from KisaanBazar"}
                             </p>
                             <div className="product-bottom">
                               <div className="item-price">₹{item.price}</div>
                               <div className="quantity-control">
-                                <button type="button" onClick={() => onUpdateQuantity?.(item.id, Math.max(1, (item.quantity || 1) - 1))}>−</button>
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    onUpdateQuantity?.(
+                                      item.id,
+                                      Math.max(1, (item.quantity || 1) - 1)
+                                    )
+                                  }
+                                >
+                                  −
+                                </button>
                                 <span>{item.quantity || 1}</span>
-                                <button type="button" onClick={() => onUpdateQuantity?.(item.id, (item.quantity || 1) + 1)}>+</button>
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    onUpdateQuantity?.(
+                                      item.id,
+                                      (item.quantity || 1) + 1
+                                    )
+                                  }
+                                >
+                                  +
+                                </button>
                               </div>
                             </div>
                           </div>
@@ -500,15 +795,43 @@ function ConsumerPage({
                   </div>
 
                   <aside className="order-summary">
-                    <div className="summary-header"><span>🧾</span><h2>Order Summary</h2></div>
-                    <div className="summary-row"><span>Items</span><span>{cart.length}</span></div>
-                    <div className="summary-row"><span>Quantity</span><span>{cartItemCount} kg</span></div>
-                    <div className="summary-row"><span>Subtotal</span><span>₹{cartSubtotal.toFixed(0)}</span></div>
-                    <div className="summary-row"><span>Bulk Discount</span><span className="delivery-text">-₹{cartDiscount.toFixed(0)}</span></div>
+                    <div className="summary-header">
+                      <span>🧾</span>
+                      <h2>Order Summary</h2>
+                    </div>
+                    <div className="summary-row">
+                      <span>Items</span>
+                      <span>{cart.length}</span>
+                    </div>
+                    <div className="summary-row">
+                      <span>Quantity</span>
+                      <span>{cartItemCount} kg</span>
+                    </div>
+                    <div className="summary-row">
+                      <span>Subtotal</span>
+                      <span>₹{cartSubtotal.toFixed(0)}</span>
+                    </div>
+                    <div className="summary-row">
+                      <span>Bulk Discount</span>
+                      <span className="delivery-text">
+                        -₹{cartDiscount.toFixed(0)}
+                      </span>
+                    </div>
                     <div className="summary-divider"></div>
-                    <div className="summary-total"><span>Total Amount</span><strong>₹{cartTotal.toFixed(0)}</strong></div>
-                    <button type="button" className="continue-btn" onClick={() => openConsumerView("payment")}>Continue <span>→</span></button>
-                    <p className="secure-text">🌱 Fresh products • Direct from farmers</p>
+                    <div className="summary-total">
+                      <span>Total Amount</span>
+                      <strong>₹{cartTotal.toFixed(0)}</strong>
+                    </div>
+                    <button
+                      type="button"
+                      className="continue-btn"
+                      onClick={() => openConsumerView("payment")}
+                    >
+                      Continue <span>→</span>
+                    </button>
+                    <p className="secure-text">
+                      🌱 Fresh products • Direct from farmers
+                    </p>
                   </aside>
                 </div>
               )}
@@ -518,7 +841,9 @@ function ConsumerPage({
           {consumerView === "payment" && (
             <section className="consumer-inner-view payment-page">
               <header className="payment-navbar">
-                <button type="button" onClick={() => setConsumerView("cart")}>← Back to Cart</button>
+                <button type="button" onClick={() => setConsumerView("cart")}>
+                  ← Back to Cart
+                </button>
                 <h2>Payment</h2>
               </header>
 
@@ -527,15 +852,25 @@ function ConsumerPage({
                 <textarea
                   placeholder="Enter your delivery address"
                   value={paymentAddress}
-                  onChange={(e) => { setPaymentAddress(e.target.value); setAddressSaved(false); }}
+                  onChange={(e) => {
+                    setPaymentAddress(e.target.value);
+                    setAddressSaved(false);
+                  }}
                 />
-                <button type="button" className="save-address-btn" onClick={() => {
-                  if (!paymentAddress.trim()) return;
-                  localStorage.setItem("kb_saved_address", paymentAddress.trim());
-                  setAddress(paymentAddress.trim());
-                  setPaymentAddress(paymentAddress.trim());
-                  setAddressSaved(true);
-                }}>
+                <button
+                  type="button"
+                  className="save-address-btn"
+                  onClick={() => {
+                    if (!paymentAddress.trim()) return;
+                    localStorage.setItem(
+                      "kb_saved_address",
+                      paymentAddress.trim()
+                    );
+                    setAddress(paymentAddress.trim());
+                    setPaymentAddress(paymentAddress.trim());
+                    setAddressSaved(true);
+                  }}
+                >
                   {addressSaved ? "Address Saved ✓" : "Save Address"}
                 </button>
               </section>
@@ -543,8 +878,24 @@ function ConsumerPage({
               <section className="payment-section">
                 <h3>🏷️ Discount / Coupon</h3>
                 <div className="coupon-box">
-                  <input type="text" placeholder="Enter coupon code" value={coupon} onChange={(e) => setCoupon(e.target.value)} />
-                  <button type="button" onClick={() => alert(coupon.trim() ? `Coupon ${coupon.trim()} added for review.` : "Please enter a coupon code.")}>Apply</button>
+                  <input
+                    type="text"
+                    placeholder="Enter coupon code"
+                    value={coupon}
+                    onChange={(e) => setCoupon(e.target.value)}
+                  />
+                  <button
+                    type="button"
+                    onClick={() =>
+                      alert(
+                        coupon.trim()
+                          ? `Coupon ${coupon.trim()} added for review.`
+                          : "Please enter a coupon code."
+                      )
+                    }
+                  >
+                    Apply
+                  </button>
                 </div>
               </section>
 
@@ -554,40 +905,83 @@ function ConsumerPage({
                   {cart.map((item) => {
                     const quantity = item.quantity || 1;
                     const itemSubtotal = item.price * quantity;
-                    const percent = quantity >= 100 ? 20 : quantity >= 50 ? 15 : quantity >= 20 ? 10 : quantity >= 10 ? 5 : 0;
-                    const itemTotal = itemSubtotal - (itemSubtotal * percent) / 100;
+                    const percent =
+                      quantity >= 100
+                        ? 20
+                        : quantity >= 50
+                          ? 15
+                          : quantity >= 20
+                            ? 10
+                            : quantity >= 10
+                              ? 5
+                              : 0;
+                    const itemTotal =
+                      itemSubtotal - (itemSubtotal * percent) / 100;
                     return (
                       <div className="order-item" key={item.id}>
-                        <span>{item.name} × {quantity} kg</span>
+                        <span>
+                          {item.name} × {quantity} kg
+                        </span>
                         <span>₹{itemTotal.toFixed(0)}</span>
                       </div>
                     );
                   })}
                 </div>
                 <div className="payment-breakdown">
-                  <div><span>Subtotal</span><strong>₹{cartSubtotal.toFixed(0)}</strong></div>
-                  <div><span>Bulk Discount</span><strong>-₹{cartDiscount.toFixed(0)}</strong></div>
+                  <div>
+                    <span>Subtotal</span>
+                    <strong>₹{cartSubtotal.toFixed(0)}</strong>
+                  </div>
+                  <div>
+                    <span>Bulk Discount</span>
+                    <strong>-₹{cartDiscount.toFixed(0)}</strong>
+                  </div>
                 </div>
-                <div className="order-total"><span>Total Amount</span><span>₹{cartTotal.toFixed(0)}</span></div>
+                <div className="order-total">
+                  <span>Total Amount</span>
+                  <span>₹{cartTotal.toFixed(0)}</span>
+                </div>
               </section>
 
               <section className="payment-section">
                 <h3>💳 Payment Method</h3>
                 <label className="payment-option">
-                  <input type="radio" name="consumer-payment" value="upi" checked={paymentMethod === "upi"} onChange={(e) => setPaymentMethod(e.target.value)} />
+                  <input
+                    type="radio"
+                    name="consumer-payment"
+                    value="upi"
+                    checked={paymentMethod === "upi"}
+                    onChange={(e) => setPaymentMethod(e.target.value)}
+                  />
                   <span>UPI</span>
                 </label>
                 <label className="payment-option">
-                  <input type="radio" name="consumer-payment" value="card" checked={paymentMethod === "card"} onChange={(e) => setPaymentMethod(e.target.value)} />
+                  <input
+                    type="radio"
+                    name="consumer-payment"
+                    value="card"
+                    checked={paymentMethod === "card"}
+                    onChange={(e) => setPaymentMethod(e.target.value)}
+                  />
                   <span>Credit / Debit Card</span>
                 </label>
                 <label className="payment-option">
-                  <input type="radio" name="consumer-payment" value="cod" checked={paymentMethod === "cod"} onChange={(e) => setPaymentMethod(e.target.value)} />
+                  <input
+                    type="radio"
+                    name="consumer-payment"
+                    value="cod"
+                    checked={paymentMethod === "cod"}
+                    onChange={(e) => setPaymentMethod(e.target.value)}
+                  />
                   <span>Cash on Delivery</span>
                 </label>
               </section>
 
-              <button type="button" className="place-order-btn" onClick={handlePlaceConsumerOrder}>
+              <button
+                type="button"
+                className="place-order-btn"
+                onClick={handlePlaceConsumerOrder}
+              >
                 Place Order • ₹{cartTotal.toFixed(0)}
               </button>
             </section>
@@ -599,9 +993,17 @@ function ConsumerPage({
                 <div>
                   <span className="orders-kicker">CONSUMER ORDERS</span>
                   <h1>My Orders</h1>
-                  <p>Track your successful Kisaan connect purchases in one place.</p>
+                  <p>
+                    Track your successful Kisaan connect purchases in one place.
+                  </p>
                 </div>
-                <button type="button" className="orders-shop-btn" onClick={() => setConsumerView("home")}>Continue Shopping →</button>
+                <button
+                  type="button"
+                  className="orders-shop-btn"
+                  onClick={() => setConsumerView("home")}
+                >
+                  Continue Shopping →
+                </button>
               </div>
 
               {orders.length === 0 ? (
@@ -609,7 +1011,9 @@ function ConsumerPage({
                   <div className="orders-empty-icon">📦</div>
                   <h2>No Orders Yet</h2>
                   <p>Your completed orders will appear here after payment.</p>
-                  <button type="button" onClick={() => setConsumerView("home")}>Start Shopping</button>
+                  <button type="button" onClick={() => setConsumerView("home")}>
+                    Start Shopping
+                  </button>
                 </div>
               ) : (
                 <div className="orders-list">
@@ -617,45 +1021,89 @@ function ConsumerPage({
                     <article className="consumer-order-card" key={order.id}>
                       <div className="consumer-order-top">
                         <div>
-                          <span className="order-success-badge">✓ {order.status}</span>
+                          <span className="order-success-badge">
+                            ✓ {order.status}
+                          </span>
                           <h2>Order #{order.id}</h2>
                           <p>{order.createdAt}</p>
                         </div>
-                        <strong className="consumer-order-total">₹{order.total.toFixed(0)}</strong>
+                        <strong className="consumer-order-total">
+                          ₹{order.total.toFixed(0)}
+                        </strong>
                       </div>
 
                       <div className="consumer-order-grid">
-                        <div className="order-info-box"><span>Order ID</span><strong>{order.id}</strong></div>
-                        <div className="order-info-box"><span>Date & Time</span><strong>{order.createdAt}</strong></div>
-                        <div className="order-info-box"><span>Quantity</span><strong>{order.totalQuantity} kg</strong></div>
-                        <div className="order-info-box"><span>Payment Method</span><strong>{order.paymentMethod.toUpperCase()}</strong></div>
+                        <div className="order-info-box">
+                          <span>Order ID</span>
+                          <strong>{order.id}</strong>
+                        </div>
+                        <div className="order-info-box">
+                          <span>Date & Time</span>
+                          <strong>{order.createdAt}</strong>
+                        </div>
+                        <div className="order-info-box">
+                          <span>Quantity</span>
+                          <strong>{order.totalQuantity} kg</strong>
+                        </div>
+                        <div className="order-info-box">
+                          <span>Payment Method</span>
+                          <strong>{order.paymentMethod.toUpperCase()}</strong>
+                        </div>
                       </div>
 
                       <div className="ordered-products">
                         <h3>Ordered Products</h3>
                         {order.items.map((item) => (
-                          <div className="ordered-product-row" key={`${order.id}-${item.id}`}>
+                          <div
+                            className="ordered-product-row"
+                            key={`${order.id}-${item.id}`}
+                          >
                             <div>
                               <strong>{item.name}</strong>
                               <span>
-                                {item.farmer ? `${item.farmer} • ${item.region || ""} • ` : ""}
+                                {item.farmer
+                                  ? `${item.farmer} • ${item.region || ""} • `
+                                  : ""}
                                 {item.quantity || 1} kg × ₹{item.price}
                               </span>
                             </div>
-                            <strong>₹{(item.price * (item.quantity || 1)).toFixed(0)}</strong>
+                            <strong>
+                              ₹{(item.price * (item.quantity || 1)).toFixed(0)}
+                            </strong>
                           </div>
                         ))}
                       </div>
 
                       <div className="consumer-order-summary">
-                        <div><span>Subtotal</span><strong>₹{order.subtotal.toFixed(0)}</strong></div>
-                        <div><span>Discount</span><strong>-₹{order.discount.toFixed(0)}</strong></div>
-                        <div className="order-summary-total"><span>Total</span><strong>₹{order.total.toFixed(0)}</strong></div>
+                        <div>
+                          <span>Subtotal</span>
+                          <strong>₹{order.subtotal.toFixed(0)}</strong>
+                        </div>
+                        <div>
+                          <span>Discount</span>
+                          <strong>-₹{order.discount.toFixed(0)}</strong>
+                        </div>
+                        <div className="order-summary-total">
+                          <span>Total</span>
+                          <strong>₹{order.total.toFixed(0)}</strong>
+                        </div>
                       </div>
 
                       <div className="consumer-order-details">
-                        <div><span>Delivery Address</span><strong>{order.address}</strong></div>
-                        <div><span>Payment Method</span><strong>{order.paymentMethod === "cod" ? "Cash on Delivery" : order.paymentMethod === "upi" ? "UPI" : "Credit / Debit Card"}</strong></div>
+                        <div>
+                          <span>Delivery Address</span>
+                          <strong>{order.address}</strong>
+                        </div>
+                        <div>
+                          <span>Payment Method</span>
+                          <strong>
+                            {order.paymentMethod === "cod"
+                              ? "Cash on Delivery"
+                              : order.paymentMethod === "upi"
+                                ? "UPI"
+                                : "Credit / Debit Card"}
+                          </strong>
+                        </div>
                       </div>
                     </article>
                   ))}
@@ -667,9 +1115,20 @@ function ConsumerPage({
       </div>
 
       {selectedProduct && (
-        <div className="product-detail-overlay" onClick={() => setSelectedProduct(null)}>
-          <div className="product-detail-card farmer-detail-card" onClick={(e) => e.stopPropagation()}>
-            <button className="close-detail" onClick={() => setSelectedProduct(null)}>✕</button>
+        <div
+          className="product-detail-overlay"
+          onClick={() => setSelectedProduct(null)}
+        >
+          <div
+            className="product-detail-card farmer-detail-card"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              className="close-detail"
+              onClick={() => setSelectedProduct(null)}
+            >
+              ✕
+            </button>
 
             <h2>{selectedProduct.name}</h2>
             <p className="detail-category">{selectedProduct.category}</p>
@@ -714,7 +1173,7 @@ function ConsumerPage({
                             region: listing.region,
                             stock: listing.stock,
                             listingId: listing.id,
-                            productId: selectedProduct.id,
+                            productId: selectedProduct.id
                           });
                           setSelectedProduct(null);
                         }}
@@ -734,11 +1193,20 @@ function ConsumerPage({
         <div className="help-bar">
           <div className="help-content">
             <h3>Need Help?</h3>
-            <p>📞 <strong>Contact:</strong> 9321440678</p>
-            <p>✉️ <strong>Email:</strong> deepshikhamaityyy@gmail.com</p>
-            <p>📍 <strong>Office:</strong> Kisaan connect Office, Andheri East, Mumbai, Maharashtra - 400069</p>
+            <p>
+              📞 <strong>Contact:</strong> 9321440678
+            </p>
+            <p>
+              ✉️ <strong>Email:</strong> deepshikhamaityyy@gmail.com
+            </p>
+            <p>
+              📍 <strong>Office:</strong> Kisaan connect Office, Andheri East,
+              Mumbai, Maharashtra - 400069
+            </p>
           </div>
-          <button className="help-close" onClick={() => setShowHelp(false)}>✕</button>
+          <button className="help-close" onClick={() => setShowHelp(false)}>
+            ✕
+          </button>
         </div>
       )}
 
@@ -746,19 +1214,50 @@ function ConsumerPage({
         <div className="about-bar">
           <div className="about-content">
             <h3>About Kisaan connect</h3>
-            <p><strong>Kisaan connect</strong> is a digital platform that directly connects farmers with consumers.</p>
-            <p>Our goal is to reduce the role of unnecessary intermediaries (middlemen) in the agricultural supply chain. This helps farmers receive a better and fairer price for their produce, while consumers can buy fresh agricultural products at more affordable prices.</p>
-            <p>Kisaan connect aims to create a transparent, fair, and efficient marketplace where farmers get better value for their hard work and consumers get quality products at reasonable prices.</p>
-            <div className="about-flow"><span>Farmer</span><span>→</span><span>Kisaan connect</span><span>→</span><span>Consumer</span></div>
+            <p>
+              <strong>Kisaan connect</strong> is a digital platform that
+              directly connects farmers with consumers.
+            </p>
+            <p>
+              Our goal is to reduce the role of unnecessary intermediaries
+              (middlemen) in the agricultural supply chain. This helps farmers
+              receive a better and fairer price for their produce, while
+              consumers can buy fresh agricultural products at more affordable
+              prices.
+            </p>
+            <p>
+              Kisaan connect aims to create a transparent, fair, and efficient
+              marketplace where farmers get better value for their hard work and
+              consumers get quality products at reasonable prices.
+            </p>
+            <div className="about-flow">
+              <span>Farmer</span>
+              <span>→</span>
+              <span>Kisaan connect</span>
+              <span>→</span>
+              <span>Consumer</span>
+            </div>
           </div>
-          <button className="about-close" onClick={() => setShowAbout(false)}>✕</button>
+          <button className="about-close" onClick={() => setShowAbout(false)}>
+            ✕
+          </button>
         </div>
       )}
 
       <footer className="footer">
         <div className="footer-actions">
-          <button className={showHelp ? "footer-btn active" : "footer-btn"} onClick={() => setShowHelp(!showHelp)}>Help</button>
-          <button className={showAbout ? "footer-btn active" : "footer-btn"} onClick={() => setShowAbout(!showAbout)}>About</button>
+          <button
+            className={showHelp ? "footer-btn active" : "footer-btn"}
+            onClick={() => setShowHelp(!showHelp)}
+          >
+            Help
+          </button>
+          <button
+            className={showAbout ? "footer-btn active" : "footer-btn"}
+            onClick={() => setShowAbout(!showAbout)}
+          >
+            About
+          </button>
         </div>
         <button className="footer-more">•••</button>
       </footer>
