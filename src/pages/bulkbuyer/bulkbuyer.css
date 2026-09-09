@@ -2247,3 +2247,327 @@
 /* Bulk Buyer quantity / pricing refinements */
 .bb-pricing-info h3 { margin-bottom: 6px; }
 .bb-pricing-info::after { content: "Minimum bulk order: 100 kg • Higher quantity unlocks better pricing"; display: block; margin-top: 12px; font-size: 13px; color: #52715a; font-weight: 600; }
+
+/* =========================================================
+   FINAL BULK BUYER POLISH
+   ========================================================= */
+
+/* Farmer cards: keep image, details, price and actions in one clean row. */
+.bb-farmer-listing {
+  grid-template-columns: 112px minmax(220px, 1.6fr) minmax(150px, 1fr) 190px;
+  gap: 16px;
+  padding: 14px;
+  align-items: start;
+  background: rgba(255, 253, 247, .78);
+  border-color: #ddd2bc;
+  box-shadow: 0 5px 16px rgba(74, 93, 58, .045);
+}
+.bb-farmer-listing-image {
+  width: 112px;
+  height: 94px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(50,60,42,.08);
+}
+.bb-farmer-listing-info { min-width: 0; }
+.bb-farmer-listing-info strong { font-size: 15px; }
+.bb-farmer-listing-info span,
+.bb-farmer-listing-info small,
+.bb-farmer-listing-price span { font-size: 11px; }
+.bb-listing-description { font-size: 11px; line-height: 1.5; max-width: 330px; }
+.bb-farmer-listing-price { padding-top: 2px; }
+.bb-farmer-listing-actions { grid-column: 4; grid-row: 1; align-self: end; }
+.bb-farmer-listing-actions .bb-qty-controls { justify-content: flex-end; gap: 8px; }
+.bb-farmer-listing-actions .bb-detail-cart-button { margin-top: 5px; font-size: 11px; padding: 10px 12px; }
+.bb-listing-reviews {
+  grid-column: 2 / -1;
+  grid-row: 2;
+  margin-top: 1px;
+  padding: 10px 12px;
+  background: #fffaf0;
+  border: 1px solid #ece2d0;
+  border-radius: 9px;
+  line-height: 1.35;
+}
+
+/* Quantity: one-kg movement, direct typing, and a visible 100 kg minimum. */
+.bb-qty-input {
+  width: 66px;
+  height: 34px;
+  box-sizing: border-box;
+  padding: 5px 7px;
+  border: 1px solid #cfc5b1;
+  border-radius: 9px;
+  text-align: center;
+  font: 700 12px "DM Sans", sans-serif;
+  color: #304628;
+  background: #fffdf7;
+}
+.bb-qty-controls button {
+  width: 32px;
+  height: 32px;
+}
+.bb-qty-controls input:focus {
+  outline: none;
+  border-color: #637d48;
+  box-shadow: 0 0 0 3px rgba(99,125,72,.10);
+}
+.bb-min-note { font-size: 10px; color: #9a7438; }
+
+/* Compact order product images — never stretch the order row. */
+.bb-order-product-rich {
+  grid-template-columns: 64px minmax(180px,1fr) auto;
+  min-height: 76px;
+}
+.bb-order-product-image {
+  width: 56px !important;
+  height: 56px !important;
+  min-width: 56px;
+  max-width: 56px;
+  border-radius: 9px;
+  object-fit: cover;
+}
+
+/* Profile — mirrors the Consumer profile editor. */
+.bb-profile-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 6000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 22px;
+  background: rgba(35,48,27,.48);
+  backdrop-filter: blur(4px);
+}
+.bb-profile-editor {
+  position: relative;
+  width: min(620px, 100%);
+  background: #fffdf7;
+  border: 1px solid #d8c79e;
+  border-radius: 20px;
+  box-shadow: 0 24px 65px rgba(37,49,29,.28);
+  padding: 25px;
+}
+.bb-profile-editor-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 32px;
+  height: 32px;
+  border: 1px solid #ddd2bb;
+  border-radius: 50%;
+  background: #f7f1e5;
+  color: #59644e;
+  cursor: pointer;
+  font-weight: 800;
+}
+.bb-profile-editor-heading { display:flex; align-items:center; gap:14px; padding-right:35px; margin-bottom:22px; }
+.bb-profile-editor-icon { width:52px; height:52px; display:flex; align-items:center; justify-content:center; border-radius:15px; background:linear-gradient(135deg,#e9f1df,#f7ead0); font-size:24px; }
+.bb-profile-editor-heading > div:last-child > span { color:#a17a3d; font-size:9px; font-weight:900; letter-spacing:1.2px; }
+.bb-profile-editor-heading h2 { margin:3px 0; color:#304628; font-family:"Playfair Display",Georgia,serif; font-size:23px; }
+.bb-profile-editor-heading p { margin:0; color:#8a806d; font-size:11px; }
+.bb-profile-editor-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+.bb-profile-editor-grid label { display:flex; flex-direction:column; gap:6px; color:#5e674f; font-size:10px; font-weight:800; }
+.bb-profile-editor-grid input { width:100%; box-sizing:border-box; border:1px solid #d8ceb9; background:#fffaf0; color:#34402f; border-radius:10px; padding:11px 12px; outline:none; font:12px "DM Sans",sans-serif; }
+.bb-profile-editor-grid input:focus { border-color:#829b68; box-shadow:0 0 0 3px rgba(130,155,104,.12); }
+.bb-profile-editor-grid input[readonly] { background:#f1ecdf; color:#8a806d; }
+.bb-profile-email-field { grid-column:1 / -1; }
+.bb-profile-editor-footer { display:flex; justify-content:flex-end; gap:10px; margin-top:22px; padding-top:16px; border-top:1px solid #e7decd; }
+.bb-profile-cancel-btn,.bb-profile-save-btn { border-radius:10px; padding:11px 17px; font:800 11px "DM Sans",sans-serif; cursor:pointer; }
+.bb-profile-cancel-btn { border:1px solid #d7ccb6; background:#fffaf0; color:#6d675a; }
+.bb-profile-save-btn { border:1px solid #5f7946; background:#5f7946; color:white; box-shadow:0 7px 16px rgba(72,95,52,.18); }
+.bb-profile-save-btn:hover { background:#4e6639; }
+
+/* Payment polish + real coupon feedback. */
+.payment-page { background:linear-gradient(180deg,#f8f2e7 0%,#f1e8d8 100%) !important; }
+.payment-section { background:rgba(255,253,247,.97) !important; border-color:#ded1b7 !important; box-shadow:0 8px 22px rgba(72,83,58,.07); }
+.payment-section h3 { display:flex; align-items:center; gap:8px; }
+.payment-heading-icon { width:20px; height:20px; display:inline-flex; align-items:center; justify-content:center; color:#637d48; }
+.payment-heading-icon svg { width:18px; height:18px; }
+.coupon-message { margin:9px 0 0; padding:8px 10px; border-radius:8px; font-size:11px; font-weight:700; }
+.coupon-message.success { background:#eaf1e2; color:#4a5d3a; }
+.coupon-message.error { background:#fbefed; color:#9a4b4b; }
+
+/* Footer button should simply say About. */
+.bb-footer-btn { min-width:96px; }
+
+@media (max-width: 1050px) {
+  .bb-farmer-listing { grid-template-columns: 100px minmax(190px,1fr) minmax(130px, .9fr); }
+  .bb-farmer-listing-image { width:100px; height:86px; }
+  .bb-farmer-listing-actions { grid-column:3; grid-row:1; }
+  .bb-listing-reviews { grid-column:2 / -1; }
+}
+@media (max-width: 850px) {
+  .bb-farmer-listing { grid-template-columns: 80px 1fr; }
+  .bb-farmer-listing-image { width:80px; height:70px; }
+  .bb-farmer-listing-price, .bb-farmer-listing-actions { grid-column:1 / -1; grid-row:auto; }
+  .bb-listing-reviews { grid-column:1 / -1; grid-row:auto; }
+  .bb-profile-editor-grid { grid-template-columns:1fr; }
+  .bb-profile-email-field { grid-column:auto; }
+}
+.bb-address-icon { display:inline-flex; align-items:center; justify-content:center; width:20px; height:20px; color:#637d48; flex-shrink:0; }
+.bb-address-icon svg { width:18px; height:18px; }
+
+/* =========================================================
+   FINAL HOME EXPERIENCE — FARM CAROUSEL + PROMO RAIL + SEARCH SUGGESTIONS
+========================================================= */
+.bb-hero-banner {
+  height:275px;
+  margin-bottom:12px;
+  isolation:isolate;
+}
+.bb-hero-image {
+  transition:opacity .45s ease, transform 4.2s ease;
+  animation:bbHeroKenBurns 4.2s ease-in-out both;
+}
+@keyframes bbHeroKenBurns {
+  from { transform:scale(1.015); }
+  to { transform:scale(1.06); }
+}
+.bb-hero-overlay {
+  position:absolute;
+  inset:0;
+  z-index:1;
+  background:linear-gradient(90deg,rgba(31,47,26,.72) 0%,rgba(31,47,26,.40) 38%,rgba(31,47,26,.06) 78%);
+  pointer-events:none;
+}
+.bb-hero-copy {
+  position:absolute;
+  z-index:2;
+  left:30px;
+  top:50%;
+  transform:translateY(-50%);
+  width:min(510px,58%);
+  color:#fff;
+  text-align:left;
+}
+.bb-hero-kicker {
+  display:inline-block;
+  padding:6px 10px;
+  border:1px solid rgba(255,255,255,.45);
+  border-radius:999px;
+  background:rgba(255,255,255,.13);
+  backdrop-filter:blur(5px);
+  font-size:9px;
+  font-weight:800;
+  letter-spacing:1.2px;
+}
+.bb-hero-copy h3 {
+  margin:12px 0 7px;
+  font-family:"Playfair Display",Georgia,serif;
+  font-size:30px;
+  line-height:1.12;
+  color:#fff;
+}
+.bb-hero-copy p {
+  margin:0;
+  max-width:470px;
+  color:rgba(255,255,255,.91);
+  font-size:12px;
+  line-height:1.55;
+}
+.bb-hero-arrow {
+  position:absolute;
+  z-index:3;
+  top:50%;
+  transform:translateY(-50%);
+  width:38px;
+  height:38px;
+  border:1px solid rgba(255,255,255,.55);
+  border-radius:50%;
+  background:rgba(255,253,247,.78);
+  color:#304628;
+  font-size:27px;
+  line-height:1;
+  cursor:pointer;
+  backdrop-filter:blur(5px);
+  transition:.2s ease;
+}
+.bb-hero-arrow:hover { background:#fffdf7; transform:translateY(-50%) scale(1.05); }
+.bb-hero-prev { left:15px; }
+.bb-hero-next { right:15px; }
+.bb-hero-dots {
+  position:absolute;
+  z-index:3;
+  left:50%;
+  bottom:14px;
+  transform:translateX(-50%);
+  display:flex;
+  gap:6px;
+}
+.bb-hero-dots button {
+  width:7px;
+  height:7px;
+  padding:0;
+  border:1px solid rgba(255,255,255,.85);
+  border-radius:50%;
+  background:rgba(255,255,255,.42);
+  cursor:pointer;
+  transition:.2s ease;
+}
+.bb-hero-dots button.active { width:22px; border-radius:999px; background:#fff; }
+.bb-promo-marquee {
+  width:100%;
+  height:38px;
+  margin:0 0 22px;
+  overflow:hidden;
+  border:1px solid #e4dccb;
+  border-radius:10px;
+  background:#fffdf7;
+  box-shadow:0 4px 14px rgba(68,78,54,.045);
+  display:flex;
+  align-items:center;
+}
+.bb-promo-marquee-track {
+  width:max-content;
+  display:flex;
+  align-items:center;
+  gap:34px;
+  padding-left:20px;
+  animation:bbPromoScroll 26s linear infinite;
+  white-space:nowrap;
+}
+.bb-promo-marquee-track span { color:#536443; font-size:10px; font-weight:700; letter-spacing:.2px; }
+@keyframes bbPromoScroll { from { transform:translateX(0); } to { transform:translateX(-42%); } }
+.bb-search-suggestion-heading {
+  padding:11px 15px 7px;
+  color:#8a806d;
+  font-size:9px;
+  font-weight:800;
+  letter-spacing:1px;
+  text-transform:uppercase;
+  background:#faf6ec;
+}
+.bb-search-suggestion-chip {
+  padding:10px 15px;
+  display:flex;
+  align-items:center;
+  gap:9px;
+  border-bottom:1px solid #eee8dc;
+  background:#fffdf7;
+  color:#39452f;
+  cursor:pointer;
+  font-size:12px;
+  font-weight:600;
+  transition:.18s ease;
+}
+.bb-search-suggestion-chip span {
+  width:24px;
+  height:24px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:50%;
+  background:#eef2e7;
+  color:#637d48;
+  font-size:13px;
+}
+.bb-search-suggestion-chip:hover { background:#f5f1e6; padding-left:19px; }
+@media (prefers-reduced-motion: reduce) { .bb-hero-image, .bb-promo-marquee-track { animation:none; } }
+@media (max-width:760px) {
+  .bb-hero-banner { height:220px; }
+  .bb-hero-copy { left:20px; width:70%; }
+  .bb-hero-copy h3 { font-size:23px; }
+  .bb-hero-copy p { font-size:10px; }
+  .bb-hero-arrow { width:32px; height:32px; font-size:22px; }
+}

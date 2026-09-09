@@ -103,8 +103,32 @@ import s3 from "../../assets/s3.jpg";
 import s4 from "../../assets/s4.jpg";
 import s5 from "../../assets/s5.jpg";
 
+// Hero carousel images
+import farm1 from "../../assets/farm1.jpg";
+import farm2 from "../../assets/farm2.jpg";
+import farm3 from "../../assets/farm3.jpg";
+import farm4 from "../../assets/farm4.jpg";
+import farm5 from "../../assets/farm5.jpg";
 
 import logo from "../../assets/less.webp";
+
+function LocationIcon({ className = "address-location-icon" }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z" />
+      <circle cx="12" cy="10" r="2.5" />
+    </svg>
+  );
+}
 
 function ConsumerPage({
   onNavigate,
@@ -121,6 +145,8 @@ function ConsumerPage({
   const [isEditingAddress, setIsEditingAddress] = useState(false);
   const [addressInput, setAddressInput] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
+  const [searchFocused, setSearchFocused] = useState(false);
+  const [heroIndex, setHeroIndex] = useState(0);
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [isHome, setIsHome] = useState(true);
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -136,12 +162,88 @@ function ConsumerPage({
   const [cartToast, setCartToast] = useState("");
   const [customerReviews, setCustomerReviews] = useState({});
   const [reviewDrafts, setReviewDrafts] = useState({});
-const { logout } = useAuth();
-  function handleConsumerAddToCart(product) {
-    onAddToCart?.(product);
-    setCartToast(`${product.name} added to cart`);
+  const [farmerQuantities, setFarmerQuantities] = useState({});
+  const [cartQuantityOverrides, setCartQuantityOverrides] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem("kb_cart_quantity_overrides") || "{}");
+    } catch {
+      return {};
+    }
+  });
+  const [appliedCoupon, setAppliedCoupon] = useState("");
+  const [couponMessage, setCouponMessage] = useState("");
+  const [showProfileEditor, setShowProfileEditor] = useState(false);
+  const [profileForm, setProfileForm] = useState({
+    firstName: user?.name?.split(" ")[0] || "",
+    surname: user?.name?.split(" ").slice(1).join(" ") || "",
+    phone: "",
+    dob: ""
+  });
+  const { logout } = useAuth();
+
+  const heroImages = [farm1, farm2, farm3, farm4, farm5];
+  const searchSuggestions = ["Tomato", "Potato", "Apple", "Banana", "Mango", "Spinach"];
+
+  useEffect(() => {
+    if (!isHome) return undefined;
+    const timer = window.setInterval(() => {
+      setHeroIndex((prev) => (prev + 1) % heroImages.length);
+    }, 4200);
+    return () => window.clearInterval(timer);
+  }, [isHome]);
+
+  function getFarmerQuantity(listing) {
+    const value = Number(farmerQuantities[listing.id]);
+    return Number.isFinite(value) && value > 0 ? value : 1;
+  }
+
+  function setFarmerQuantity(listingId, value, stock) {
+    const numeric = Number(value);
+    if (!Number.isFinite(numeric)) return;
+    const clamped = Math.max(1, Math.min(Number(stock) || 1, numeric));
+    setFarmerQuantities((prev) => ({ ...prev, [listingId]: clamped }));
+  }
+
+  function changeFarmerQuantity(listing, delta) {
+    setFarmerQuantity(listing.id, getFarmerQuantity(listing) + delta, listing.stock);
+  }
+
+  function handleConsumerAddToCart(product, quantity = 1) {
+    const safeQuantity = Math.max(1, Number(quantity) || 1);
+
+    // Keep the exact quantity selected on the farmer listing even if the
+    // parent cart handler normalizes an item back to quantity 1.
+    setCartQuantityOverrides((prev) => ({
+      ...prev,
+      [product.id]: (Number(prev[product.id]) || 0) + safeQuantity,
+    }));
+
+    onAddToCart?.({ ...product, quantity: safeQuantity }, safeQuantity);
+    setCartToast(`${product.name} • ${safeQuantity} kg added to cart`);
     window.clearTimeout(window.__kbCartToastTimer);
     window.__kbCartToastTimer = window.setTimeout(() => setCartToast(""), 2200);
+  }
+
+  function getCartQuantity(item) {
+    const override = Number(cartQuantityOverrides[item.id]);
+    return Number.isFinite(override) && override > 0
+      ? override
+      : Math.max(1, Number(item.quantity) || 1);
+  }
+
+  function setCartItemQuantity(itemId, quantity) {
+    const safeQuantity = Math.max(1, Number(quantity) || 1);
+    setCartQuantityOverrides((prev) => ({ ...prev, [itemId]: safeQuantity }));
+    onUpdateQuantity?.(itemId, safeQuantity);
+  }
+
+  function removeCartItem(itemId) {
+    setCartQuantityOverrides((prev) => {
+      const next = { ...prev };
+      delete next[itemId];
+      return next;
+    });
+    onRemove?.(itemId);
   }
 
   useEffect(() => {
@@ -149,6 +251,15 @@ const { logout } = useAuth();
     if (saved) {
       setAddress(saved);
       setPaymentAddress(saved);
+    }
+
+    const savedProfile = localStorage.getItem("kb_consumer_profile");
+    if (savedProfile) {
+      try {
+        setProfileForm((prev) => ({ ...prev, ...JSON.parse(savedProfile) }));
+      } catch {
+        // Ignore malformed local profile data.
+      }
     }
   }, []);
 
@@ -339,12 +450,12 @@ const { logout } = useAuth();
   }
 
   const cartSubtotal = cart.reduce(
-    (sum, item) => sum + item.price * (item.quantity || 1),
+    (sum, item) => sum + item.price * getCartQuantity(item),
     0
   );
 
   const cartDiscount = cart.reduce((sum, item) => {
-    const quantity = item.quantity || 1;
+    const quantity = getCartQuantity(item);
     const percent =
       quantity >= 100
         ? 20
@@ -358,9 +469,16 @@ const { logout } = useAuth();
     return sum + (item.price * quantity * percent) / 100;
   }, 0);
 
-  const cartTotal = cartSubtotal - cartDiscount;
+  const amountBeforeCoupon = Math.max(0, cartSubtotal - cartDiscount);
+  const couponDiscount =
+    appliedCoupon === "LOVE"
+      ? amountBeforeCoupon * 0.5
+      : appliedCoupon === "KISAANCONNECT"
+        ? amountBeforeCoupon
+        : 0;
+  const cartTotal = Math.max(0, amountBeforeCoupon - couponDiscount);
   const cartItemCount = cart.reduce(
-    (sum, item) => sum + (item.quantity || 1),
+    (sum, item) => sum + getCartQuantity(item),
     0
   );
 
@@ -392,6 +510,59 @@ const { logout } = useAuth();
     setReviewDrafts((prev) => ({ ...prev, [key]: { rating: Number(draft.rating || 5), text: "" } }));
   }
 
+  function applyCoupon() {
+    const code = coupon.trim().toUpperCase().replace(/\s+/g, "");
+
+    if (!code) {
+      setAppliedCoupon("");
+      setCouponMessage("Please enter a coupon code.");
+      return;
+    }
+
+    if (code === "LOVE") {
+      setAppliedCoupon("LOVE");
+      setCoupon("LOVE");
+      setCouponMessage("LOVE applied — 50% OFF on your payable amount.");
+      return;
+    }
+
+    if (code === "KISANCONNECT" || code === "KISAANCONNECT") {
+      setAppliedCoupon("KISANCONNECT");
+      setCoupon("KISANCONNECT");
+      setCouponMessage("KISAN CONNECT applied — your entire order is FREE.");
+      return;
+    }
+
+    setAppliedCoupon("");
+    setCouponMessage("Invalid coupon. Try LOVE or KISANCONNECT.");
+  }
+
+  function saveConsumerProfile() {
+    const firstName = profileForm.firstName.trim();
+    const surname = profileForm.surname.trim();
+
+    if (!firstName) {
+      setCouponMessage("");
+      alert("Please enter your first name.");
+      return;
+    }
+
+    const nextProfile = {
+      firstName,
+      surname,
+      phone: profileForm.phone.trim(),
+      dob: profileForm.dob
+    };
+
+    localStorage.setItem("kb_consumer_profile", JSON.stringify(nextProfile));
+    setProfileForm(nextProfile);
+    setShowProfileEditor(false);
+    setProfileOpen(false);
+    setCartToast("Profile updated successfully ✓");
+    window.clearTimeout(window.__kbCartToastTimer);
+    window.__kbCartToastTimer = window.setTimeout(() => setCartToast(""), 2200);
+  }
+
   function handlePlaceConsumerOrder() {
     if (!paymentAddress.trim()) {
       alert("Please enter your delivery address.");
@@ -405,13 +576,14 @@ const { logout } = useAuth();
     const newOrder = {
       id: `CB-${Date.now()}`,
       createdAt: new Date().toLocaleString(),
-      items: cart.map((item) => ({ ...item })),
+      items: cart.map((item) => ({ ...item, quantity: getCartQuantity(item) })),
       totalQuantity: cartItemCount,
       subtotal: cartSubtotal,
       discount: cartDiscount,
       total: cartTotal,
+      couponDiscount,
       address: paymentAddress.trim(),
-      coupon: coupon.trim(),
+      coupon: appliedCoupon || coupon.trim(),
       paymentMethod,
       status: "Order Placed"
     };
@@ -422,8 +594,11 @@ const { logout } = useAuth();
 
     if (onClearCart) onClearCart();
     else cart.forEach((item) => onRemove?.(item.id));
+    setCartQuantityOverrides({});
 
     setCoupon("");
+    setAppliedCoupon("");
+    setCouponMessage("");
     setPaymentMethod("");
     setAddressSaved(false);
     setConsumerView("orders");
@@ -470,27 +645,33 @@ const { logout } = useAuth();
         </div>
 
         <div className="consumer-header-right">
-          <span className="consumer-notification">🔔</span>
           <button
             className="consumer-user"
             onClick={() => setProfileOpen(!profileOpen)}
           >
             <span className="consumer-avatar">
-              {user?.name?.charAt(0)?.toUpperCase() || "C"}
+              {(profileForm.firstName || user?.name || "C").charAt(0).toUpperCase()}
             </span>
             <span className="consumer-user-info">
-              <strong>{user?.name || "Consumer"}</strong>
+              <strong>{[profileForm.firstName, profileForm.surname].filter(Boolean).join(" ") || user?.name || "Consumer"}</strong>
               <small>{user?.email || "Consumer Account"}</small>
             </span>
             <span className="consumer-user-arrow">▾</span>
+          </button>
+          <button
+            type="button"
+            className="header-logout-btn"
+            onClick={logout}
+          >
+            Logout
           </button>
 
           {profileOpen && (
             <div className="consumer-profile-panel">
               <div className="consumer-profile-avatar">
-                {user?.name?.charAt(0)?.toUpperCase() || "C"}
+                {(profileForm.firstName || user?.name || "C").charAt(0).toUpperCase()}
               </div>
-              <h3>{user?.name || "Consumer"}</h3>
+              <h3>{[profileForm.firstName, profileForm.surname].filter(Boolean).join(" ") || user?.name || "Consumer"}</h3>
               <p className="consumer-profile-role">Consumer</p>
               <div className="consumer-profile-info">
                 <div>
@@ -498,30 +679,26 @@ const { logout } = useAuth();
                   <strong>{user?.email || "Not available"}</strong>
                 </div>
                 <div>
+                  <span>Phone</span>
+                  <strong>{profileForm.phone || "Not added"}</strong>
+                </div>
+                <div>
+                  <span>Date of Birth</span>
+                  <strong>{profileForm.dob || "Not added"}</strong>
+                </div>
+                <div>
                   <span>Delivery Address</span>
                   <strong>{address || "Not added"}</strong>
                 </div>
               </div>
               <button
+                type="button"
                 className="consumer-profile-action"
-                onClick={() => {
-                  setProfileOpen(false);
-                  onProfile?.();
-                }}
+                onClick={() => setShowProfileEditor(true)}
               >
                 View / Update Profile
               </button>
 
-              <button
-                type="button"
-                className="consumer-logout-btn"
-                onClick={() => {
-                  setProfileOpen(false);
-                  logout();
-                }}
-              >
-                Logout
-              </button>
             </div>
           )}
         </div>
@@ -608,7 +785,7 @@ const { logout } = useAuth();
               <div className="address-bar">
                 {isEditingAddress ? (
                   <div className="address-edit">
-                    <span className="address-icon">📍</span>
+                    <LocationIcon />
                     <input
                       type="text"
                       placeholder="Enter your delivery address"
@@ -628,7 +805,7 @@ const { logout } = useAuth();
                   </div>
                 ) : address ? (
                   <p>
-                    <span className="address-icon">📍</span>
+                    <LocationIcon />
                     <span>
                       <strong>Delivering to:</strong> {address}
                     </span>
@@ -646,7 +823,7 @@ const { logout } = useAuth();
                     className="add-address-btn"
                     onClick={() => setIsEditingAddress(true)}
                   >
-                    📍 + Add your address
+                    <LocationIcon /> <span>+ Add your address</span>
                   </button>
                 )}
               </div>
@@ -657,42 +834,101 @@ const { logout } = useAuth();
                     type="text"
                     placeholder="Search Product"
                     value={searchTerm}
+                    onFocus={() => setSearchFocused(true)}
+                    onBlur={() => window.setTimeout(() => setSearchFocused(false), 140)}
                     onChange={(e) => setSearchTerm(e.target.value)}
                   />
                   <span>🔍</span>
                 </div>
 
-                {searchTerm.trim() && (
-                  <div className="search-results">
-                    {searchResults.length > 0 ? (
-                      searchResults.map((product) => (
-                        <div
-                          key={product.id}
-                          className="search-result-item"
-                          onClick={() => {
-                            setSelectedProduct(product);
-                            setSearchTerm("");
-                          }}
-                        >
-                          <span>{product.name}</span>
-                          <small>{product.category}</small>
-                        </div>
-                      ))
+                {(searchFocused || searchTerm.trim()) && (
+                  <div
+                    className="search-results"
+                    onMouseDown={(e) => e.preventDefault()}
+                  >
+                    {searchTerm.trim() ? (
+                      searchResults.length > 0 ? (
+                        searchResults.map((product) => (
+                          <div
+                            key={product.id}
+                            className="search-result-item"
+                            onClick={() => {
+                              setSelectedProduct(product);
+                              setSearchTerm("");
+                              setSearchFocused(false);
+                            }}
+                          >
+                            <span>{product.name}</span>
+                            <small>{product.category}</small>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="no-search-result">No products found</div>
+                      )
                     ) : (
-                      <div className="no-search-result">No products found</div>
+                      <>
+                        <div className="search-suggestion-heading">Popular picks</div>
+                        {searchSuggestions.map((name) => (
+                          <div
+                            key={name}
+                            className="search-suggestion-chip"
+                            onClick={() => {
+                              setSearchTerm(name);
+                              setSearchFocused(false);
+                            }}
+                          >
+                            <span>⌕</span>{name}
+                          </div>
+                        ))}
+                      </>
                     )}
                   </div>
                 )}
               </div>
 
               {isHome && (
-                <section className="hero-banner">
-                  <img
-                    src="https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&w=1400&q=85"
-                    alt="New launch advertisement"
-                    className="hero-image"
-                  />
-                </section>
+                <>
+                  <section className="hero-banner" aria-label="Kisaan Connect farm highlights">
+                    <img
+                      src={heroImages[heroIndex]}
+                      alt={`Kisaan Connect farm highlight ${heroIndex + 1}`}
+                      className="hero-image"
+                    />
+                    <div className="hero-overlay" />
+                    <div className="hero-copy">
+                      <span className="hero-kicker">FRESH • DIRECT • FARM TO HOME</span>
+                      <h3>Fresh from farmers, picked for you.</h3>
+                      <p>Discover trusted local produce and shop directly from the farmers who grow it.</p>
+                    </div>
+                    <button className="hero-arrow hero-prev" type="button" onClick={() => setHeroIndex((heroIndex - 1 + heroImages.length) % heroImages.length)} aria-label="Previous banner">‹</button>
+                    <button className="hero-arrow hero-next" type="button" onClick={() => setHeroIndex((heroIndex + 1) % heroImages.length)} aria-label="Next banner">›</button>
+                    <div className="hero-dots">
+                      {heroImages.map((_, index) => (
+                        <button key={index} type="button" className={index === heroIndex ? "active" : ""} onClick={() => setHeroIndex(index)} aria-label={`Show banner ${index + 1}`} />
+                      ))}
+                    </div>
+                  </section>
+                  <div className="promo-marquee" aria-label="Offers">
+                    <div className="promo-marquee-track">
+                      <span>🌾 Fresh farm produce</span><span>✦ Direct farmer prices</span><span>🚚 Reliable doorstep delivery</span><span>✦ New seasonal picks every week</span><span>🌱 Support local farmers</span><span>✦ Fresh farm produce</span><span>🚚 Reliable doorstep delivery</span>
+                    </div>
+                  </div>
+                  <section className="home-ad-rail" aria-label="Kisaan Connect highlights">
+                    <article className="home-ad-card home-ad-card-primary">
+                      <span className="home-ad-label">FRESH PICK</span>
+                      <strong>Farm-fresh produce, straight to your home.</strong>
+                      <small>Browse today's farmer listings →</small>
+                    </article>
+                    <article className="home-ad-card">
+                      <span className="home-ad-icon">✦</span>
+                      <div><strong>Direct farmer prices</strong><small>Compare farmers before you buy.</small></div>
+                    </article>
+                    <article className="home-ad-card">
+                      <span className="home-ad-icon">🚚</span>
+                      <div><strong>Easy doorstep delivery</strong><small>Simple shopping from local farms.</small></div>
+                    </article>
+                  </section>
+                </>
               )}
 
               <h2>New Products</h2>
@@ -719,18 +955,13 @@ const { logout } = useAuth();
                       {product.farmerListings.length} farmer listings
                     </small>
                     <button
+                      type="button"
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleConsumerAddToCart({
-                          ...product,
-                          ...product.farmerListings[0],
-                          id: product.farmerListings[0].id,
-                          name: product.name,
-                          image: product.farmerListings[0].image
-                        });
+                        setSelectedProduct(product);
                       }}
                     >
-                      Add to Cart
+                      View Farmers &amp; Prices
                     </button>
                   </div>
                 ))}
@@ -762,18 +993,13 @@ const { logout } = useAuth();
                         farmer listings
                       </small>
                       <button
+                        type="button"
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleConsumerAddToCart({
-                            ...product,
-                            ...product.farmerListings[0],
-                            id: product.farmerListings[0].id,
-                            name: product.name,
-                            image: product.farmerListings[0].image
-                          });
+                          setSelectedProduct(product);
                         }}
                       >
-                        Add to Cart
+                        View Farmers &amp; Prices
                       </button>
                     </div>
                   ))
@@ -834,7 +1060,7 @@ const { logout } = useAuth();
                               <button
                                 type="button"
                                 className="remove-btn"
-                                onClick={() => onRemove?.(item.id)}
+                                onClick={() => removeCartItem(item.id)}
                                 title="Remove item"
                               >
                                 ♡ Remove
@@ -851,9 +1077,9 @@ const { logout } = useAuth();
                                 <button
                                   type="button"
                                   onClick={() =>
-                                    onUpdateQuantity?.(
+                                    setCartItemQuantity(
                                       item.id,
-                                      Math.max(1, (item.quantity || 1) - 1)
+                                      Math.max(1, getCartQuantity(item) - 1)
                                     )
                                   }
                                 >
@@ -864,16 +1090,13 @@ const { logout } = useAuth();
                                   type="number"
                                   min="1"
                                   step="1"
-                                  value={item.quantity || 1}
-                                  onChange={(e) => onUpdateQuantity?.(item.id, Math.max(1, Number(e.target.value) || 1))}
+                                  value={getCartQuantity(item)}
+                                  onChange={(e) => setCartItemQuantity(item.id, Math.max(1, Number(e.target.value) || 1))}
                                 />
                                 <button
                                   type="button"
                                   onClick={() =>
-                                    onUpdateQuantity?.(
-                                      item.id,
-                                      (item.quantity || 1) + 1
-                                    )
+                                    setCartItemQuantity(item.id, getCartQuantity(item) + 1)
                                   }
                                 >
                                   +
@@ -909,6 +1132,12 @@ const { logout } = useAuth();
                         -₹{cartDiscount.toFixed(0)}
                       </span>
                     </div>
+                    {couponDiscount > 0 && (
+                      <div className="summary-row coupon-summary-row">
+                        <span>Coupon ({appliedCoupon})</span>
+                        <span>-₹{couponDiscount.toFixed(0)}</span>
+                      </div>
+                    )}
                     <div className="summary-divider"></div>
                     <div className="summary-total">
                       <span>Total Amount</span>
@@ -940,7 +1169,7 @@ const { logout } = useAuth();
               </header>
 
               <section className="payment-section">
-                <h3>📍 Delivery Address</h3>
+                <h3><LocationIcon className="delivery-heading-icon" /> Delivery Address</h3>
                 <textarea
                   placeholder="Enter your delivery address"
                   value={paymentAddress}
@@ -976,18 +1205,18 @@ const { logout } = useAuth();
                     value={coupon}
                     onChange={(e) => setCoupon(e.target.value)}
                   />
-                  <button
-                    type="button"
-                    onClick={() =>
-                      alert(
-                        coupon.trim()
-                          ? `Coupon ${coupon.trim()} added for review.`
-                          : "Please enter a coupon code."
-                      )
-                    }
-                  >
-                    Apply
+                  <button type="button" onClick={applyCoupon}>
+                    Apply Coupon
                   </button>
+                </div>
+                {couponMessage && (
+                  <p className={`coupon-message ${appliedCoupon ? "success" : "error"}`}>
+                    {appliedCoupon ? "✓ " : "! "}{couponMessage}
+                  </p>
+                )}
+                <div className="coupon-hints">
+                  <button type="button" onClick={() => setCoupon("LOVE")}>LOVE · 50% OFF</button>
+                  <button type="button" onClick={() => setCoupon("KISAANCONNECT")}>KISAAN CONNECT · FREE</button>
                 </div>
               </section>
 
@@ -995,7 +1224,7 @@ const { logout } = useAuth();
                 <h3>🛒 Order Summary</h3>
                 <div className="order-items">
                   {cart.map((item) => {
-                    const quantity = item.quantity || 1;
+                    const quantity = getCartQuantity(item);
                     const itemSubtotal = item.price * quantity;
                     const percent =
                       quantity >= 100
@@ -1028,6 +1257,12 @@ const { logout } = useAuth();
                     <span>Bulk Discount</span>
                     <strong>-₹{cartDiscount.toFixed(0)}</strong>
                   </div>
+                  {couponDiscount > 0 && (
+                    <div className="coupon-total-row">
+                      <span>Coupon ({appliedCoupon})</span>
+                      <strong>-₹{couponDiscount.toFixed(0)}</strong>
+                    </div>
+                  )}
                 </div>
                 <div className="order-total">
                   <span>Total Amount</span>
@@ -1171,20 +1406,21 @@ const { logout } = useAuth();
                         ))}
                       </div>
 
-                      <div className="consumer-order-status-actions">
-                        {order.status === "Order Placed" && <button type="button" onClick={() => updateConsumerOrderStatus(order.id, "Shipped")}>Mark as Shipped</button>}
-                        {order.status === "Shipped" && <span>✓ Order shipped — you can review the products below.</span>}
-                      </div>
-
                       <div className="consumer-order-summary">
                         <div>
                           <span>Subtotal</span>
                           <strong>₹{order.subtotal.toFixed(0)}</strong>
                         </div>
                         <div>
-                          <span>Discount</span>
+                          <span>Bulk Discount</span>
                           <strong>-₹{order.discount.toFixed(0)}</strong>
                         </div>
+                        {order.couponDiscount > 0 && (
+                          <div>
+                            <span>Coupon Discount</span>
+                            <strong>-₹{order.couponDiscount.toFixed(0)}</strong>
+                          </div>
+                        )}
                         <div className="order-summary-total">
                           <span>Total</span>
                           <strong>₹{order.total.toFixed(0)}</strong>
@@ -1207,6 +1443,12 @@ const { logout } = useAuth();
                           </strong>
                         </div>
                       </div>
+
+                      <div className="consumer-order-status-actions">
+                        {order.status === "Order Placed" && <button type="button" onClick={() => updateConsumerOrderStatus(order.id, "Shipped")}>Mark as Shipped</button>}
+                        {order.status === "Shipped" && <span>✓ Order shipped — you can review the products below.</span>}
+                        {order.status === "Delivered" && <span>✓ Delivered</span>}
+                      </div>
                     </article>
                   ))}
                 </div>
@@ -1215,6 +1457,70 @@ const { logout } = useAuth();
           )}
         </main>
       </div>
+
+
+      {showProfileEditor && (
+        <div className="consumer-profile-overlay" onClick={() => setShowProfileEditor(false)}>
+          <div className="consumer-profile-editor" onClick={(e) => e.stopPropagation()}>
+            <button type="button" className="profile-editor-close" onClick={() => setShowProfileEditor(false)}>✕</button>
+            <div className="profile-editor-heading">
+              <div className="profile-editor-icon">👤</div>
+              <div>
+                <span>MY PROFILE</span>
+                <h2>View &amp; Update Profile</h2>
+                <p>Keep your personal details up to date for a smoother checkout.</p>
+              </div>
+            </div>
+
+            <div className="profile-editor-grid">
+              <label>
+                First Name
+                <input
+                  type="text"
+                  value={profileForm.firstName}
+                  onChange={(e) => setProfileForm((prev) => ({ ...prev, firstName: e.target.value }))}
+                  placeholder="First name"
+                />
+              </label>
+              <label>
+                Surname
+                <input
+                  type="text"
+                  value={profileForm.surname}
+                  onChange={(e) => setProfileForm((prev) => ({ ...prev, surname: e.target.value }))}
+                  placeholder="Surname"
+                />
+              </label>
+              <label>
+                Phone Number
+                <input
+                  type="tel"
+                  value={profileForm.phone}
+                  onChange={(e) => setProfileForm((prev) => ({ ...prev, phone: e.target.value.replace(/[^0-9+\- ]/g, "") }))}
+                  placeholder="Phone number"
+                />
+              </label>
+              <label>
+                Date of Birth
+                <input
+                  type="date"
+                  value={profileForm.dob}
+                  onChange={(e) => setProfileForm((prev) => ({ ...prev, dob: e.target.value }))}
+                />
+              </label>
+              <label className="profile-email-field">
+                Email Address
+                <input type="email" value={user?.email || ""} readOnly />
+              </label>
+            </div>
+
+            <div className="profile-editor-footer">
+              <button type="button" className="profile-cancel-btn" onClick={() => setShowProfileEditor(false)}>Cancel</button>
+              <button type="button" className="profile-save-btn" onClick={saveConsumerProfile}>Save Profile ✓</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {selectedProduct && (
         <div
@@ -1264,8 +1570,25 @@ const { logout } = useAuth();
                     <strong>₹{listing.price}/kg</strong>
                     <span>Farmer listing</span>
                     <div className="farmer-listing-actions">
+                      <div className="farmer-quantity-control">
+                        <label htmlFor={`farmer-qty-${listing.id}`}>Quantity (kg)</label>
+                        <div className="farmer-quantity-row">
+                          <button type="button" onClick={() => changeFarmerQuantity(listing, -1)} disabled={listing.stock <= 0 || getFarmerQuantity(listing) <= 1}>−</button>
+                          <input
+                            id={`farmer-qty-${listing.id}`}
+                            type="number"
+                            min="1"
+                            max={listing.stock}
+                            step="1"
+                            value={getFarmerQuantity(listing)}
+                            onChange={(e) => setFarmerQuantity(listing.id, e.target.value, listing.stock)}
+                          />
+                          <button type="button" onClick={() => changeFarmerQuantity(listing, 1)} disabled={listing.stock <= 0 || getFarmerQuantity(listing) >= listing.stock}>+</button>
+                        </div>
+                      </div>
                       <button
                         type="button"
+                        className="farmer-add-cart-btn"
                         disabled={listing.stock <= 0}
                         onClick={() => {
                           handleConsumerAddToCart({
@@ -1281,8 +1604,7 @@ const { logout } = useAuth();
                             stock: listing.stock,
                             listingId: listing.id,
                             productId: selectedProduct.id
-                          });
-                          setSelectedProduct(null);
+                          }, getFarmerQuantity(listing));
                         }}
                       >
                         {listing.stock > 0 ? "Add to Cart" : "Out of Stock"}
@@ -1307,7 +1629,7 @@ const { logout } = useAuth();
               ✉️ <strong>Email:</strong> deepshikhamaityyy@gmail.com
             </p>
             <p>
-              📍 <strong>Office:</strong> Kisaan connect Office, Andheri East,
+              <LocationIcon className="help-location-icon" /> <strong>Office:</strong> Kisaan connect Office, Andheri East,
               Mumbai, Maharashtra - 400069
             </p>
           </div>

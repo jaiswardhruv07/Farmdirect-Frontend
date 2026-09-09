@@ -19,6 +19,13 @@ import spinach from "../../assets/spinach.jpg";
 import butter from "../../assets/butter.jpg";
 import stawberry from "../../assets/strawberry.jpg";
 
+// Hero carousel images
+import farm1 from "../../assets/farm1.jpg";
+import farm2 from "../../assets/farm2.jpg";
+import farm3 from "../../assets/farm3.jpg";
+import farm4 from "../../assets/farm4.jpg";
+import farm5 from "../../assets/farm5.jpg";
+
 // Farmer product images — same mapping as Consumer page
 import tom1 from "../../assets/tom1.jpg";
 import tom2 from "../../assets/tom2.jpg";
@@ -139,13 +146,15 @@ function calculateFinalPrice(price, quantity) {
 }
 
 const MIN_BULK_QTY = 100;
-const QTY_STEP = 10;
+const QTY_STEP = 1;
 
 function PaymentPage({ cart = [], onNavigate, onPlaceOrder, savedAddress = "" }) {
   const [address, setAddress] = useState(
     savedAddress || localStorage.getItem("kb_saved_address") || ""
   );
   const [coupon, setCoupon] = useState("");
+  const [couponMessage, setCouponMessage] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("");
   const [addressSaved, setAddressSaved] = useState(false);
 
@@ -160,13 +169,37 @@ function PaymentPage({ cart = [], onNavigate, onPlaceOrder, savedAddress = "" })
     return sum + (item.price * quantity * percent) / 100;
   }, 0);
 
-  const total = subtotal - discount;
+  const bulkTotal = Math.max(0, subtotal - discount);
+  const couponCode = appliedCoupon.toUpperCase();
+  const couponDiscount = couponCode === "KISAANCONNECT" ? bulkTotal : couponCode === "LOVE" ? bulkTotal * 0.5 : 0;
+  const total = Math.max(0, bulkTotal - couponDiscount);
 
   function handleSaveAddress() {
     if (!address.trim()) return;
     localStorage.setItem("kb_saved_address", address.trim());
     setAddress(address.trim());
     setAddressSaved(true);
+  }
+
+  function applyCoupon() {
+    const code = coupon.trim().toUpperCase();
+    if (!code) {
+      setAppliedCoupon("");
+      setCouponMessage("Please enter a coupon code.");
+      return;
+    }
+    if (code === "LOVE") {
+      setAppliedCoupon("LOVE");
+      setCouponMessage("LOVE applied — 50% OFF ✓");
+      return;
+    }
+    if (code === "KISAANCONNECT") {
+      setAppliedCoupon("KISAANCONNECT");
+      setCouponMessage("KISAANCONNECT applied — your order is FREE ✓");
+      return;
+    }
+    setAppliedCoupon("");
+    setCouponMessage("Invalid coupon. Try LOVE or KISAANCONNECT.");
   }
 
   function handlePlaceOrder() {
@@ -197,7 +230,7 @@ function PaymentPage({ cart = [], onNavigate, onPlaceOrder, savedAddress = "" })
       </header>
 
       <section className="payment-section">
-        <h3>📍 Delivery Address</h3>
+        <h3><span className="payment-heading-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9"><path d="M12 21s7-6.2 7-12A7 7 0 0 0 5 9c0 5.8 7 12 7 12Z"/><circle cx="12" cy="9" r="2.4"/></svg></span> Delivery Address</h3>
         <textarea
           placeholder="Enter your delivery address"
           value={address}
@@ -224,19 +257,9 @@ function PaymentPage({ cart = [], onNavigate, onPlaceOrder, savedAddress = "" })
             value={coupon}
             onChange={(e) => setCoupon(e.target.value)}
           />
-          <button
-            type="button"
-            onClick={() =>
-              alert(
-                coupon.trim()
-                  ? `Coupon ${coupon.trim()} added for review.`
-                  : "Please enter a coupon code."
-              )
-            }
-          >
-            Apply
-          </button>
+          <button type="button" onClick={applyCoupon}>Apply</button>
         </div>
+        {couponMessage && <p className={`coupon-message ${appliedCoupon ? "success" : "error"}`}>{couponMessage}</p>}
       </section>
 
       <section className="payment-section">
@@ -269,6 +292,12 @@ function PaymentPage({ cart = [], onNavigate, onPlaceOrder, savedAddress = "" })
             <span>Bulk Discount</span>
             <strong>-₹{discount.toFixed(0)}</strong>
           </div>
+          {appliedCoupon && (
+            <div>
+              <span>{appliedCoupon} Coupon</span>
+              <strong>-₹{couponDiscount.toFixed(0)}</strong>
+            </div>
+          )}
         </div>
 
         <div className="order-total">
@@ -340,6 +369,8 @@ function BulkBuyerPage({
   const [addressInput, setAddressInput] = useState("");
 
   const [searchTerm, setSearchTerm] = useState("");
+  const [searchFocused, setSearchFocused] = useState(false);
+  const [heroIndex, setHeroIndex] = useState(0);
   const [selectedCategory, setSelectedCategory] = useState("All");
 
   const [view, setView] = useState("home");
@@ -351,14 +382,42 @@ function BulkBuyerPage({
   const [orderPlaced, setOrderPlaced] = useState(false);
   const [orders, setOrders] = useState([]);
   const [footerPanel, setFooterPanel] = useState(null);
+
+  const heroImages = [farm1, farm2, farm3, farm4, farm5];
+
+  useEffect(() => {
+    if (view !== "home") return undefined;
+
+    const timer = window.setInterval(() => {
+      setHeroIndex((prev) => (prev + 1) % heroImages.length);
+    }, 4200);
+
+    return () => window.clearInterval(timer);
+  }, [view, heroImages.length]);
+
+  const searchSuggestions = ["Tomato", "Potato", "Apple", "Banana", "Mango", "Spinach"];
   const [cartNotification, setCartNotification] = useState("");
   const [customerReviews, setCustomerReviews] = useState({});
   const [reviewDrafts, setReviewDrafts] = useState({});
+  const [cartQuantityDrafts, setCartQuantityDrafts] = useState({});
+  const [showProfileEditor, setShowProfileEditor] = useState(false);
+  const [profileForm, setProfileForm] = useState({
+    firstName: user?.name?.split(" ")[0] || "",
+    surname: user?.name?.split(" ").slice(1).join(" ") || "",
+    phone: "",
+    dob: ""
+  });
 
   useEffect(() => {
     const saved = localStorage.getItem("kb_saved_address");
     if (saved) {
       setAddress(saved);
+    }
+    const savedProfile = localStorage.getItem("kb_bulkbuyer_profile");
+    if (savedProfile) {
+      try {
+        setProfileForm((prev) => ({ ...prev, ...JSON.parse(savedProfile) }));
+      } catch {}
     }
   }, []);
 
@@ -499,6 +558,23 @@ function BulkBuyerPage({
     setIsEditingAddress(false);
   }
 
+  function saveBulkBuyerProfile() {
+    const firstName = profileForm.firstName.trim();
+    const surname = profileForm.surname.trim();
+    if (!firstName) {
+      alert("Please enter your first name.");
+      return;
+    }
+    const nextProfile = { firstName, surname, phone: profileForm.phone.trim(), dob: profileForm.dob };
+    localStorage.setItem("kb_bulkbuyer_profile", JSON.stringify(nextProfile));
+    setProfileForm(nextProfile);
+    setShowProfileEditor(false);
+    setProfileOpen(false);
+    setCartNotification("Profile updated successfully ✓");
+    window.clearTimeout(window.__bbCartNotificationTimer);
+    window.__bbCartNotificationTimer = window.setTimeout(() => setCartNotification(""), 2200);
+  }
+
   function getQuantity(productId) {
     return quantities[productId] ?? MIN_BULK_QTY;
   }
@@ -544,7 +620,11 @@ function BulkBuyerPage({
   }
 
   function handleAddToBulkCart(product, quantity) {
-    if (quantity < MIN_BULK_QTY) return;
+    const numericQuantity = Number(quantity);
+    if (!Number.isFinite(numericQuantity) || numericQuantity < MIN_BULK_QTY) {
+      setCartNotification(`Minimum bulk quantity is ${MIN_BULK_QTY} kg`);
+      return;
+    }
 
     setBulkCart((prev) => {
       const existing = prev.find((item) => item.id === product.id);
@@ -554,7 +634,7 @@ function BulkBuyerPage({
           item.id === product.id
             ? {
                 ...item,
-                quantity: item.quantity + quantity,
+                quantity: item.quantity + numericQuantity,
               }
             : item
         );
@@ -568,7 +648,7 @@ function BulkBuyerPage({
           category: product.category,
           price: product.price,
           marketPrice: product.marketPrice || product.price / 0.95,
-          quantity,
+          quantity: numericQuantity,
           farmer: product.farmer,
           farmerId: product.farmerId,
           region: product.region,
@@ -584,12 +664,12 @@ function BulkBuyerPage({
 
     onAddToCart?.({
       ...product,
-      quantity,
-      discountPercent: getBulkDiscount(quantity),
-      finalPrice: calculateFinalPrice(product.price, quantity),
+      quantity: numericQuantity,
+      discountPercent: getBulkDiscount(numericQuantity),
+      finalPrice: calculateFinalPrice(product.price, numericQuantity),
     });
 
-    setCartNotification(`✓ ${product.name} added to cart`);
+    setCartNotification(`✓ ${product.name} • ${numericQuantity} kg added to cart`);
     window.clearTimeout(window.__bbCartNotificationTimer);
 
     window.__bbCartNotificationTimer = window.setTimeout(() => {
@@ -652,11 +732,19 @@ function BulkBuyerPage({
 
     if (invalidItem) {
       setCheckoutError(
-        "Each bulk order must contain at least 100 g (0.1 kg) per product."
+        "Each bulk order must contain at least 100 kg per product."
       );
       goToView("cart");
       return;
     }
+
+    const couponCode = (paymentDetails.coupon || "").trim().toUpperCase();
+    const couponDiscount = couponCode === "KISAANCONNECT"
+      ? cartFinalTotal
+      : couponCode === "LOVE"
+        ? cartFinalTotal * 0.5
+        : 0;
+    const orderTotal = Math.max(0, cartFinalTotal - couponDiscount);
 
     const newOrder = {
       id: `BB-${Date.now()}`,
@@ -664,8 +752,10 @@ function BulkBuyerPage({
       items: bulkCart.map((item) => ({ ...item })),
       totalQuantity: cartTotalQuantity,
       subtotal: cartSubtotal,
-      discount: cartTotalDiscount,
-      total: cartFinalTotal,
+      discount: cartTotalDiscount + couponDiscount,
+      bulkDiscount: cartTotalDiscount,
+      couponDiscount,
+      total: orderTotal,
       address:
         paymentDetails.address ||
         address ||
@@ -716,7 +806,7 @@ function BulkBuyerPage({
 
         {qty === MIN_BULK_QTY && (
           <small className="bb-min-note">
-            Minimum bulk order is 100 g (0.1 kg).
+            Minimum bulk order is 100 kg.
           </small>
         )}
       </div>
@@ -845,7 +935,7 @@ function BulkBuyerPage({
 
           <div>
             <strong>
-              Kisaan <em>Bazar</em>
+              Kisaan <em>Connect</em>
             </strong>
             <small>Bulk Buyer Panel</small>
           </div>
@@ -859,14 +949,14 @@ function BulkBuyerPage({
             }
           >
             <span className="bb-avatar">
-              {user?.name
-                ?.charAt(0)
-                ?.toUpperCase() || "B"}
+              {(profileForm.firstName || user?.name || "B")
+                .charAt(0)
+                .toUpperCase()}
             </span>
 
             <span className="bb-user-info">
               <strong>
-                {user?.name || "Bulk Buyer"}
+                {[profileForm.firstName, profileForm.surname].filter(Boolean).join(" ") || user?.name || "Bulk Buyer"}
               </strong>
               <small>
                 {user?.email ||
@@ -893,13 +983,13 @@ function BulkBuyerPage({
           {profileOpen && (
             <div className="bb-profile-panel">
               <div className="bb-profile-avatar">
-                {user?.name
+                {(profileForm.firstName || user?.name || "B")
                   ?.charAt(0)
                   ?.toUpperCase() || "B"}
               </div>
 
               <h3>
-                {user?.name || "Bulk Buyer"}
+                {[profileForm.firstName, profileForm.surname].filter(Boolean).join(" ") || user?.name || "Bulk Buyer"}
               </h3>
 
               <p className="bb-profile-role">
@@ -907,28 +997,16 @@ function BulkBuyerPage({
               </p>
 
               <div className="bb-profile-info">
-                <div>
-                  <span>Email</span>
-                  <strong>
-                    {user?.email ||
-                      "Not available"}
-                  </strong>
-                </div>
-
-                <div>
-                  <span>Delivery Address</span>
-                  <strong>
-                    {address || "Not added"}
-                  </strong>
-                </div>
+                <div><span>Email</span><strong>{user?.email || "Not available"}</strong></div>
+                <div><span>Phone</span><strong>{profileForm.phone || "Not added"}</strong></div>
+                <div><span>Date of Birth</span><strong>{profileForm.dob || "Not added"}</strong></div>
+                <div><span>Delivery Address</span><strong>{address || "Not added"}</strong></div>
               </div>
 
               <button
+                type="button"
                 className="bb-profile-action"
-                onClick={() => {
-                  setProfileOpen(false);
-                  onProfile?.();
-                }}
+                onClick={() => setShowProfileEditor(true)}
               >
                 View / Update Profile
               </button>
@@ -1064,9 +1142,7 @@ function BulkBuyerPage({
               <div className="bb-address-bar">
                 {isEditingAddress ? (
                   <div className="bb-address-edit">
-                    <span className="bb-address-icon">
-                      📍
-                    </span>
+                    <span className="bb-address-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9"><path d="M12 21s7-6.2 7-12A7 7 0 0 0 5 9c0 5.8 7 12 7 12Z"/><circle cx="12" cy="9" r="2.4"/></svg></span>
 
                     <input
                       type="text"
@@ -1101,9 +1177,7 @@ function BulkBuyerPage({
                   </div>
                 ) : address ? (
                   <p>
-                    <span className="bb-address-icon">
-                      📍
-                    </span>
+                    <span className="bb-address-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9"><path d="M12 21s7-6.2 7-12A7 7 0 0 0 5 9c0 5.8 7 12 7 12Z"/><circle cx="12" cy="9" r="2.4"/></svg></span>
 
                     <span>
                       <strong>
@@ -1145,6 +1219,8 @@ function BulkBuyerPage({
                     type="text"
                     placeholder="Search Product"
                     value={searchTerm}
+                    onFocus={() => setSearchFocused(true)}
+                    onBlur={() => window.setTimeout(() => setSearchFocused(false), 140)}
                     onChange={(e) =>
                       setSearchTerm(
                         e.target.value
@@ -1154,34 +1230,23 @@ function BulkBuyerPage({
                   <span>🔍</span>
                 </div>
 
-                {searchTerm.trim() && (
-                  <div className="bb-search-results">
-                    {searchResults.length > 0 ? (
-                      searchResults.map(
-                        (product) => (
-                          <div
-                            key={product.id}
-                            className="bb-search-result-item"
-                            onClick={() => {
-                              setSelectedProduct(
-                                product
-                              );
-                              setSearchTerm("");
-                            }}
-                          >
-                            <span>
-                              {product.name}
-                            </span>
-                            <small>
-                              {product.category}
-                            </small>
-                          </div>
-                        )
-                      )
+                {(searchFocused || searchTerm.trim()) && (
+                  <div className="bb-search-results" onMouseDown={(e) => e.preventDefault()}>
+                    {searchTerm.trim() ? (
+                      searchResults.length > 0 ? searchResults.map((product) => (
+                        <div key={product.id} className="bb-search-result-item" onClick={() => { setSelectedProduct(product); setSearchTerm(""); setSearchFocused(false); }}>
+                          <span>{product.name}</span><small>{product.category}</small>
+                        </div>
+                      )) : <div className="bb-no-search-result">No products found</div>
                     ) : (
-                      <div className="bb-no-search-result">
-                        No products found
-                      </div>
+                      <>
+                        <div className="bb-search-suggestion-heading">Popular bulk picks</div>
+                        {searchSuggestions.map((name) => (
+                          <div key={name} className="bb-search-suggestion-chip" onClick={() => { setSearchTerm(name); setSearchFocused(false); }}>
+                            <span>⌕</span>{name}
+                          </div>
+                        ))}
+                      </>
                     )}
                   </div>
                 )}
@@ -1189,13 +1254,25 @@ function BulkBuyerPage({
 
               {view === "home" && (
                 <>
-                  <section className="bb-hero-banner">
-                    <img
-                      src="https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&w=1400&q=85"
-                      alt="Farm field during harvest season"
-                      className="bb-hero-image"
-                    />
+                  <section className="bb-hero-banner" aria-label="Kisaan Connect farm highlights">
+                    <img key={heroIndex} src={heroImages[heroIndex]} alt={`Kisaan Connect farm highlight ${heroIndex + 1}`} className="bb-hero-image" />
+                    <div className="bb-hero-overlay" />
+                    <div className="bb-hero-copy">
+                      <span className="bb-hero-kicker">FRESH • DIRECT • BULK SMART</span>
+                      <h3>Better quantities. Better farmer prices.</h3>
+                      <p>Source fresh produce directly and unlock better value as your order grows.</p>
+                    </div>
+                    <button className="bb-hero-arrow bb-hero-prev" type="button" onClick={() => setHeroIndex((heroIndex - 1 + heroImages.length) % heroImages.length)} aria-label="Previous banner">‹</button>
+                    <button className="bb-hero-arrow bb-hero-next" type="button" onClick={() => setHeroIndex((heroIndex + 1) % heroImages.length)} aria-label="Next banner">›</button>
+                    <div className="bb-hero-dots">
+                      {heroImages.map((_, index) => <button key={index} type="button" className={index === heroIndex ? "active" : ""} onClick={() => setHeroIndex(index)} aria-label={`Show banner ${index + 1}`} />)}
+                    </div>
                   </section>
+                  <div className="bb-promo-marquee" aria-label="Bulk buyer highlights">
+                    <div className="bb-promo-marquee-track">
+                      <span>🌾 Fresh farm supply</span><span>✦ 100 kg minimum</span><span>📦 Quantity-based savings</span><span>✦ Direct farmer sourcing</span><span>🚚 Reliable delivery</span><span>✦ Fresh farm supply</span><span>📦 Quantity-based savings</span>
+                    </div>
+                  </div>
 
                   <section className="bb-pricing-info">
                     <h3>Bulk Pricing</h3>
@@ -1319,7 +1396,19 @@ function BulkBuyerPage({
                               −
                             </button>
 
-                            <input className="bb-qty-input" type="number" min={MIN_BULK_QTY} step={QTY_STEP} value={item.quantity} onChange={(e) => updateCartQuantity(item.id, Number(e.target.value) || MIN_BULK_QTY)} />
+                            <input
+                              className="bb-qty-input"
+                              type="number"
+                              min={MIN_BULK_QTY}
+                              step={QTY_STEP}
+                              value={cartQuantityDrafts[item.id] ?? item.quantity}
+                              onChange={(e) => setCartQuantityDrafts((prev) => ({ ...prev, [item.id]: e.target.value }))}
+                              onBlur={(e) => {
+                                const value = e.target.value;
+                                updateCartQuantity(item.id, value === "" ? MIN_BULK_QTY : value);
+                                setCartQuantityDrafts((prev) => { const next = { ...prev }; delete next[item.id]; return next; });
+                              }}
+                            />
                             <span className="bb-qty-unit">kg</span>
 
                             <button
@@ -1676,7 +1765,7 @@ function BulkBuyerPage({
               )
             }
           >
-            About this App
+            About
           </button>
         </div>
 
@@ -1686,6 +1775,29 @@ function BulkBuyerPage({
       </footer>
 
       {/* ================= PRODUCT DETAIL MODAL ================= */}
+
+      {showProfileEditor && (
+        <div className="bb-profile-overlay" onClick={() => setShowProfileEditor(false)}>
+          <div className="bb-profile-editor" onClick={(e) => e.stopPropagation()}>
+            <button type="button" className="bb-profile-editor-close" onClick={() => setShowProfileEditor(false)}>✕</button>
+            <div className="bb-profile-editor-heading">
+              <div className="bb-profile-editor-icon">👤</div>
+              <div><span>MY PROFILE</span><h2>View &amp; Update Profile</h2><p>Keep your personal details up to date for a smoother checkout.</p></div>
+            </div>
+            <div className="bb-profile-editor-grid">
+              <label>First Name<input type="text" value={profileForm.firstName} onChange={(e) => setProfileForm((prev) => ({ ...prev, firstName: e.target.value }))} placeholder="First name" /></label>
+              <label>Surname<input type="text" value={profileForm.surname} onChange={(e) => setProfileForm((prev) => ({ ...prev, surname: e.target.value }))} placeholder="Surname" /></label>
+              <label>Phone Number<input type="tel" value={profileForm.phone} onChange={(e) => setProfileForm((prev) => ({ ...prev, phone: e.target.value.replace(/[^0-9+\- ]/g, "") }))} placeholder="Phone number" /></label>
+              <label>Date of Birth<input type="date" value={profileForm.dob} onChange={(e) => setProfileForm((prev) => ({ ...prev, dob: e.target.value }))} /></label>
+              <label className="bb-profile-email-field">Email Address<input type="email" value={user?.email || ""} readOnly /></label>
+            </div>
+            <div className="bb-profile-editor-footer">
+              <button type="button" className="bb-profile-cancel-btn" onClick={() => setShowProfileEditor(false)}>Cancel</button>
+              <button type="button" className="bb-profile-save-btn" onClick={saveBulkBuyerProfile}>Save Profile ✓</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {selectedProduct && (
         <div
@@ -1830,7 +1942,16 @@ function BulkBuyerPage({
                             −
                           </button>
 
-                          <input className="bb-qty-input" type="number" min={MIN_BULK_QTY} step={QTY_STEP} value={qty} onChange={(e) => setQuantity(listing.id, Number(e.target.value) || MIN_BULK_QTY)} onClick={(e) => e.stopPropagation()} />
+                          <input
+                            className="bb-qty-input"
+                            type="number"
+                            min={MIN_BULK_QTY}
+                            step={QTY_STEP}
+                            value={quantities[listing.id] ?? qty}
+                            onChange={(e) => setQuantities((prev) => ({ ...prev, [listing.id]: e.target.value }))}
+                            onBlur={(e) => setQuantity(listing.id, e.target.value === "" ? MIN_BULK_QTY : e.target.value)}
+                            onClick={(e) => e.stopPropagation()}
+                          />
                           <span className="bb-qty-unit">kg</span>
 
                           <button
