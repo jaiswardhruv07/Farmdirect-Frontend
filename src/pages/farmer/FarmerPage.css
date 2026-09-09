@@ -1130,3 +1130,389 @@ body {
   display: inline-flex;
   align-items: center;
 }
+
+
+/* =========================================================
+   FARMER STOCK IMAGES
+   Low Stock cards now show the actual product images.
+========================================================= */
+.kb-stock-icon {
+  width: 56px;
+  height: 56px;
+  flex: 0 0 56px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #f0eadc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.kb-stock-product-image {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.kb-stock-image-fallback {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #4a5d3a;
+  font-size: 20px;
+  font-weight: 800;
+}
+
+/* =========================================================
+   FARMER PROFILE — Consumer-style update + photo
+========================================================= */
+.farmer-profile-heading {
+  margin-bottom: 22px;
+}
+
+.farmer-profile-heading .profile-editor-icon {
+  flex-shrink: 0;
+}
+
+.kb-profile-editor-grid input[readonly]:not(:focus) {
+  cursor: default;
+}
+
+.farmer-profile-photo-section {
+  margin-top: 20px;
+  padding: 16px;
+  border: 1px solid #e1d8c6;
+  border-radius: 14px;
+  background: #f8f3e7;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.farmer-profile-photo-preview {
+  width: 72px;
+  height: 72px;
+  flex: 0 0 72px;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #4a5d3a;
+  color: #fffaf0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  font-weight: 800;
+  border: 2px solid #d3b979;
+}
+
+.farmer-profile-photo-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.farmer-profile-photo-section strong {
+  display: block;
+  color: #304628;
+  font-size: 13px;
+  margin-bottom: 3px;
+}
+
+.farmer-profile-photo-section p {
+  color: #8a806d;
+  font-size: 11px;
+  margin-bottom: 9px;
+}
+
+.farmer-profile-add-photo {
+  width: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 8px 13px;
+  border: 1px solid #c9a15a;
+  background: #fffaf0;
+  color: #4a5d3a;
+  border-radius: 9px;
+  font: 800 11px "DM Sans", sans-serif;
+  cursor: pointer;
+}
+
+.farmer-profile-add-photo:hover {
+  background: #e8eedc;
+}
+
+.farmer-profile-editor-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 22px;
+  padding-top: 16px;
+  border-top: 1px solid #e7decd;
+}
+
+@media (max-width: 600px) {
+  .farmer-profile-photo-section {
+    align-items: flex-start;
+  }
+}
+/* =========================================================
+   FARMER PROFILE FORM FIX
+   Add this at the VERY END of FarmerPage.css
+   ========================================================= */
+
+/* Profile form layout */
+.kb-profile-editor-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px 18px;
+  width: 100%;
+}
+
+/* Labels */
+.kb-profile-editor-grid > label {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  min-width: 0;
+
+  color: #514530;
+  font-family: "DM Sans", Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* Inputs */
+.kb-profile-editor-grid > label input {
+  width: 100%;
+  height: 44px;
+  padding: 0 12px;
+
+  box-sizing: border-box;
+  border: 1px solid #d3b979;
+  border-radius: 10px;
+
+  outline: none;
+  background: #fffdf7;
+  color: #3d382c;
+
+  font-family: "DM Sans", Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+
+  transition: border-color .2s ease, box-shadow .2s ease;
+}
+
+/* Placeholder */
+.kb-profile-editor-grid > label input::placeholder {
+  color: #aaa08e;
+}
+
+/* Input focus */
+.kb-profile-editor-grid > label input:focus {
+  border-color: #6d8b50;
+  box-shadow: 0 0 0 3px rgba(109, 139, 80, 0.12);
+}
+
+/* Read-only fields */
+.kb-profile-editor-grid > label input[readonly] {
+  background: #f2eee4;
+  color: #6c624f;
+}
+
+/* Email + Place should stay normal grid columns */
+.kb-profile-editor-grid .bb-profile-email-field {
+  width: 100%;
+}
+
+/* Profile heading */
+.kb-profile-editor-heading {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 26px;
+}
+
+.kb-profile-editor-heading .profile-editor-icon {
+  width: 64px;
+  height: 64px;
+  flex: 0 0 64px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 18px;
+  background: #eef1d9;
+  color: #3e4438;
+  font-size: 29px;
+}
+
+.kb-profile-editor-heading span {
+  display: block;
+  margin-bottom: 4px;
+
+  color: #59624e;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.kb-profile-editor-heading h2 {
+  margin: 0;
+
+  color: #2f3b2b;
+  font-family: "DM Sans", Arial, sans-serif;
+  font-size: 28px;
+  line-height: 1.15;
+  font-weight: 800;
+}
+
+.kb-profile-editor-heading p {
+  margin: 6px 0 0;
+
+  color: #68705f;
+  font-size: 15px;
+}
+
+/* Profile photo */
+.farmer-profile-photo-section {
+  width: 100%;
+  min-height: 112px;
+  margin-top: 24px;
+  padding: 18px;
+
+  box-sizing: border-box;
+
+  display: flex;
+  align-items: center;
+  gap: 18px;
+
+  border: 1px solid #ded7c7;
+  border-radius: 18px;
+  background: #faf6ec;
+}
+
+.farmer-profile-photo-preview {
+  width: 88px;
+  height: 88px;
+  flex: 0 0 88px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  overflow: hidden;
+
+  border: 2px solid #d7b25e;
+  border-radius: 18px;
+  background: #4d6639;
+
+  color: #fffdf6;
+  font-size: 30px;
+  font-weight: 800;
+}
+
+.farmer-profile-photo-preview img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.farmer-profile-photo-section strong {
+  display: block;
+  margin-bottom: 5px;
+
+  color: #35452f;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.farmer-profile-photo-section p {
+  margin: 0 0 10px;
+
+  color: #7a7b6e;
+  font-size: 13px;
+}
+
+.farmer-profile-add-photo {
+  min-height: 40px;
+  padding: 0 17px;
+
+  border: 1px solid #d5a94d;
+  border-radius: 10px;
+
+  background: #fffaf0;
+  color: #53613e;
+
+  font-family: "DM Sans", Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+
+  cursor: pointer;
+}
+
+.farmer-profile-add-photo:hover {
+  background: #f7edd8;
+}
+
+/* Bottom buttons */
+.farmer-profile-editor-footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+
+  margin-top: 26px;
+  padding-top: 20px;
+
+  border-top: 1px solid #e2dccd;
+}
+
+.farmer-profile-editor-footer button {
+  min-height: 42px;
+  padding: 0 18px;
+
+  border-radius: 10px;
+
+  font-family: "DM Sans", Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+
+  cursor: pointer;
+}
+
+.farmer-profile-editor-footer .kb-profile-cancel-btn {
+  border: 1px solid #d4cec0;
+  background: #fffdf8;
+  color: #596052;
+}
+
+.farmer-profile-editor-footer .kb-profile-save-btn {
+  border: 1px solid #4e663c;
+  background: #4e663c;
+  color: white;
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+  .kb-profile-editor-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .farmer-profile-photo-section {
+    align-items: flex-start;
+  }
+
+  .farmer-profile-editor-footer {
+    justify-content: stretch;
+  }
+
+  .farmer-profile-editor-footer button {
+    flex: 1;
+  }
+}
