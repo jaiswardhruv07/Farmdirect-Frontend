@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import "./FarmerPage.css";
 import { useAuth } from "../../context/AuthContext";
 
@@ -11,6 +11,16 @@ import banana from "../../assets/banana.jpg";
 import logo from "../../assets/less.webp";
 
 // ─── Data ──────────────────────────────────────────────────────────────────
+const CAT_EMOJI = {
+  All: "📦",
+  Vegetables: "🥬",
+  Fruits: "🍎",
+  Grains: "🌾",
+  Dairy: "🥛",
+  Other: "📦",
+};
+
+
 const INITIAL_PRODUCTS = [
   { id: 1, name: "Tomatoes", category: "Vegetables", stock: 20, status: "In Stock", price: 30, image: tomato },
   { id: 2, name: "Mangoes", category: "Fruits", stock: 5, status: "Low Stock", price: 80, image: mango },
@@ -31,12 +41,6 @@ const INITIAL_ORDERS = [
 
 const CATEGORIES = ["All", "Vegetables", "Fruits", "Grains", "Dairy"];
 
-const CAT_EMOJI = {
-  Vegetables: "🥬",
-  Fruits: "🍎",
-  Grains: "🌾",
-  Dairy: "🥛",
-};
 
 const STATUS_NEXT = {
   "New Order": "Completed",
@@ -89,14 +93,19 @@ export default function FarmerDashboard({ farmer, onNavigate }) {
   const prodFileInputs = useRef({});
   const newProdFileInput = useRef(null);
 
+  const initialFullName = farmer?.name || authUser?.name || "Ramesh Kumar";
+  const initialNameParts = initialFullName.trim().split(/\\s+/);
+
   const [profile, setProfile] = useState({
-    name: farmer?.name || authUser?.name || "Ramesh Kumar",
+    name: initialFullName,
     email: farmer?.email || authUser?.email || "",
     place: "",
     dob: "",
+    phone: "",
   });
   const [salesView, setSalesView] = useState("month");
   const [profilePhoto, setProfilePhoto] = useState(null);
+  const [editingProfile, setEditingProfile] = useState(false);
   const profilePhotoInput = useRef(null);
 
   function handleProfilePhoto(file) {
@@ -104,10 +113,34 @@ export default function FarmerDashboard({ farmer, onNavigate }) {
 
     const reader = new FileReader();
     reader.onload = (e) => {
-      setProfilePhoto(e.target.result);
-      showToast("📷 Profile photo updated!");
+      const image = e.target.result;
+      setProfilePhoto(image);
+      localStorage.setItem("kb_farmer_profile_photo", image);
+      showToast("Profile photo updated!");
     };
     reader.readAsDataURL(file);
+  }
+
+  function saveFarmerProfile() {
+    const firstName = profile.name.trim().split(/\\s+/)[0] || "";
+    const surname = profile.name.trim().split(/\\s+/).slice(1).join(" ");
+    if (!firstName) {
+      showToast("Please enter your name.");
+      return;
+    }
+
+    const nextProfile = {
+      ...profile,
+      name: [firstName, surname].filter(Boolean).join(" "),
+      phone: profile.phone.trim(),
+      place: profile.place.trim(),
+      dob: profile.dob,
+    };
+
+    setProfile(nextProfile);
+    localStorage.setItem("kb_farmer_profile", JSON.stringify(nextProfile));
+    setEditingProfile(false);
+    showToast("Profile updated successfully!");
   }
 
   // ─── Toast ────────────────────────────────────────────────────────────────
@@ -540,7 +573,17 @@ export default function FarmerDashboard({ farmer, onNavigate }) {
     <div className="kb-stock-card">
 
       <div className="kb-stock-icon">
-        {CAT_EMOJI[p.category]}
+        {p.image ? (
+          <img
+            src={p.image}
+            alt={p.name}
+            className="kb-stock-product-image"
+          />
+        ) : (
+          <div className="kb-stock-image-fallback">
+            {p.name?.charAt(0)?.toUpperCase() || "P"}
+          </div>
+        )}
       </div>
 
       <div className="kb-stock-info">
@@ -1953,26 +1996,10 @@ export default function FarmerDashboard({ farmer, onNavigate }) {
                         className="kb-profile-avatar-image"
                       />
                     ) : (
-                      "👨‍🌾"
+                      (profile.name || "F").charAt(0).toUpperCase()
                     )}
                   </div>
-
-                  <button
-                    type="button"
-                    className="kb-profile-photo-btn"
-                    onClick={() => profilePhotoInput.current?.click()}
-                  >
-                    📷 {profilePhoto ? "Change Photo" : "Add Photo"}
-                  </button>
-
-                  <input
-                    ref={profilePhotoInput}
-                    type="file"
-                    accept="image/*"
-                    style={{ display: "none" }}
-                    onChange={(e) => handleProfilePhoto(e.target.files[0])}
-                  />
-                </div>
+</div>
 
                 <div>
                   <h2>My Profile</h2>
@@ -1989,161 +2016,176 @@ export default function FarmerDashboard({ farmer, onNavigate }) {
               </div>
 
 
-              {/* PROFILE CONTENT */}
+              {/* PROFILE CONTENT — Consumer-style layout */}
               <div className="kb-profile-content">
-
-                {/* ACCOUNT INFORMATION */}
-                <div className="kb-profile-section-title">
-                  <span>👤</span>
-
+                <div className="kb-profile-editor-heading farmer-profile-heading">
+                  <div className="profile-editor-icon">👤</div>
                   <div>
-                    <h3>Account Information</h3>
-                    <p>Your login details</p>
+                    <span>MY PROFILE</span>
+                    <h2>View &amp; Update Profile</h2>
+                    <p>Keep your personal details up to date.</p>
                   </div>
                 </div>
 
-
-                {/* NAME */}
-                <div className="kb-profile-field">
-
-                  <label>Name</label>
-
-                  <div className="kb-profile-input locked">
-
-                    <span>👤</span>
-
+                <div className="kb-profile-editor-grid">
+                  <label>
+                    First Name
                     <input
                       type="text"
-                      value={profile.name}
-                      readOnly
+                      value={profile.name.trim().split(/\s+/)[0] || ""}
+                      readOnly={!editingProfile}
+                      onChange={(e) => {
+                        const surname = profile.name.trim().split(/\s+/).slice(1).join(" ");
+                        setProfile((prev) => ({
+                          ...prev,
+                          name: [e.target.value, surname].filter(Boolean).join(" "),
+                        }));
+                      }}
+                      placeholder="First name"
                     />
+                  </label>
 
-                    <span className="kb-lock">
-                      🔒
-                    </span>
-
-                  </div>
-
-                  <small>
-                    Name is linked to your account
-                  </small>
-
-                </div>
-
-
-                {/* EMAIL */}
-                <div className="kb-profile-field">
-
-                  <label>Email</label>
-
-                  <div className="kb-profile-input locked">
-
-                    <span>📧</span>
-
-                    <input
-                      type="email"
-                      value={profile.email}
-                      readOnly
-                    />
-
-                    <span className="kb-lock">
-                      🔒
-                    </span>
-
-                  </div>
-
-                  <small>
-                    Email cannot be changed
-                  </small>
-
-                </div>
-
-
-                {/* PERSONAL DETAILS */}
-                <div className="kb-profile-section-title kb-profile-second">
-
-                  <span>🌱</span>
-
-                  <div>
-                    <h3>Personal Details</h3>
-                    <p>You can edit these details</p>
-                  </div>
-
-                </div>
-
-
-                {/* PLACE */}
-                <div className="kb-profile-field">
-
-                  <label>Place</label>
-
-                  <div className="kb-profile-input">
-
-                    <span>📍</span>
-
+                  <label>
+                    Surname
                     <input
                       type="text"
-                      placeholder="Enter your village / city"
-                      value={profile.place}
+                      value={profile.name.trim().split(/\s+/).slice(1).join(" ")}
+                      readOnly={!editingProfile}
+                      onChange={(e) => {
+                        const firstName = profile.name.trim().split(/\s+/)[0] || "";
+                        setProfile((prev) => ({
+                          ...prev,
+                          name: [firstName, e.target.value].filter(Boolean).join(" "),
+                        }));
+                      }}
+                      placeholder="Surname"
+                    />
+                  </label>
+
+                  <label>
+                    Phone Number
+                    <input
+                      type="tel"
+                      value={profile.phone || ""}
+                      readOnly={!editingProfile}
                       onChange={(e) =>
-                        setProfile({
-                          ...profile,
-                          place: e.target.value,
-                        })
+                        setProfile((prev) => ({
+                          ...prev,
+                          phone: e.target.value.replace(/[^0-9+\- ]/g, ""),
+                        }))
                       }
+                      placeholder="Phone number"
                     />
+                  </label>
 
-                    <span className="kb-edit-icon">
-                      ✏️
-                    </span>
-
-                  </div>
-
-                </div>
-
-
-                {/* DATE OF BIRTH */}
-                <div className="kb-profile-field">
-
-                  <label>Date of Birth</label>
-
-                  <div className="kb-profile-input">
-
-                    <span>🎂</span>
-
+                  <label>
+                    Date of Birth
                     <input
                       type="date"
-                      value={profile.dob}
+                      value={profile.dob || ""}
+                      readOnly={!editingProfile}
                       onChange={(e) =>
-                        setProfile({
-                          ...profile,
+                        setProfile((prev) => ({
+                          ...prev,
                           dob: e.target.value,
-                        })
+                        }))
                       }
                     />
+                  </label>
 
-                    <span className="kb-edit-icon">
-                      ✏️
-                    </span>
+                  <label className="bb-profile-email-field">
+                    Email Address
+                    <input
+                      type="email"
+                      value={profile.email || ""}
+                      readOnly
+                    />
+                  </label>
 
-                  </div>
-
+                  <label className="bb-profile-email-field">
+                    Place / City
+                    <input
+                      type="text"
+                      value={profile.place || ""}
+                      readOnly={!editingProfile}
+                      onChange={(e) =>
+                        setProfile((prev) => ({
+                          ...prev,
+                          place: e.target.value,
+                        }))
+                      }
+                      placeholder="Village / city"
+                    />
+                  </label>
                 </div>
 
+                <div className="farmer-profile-photo-section">
+                  <div className="farmer-profile-photo-preview">
+                    {profilePhoto ? (
+                      <img src={profilePhoto} alt="Farmer profile" />
+                    ) : (
+                      <span>
+                        {(profile.name || "F").charAt(0).toUpperCase()}
+                      </span>
+                    )}
+                  </div>
 
-                {/* SAVE BUTTON */}
-                <button
-                  className="kb-profile-save"
-                  onClick={() => {
-                    showToast("✅ Profile updated successfully!");
-                    setShowDrawer(false);
-                  }}
-                >
-                  💾 Save Changes
-                </button>
+                  <div>
+                    <strong>Profile Photo</strong>
+                    <p>Add or change your profile image.</p>
+                    <button
+                      type="button"
+                      className="kb-profile-photo-btn farmer-profile-add-photo"
+                      onClick={() => profilePhotoInput.current?.click()}
+                    >
+                      {profilePhoto ? "Change Photo" : "Add Photo"}
+                    </button>
+                    <input
+                      ref={profilePhotoInput}
+                      type="file"
+                      accept="image/*"
+                      style={{ display: "none" }}
+                      onChange={(e) => handleProfilePhoto(e.target.files?.[0])}
+                    />
+                  </div>
+                </div>
 
+                <div className="farmer-profile-editor-footer">
+                  <button
+                    type="button"
+                    className="kb-profile-cancel-btn"
+                    onClick={() => {
+                      if (editingProfile) {
+                        try {
+                          const saved = localStorage.getItem("kb_farmer_profile");
+                          if (saved) setProfile((prev) => ({ ...prev, ...JSON.parse(saved) }));
+                        } catch {}
+                      }
+                      setEditingProfile(false);
+                    }}
+                  >
+                    Cancel
+                  </button>
+
+                  {!editingProfile ? (
+                    <button
+                      type="button"
+                      className="kb-profile-save-btn"
+                      onClick={() => setEditingProfile(true)}
+                    >
+                      Update Profile
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      className="kb-profile-save-btn"
+                      onClick={saveFarmerProfile}
+                    >
+                      Save Profile ✓
+                    </button>
+                  )}
+                </div>
               </div>
-
             </aside>
           </>
         )}

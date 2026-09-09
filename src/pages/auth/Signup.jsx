@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { registerUser } from "../../services/authService";
+import bg from "../../assets/bg.jpg";
 import "./signup.css";
 
 const ROLE_IDS = {
@@ -101,7 +102,7 @@ function Signup({ onBackToLogin }) {
   };
 
   return (
-    <div className="signup-page">
+    <div className="signup-page" style={{ backgroundImage: `url(${bg})` }}>
       <div className="signup-box">
         <h1>Create Account</h1>
 

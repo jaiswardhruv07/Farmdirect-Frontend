@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import tomato from "../../assets/tomato.jpg";
 import mango from "../../assets/mango.jpg";
 import milk from "../../assets/milk.jpg";
@@ -320,6 +320,100 @@ function FPOPage({ user, onNavigate }) {
   const [reportType, setReportType] = useState("farmer");
   const [profileOpen, setProfileOpen] = useState(false);
 
+  const initialFullName = user?.name || "FPO Manager";
+  const initialNameParts = initialFullName.trim().split(/\s+/);
+
+  const [profile, setProfile] = useState({
+    name: initialFullName,
+    email: user?.email || "fpo@kisaanbazar.com",
+    phone: "",
+    dob: "",
+  });
+
+  const [editingProfile, setEditingProfile] = useState(false);
+  const [profilePhoto, setProfilePhoto] = useState(null);
+  const profilePhotoInput = useRef(null);
+
+  useEffect(() => {
+    try {
+      const savedProfile = localStorage.getItem("kb_fpo_profile");
+      if (savedProfile) {
+        setProfile((prev) => ({
+          ...prev,
+          ...JSON.parse(savedProfile),
+        }));
+      }
+
+      const savedPhoto = localStorage.getItem("kb_fpo_profile_photo");
+      if (savedPhoto) {
+        setProfilePhoto(savedPhoto);
+      }
+    } catch {
+      // Ignore invalid localStorage data.
+    }
+  }, []);
+
+  const handleProfilePhoto = (file) => {
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = (e) => {
+      const image = e.target.result;
+      setProfilePhoto(image);
+      localStorage.setItem("kb_fpo_profile_photo", image);
+    };
+
+    reader.readAsDataURL(file);
+  };
+
+  const saveProfile = () => {
+    const firstName =
+      profile.name.trim().split(/\s+/)[0] || "";
+    const surname = profile.name
+      .trim()
+      .split(/\s+/)
+      .slice(1)
+      .join(" ");
+
+    if (!firstName) return;
+
+    const nextProfile = {
+      ...profile,
+      name: [firstName, surname].filter(Boolean).join(" "),
+      phone: profile.phone.trim(),
+      dob: profile.dob,
+    };
+
+    setProfile(nextProfile);
+    localStorage.setItem("kb_fpo_profile", JSON.stringify(nextProfile));
+    setEditingProfile(false);
+  };
+
+  const cancelProfileEdit = () => {
+    try {
+      const saved = localStorage.getItem("kb_fpo_profile");
+
+      if (saved) {
+        setProfile((prev) => ({
+          ...prev,
+          ...JSON.parse(saved),
+        }));
+      } else {
+        setProfile({
+          name: initialFullName,
+          email: user?.email || "fpo@kisaanbazar.com",
+          phone: "",
+          dob: "",
+        });
+      }
+    } catch {
+      // Ignore invalid localStorage data.
+    }
+
+    setEditingProfile(false);
+  };
+
   const totalFarmerSales = FARMERS.reduce(
     (sum, farmer) => sum + farmer.sales,
     0
@@ -335,7 +429,9 @@ function FPOPage({ user, onNavigate }) {
   const navigate = (page) => {
     setSection(page);
     setProfileOpen(false);
+    setEditingProfile(false);
   };
+
   /* ================= DASHBOARD ================= */
 
   const renderDashboard = () => (
@@ -773,7 +869,9 @@ function FPOPage({ user, onNavigate }) {
                   >
                     <td>
                       <div className="fpo-product-name">
-                        <span className="fpo-product-image"><img src={product.image} alt={product.name} /></span>
+                        <span className="fpo-product-image">
+                          <img src={product.image} alt={product.name} />
+                        </span>
 
                         <div>
                           <strong>{product.name}</strong>
@@ -823,7 +921,10 @@ function FPOPage({ user, onNavigate }) {
           </button>
 
           <h1>
-            <span className="fpo-detail-product-image"><img src={selectedProduct.image} alt={selectedProduct.name} /></span> {selectedProduct.name}
+            <span className="fpo-detail-product-image">
+              <img src={selectedProduct.image} alt={selectedProduct.name} />
+            </span>{" "}
+            {selectedProduct.name}
           </h1>
 
           <p>
@@ -1237,7 +1338,9 @@ function FPOPage({ user, onNavigate }) {
                   <tr key={product.id}>
                     <td>
                       <div className="fpo-product-name">
-                        <span className="fpo-product-image"><img src={product.image} alt={product.name} /></span>
+                        <span className="fpo-product-image">
+                          <img src={product.image} alt={product.name} />
+                        </span>
                         <strong>{product.name}</strong>
                       </div>
                     </td>
@@ -1305,17 +1408,27 @@ function FPOPage({ user, onNavigate }) {
         </div>
 
         <div className="fpo-header-right">
-          <div className="fpo-notification">🔔</div>
+          <div className="fpo-notification"></div>
 
           <button
             className="fpo-user"
             onClick={() => setProfileOpen(!profileOpen)}
           >
-            <div className="fpo-avatar">F</div>
+            <div className="fpo-avatar">
+              {profilePhoto ? (
+                <img
+                  src={profilePhoto}
+                  alt="Profile"
+                  className="fpo-avatar-image"
+                />
+              ) : (
+                (profile.name || "F").charAt(0).toUpperCase()
+              )}
+            </div>
 
             <div className="fpo-user-text">
-              <strong>{user?.name || "FPO Manager"}</strong>
-              <span>{user?.email || "fpo@kisaanbazar.com"}</span>
+              <strong>{profile.name}</strong>
+              <span>{profile.email}</span>
             </div>
 
             <span className="fpo-profile-arrow">
@@ -1323,44 +1436,194 @@ function FPOPage({ user, onNavigate }) {
             </span>
           </button>
 
+          {/* LOGOUT IS KEPT EXACTLY AS BEFORE */}
           <button className="fpo-logout-btn" onClick={logout}>
             Logout
           </button>
 
           {profileOpen && (
             <div className="fpo-profile-panel">
-              <div className="fpo-profile-top">
-                <div className="fpo-large-avatar">🌾</div>
+              <div className="fpo-profile-editor-header">
+                <div className="fpo-profile-editor-avatar">
+                  {profilePhoto ? (
+                    <img
+                      src={profilePhoto}
+                      alt="FPO profile"
+                      className="fpo-profile-photo-image"
+                    />
+                  ) : (
+                    (profile.name || "F").charAt(0).toUpperCase()
+                  )}
+                </div>
 
                 <div>
-                  <strong>{user?.name || "FPO Manager"}</strong>
-                  <span>Farmer Producer Organisation</span>
+                  <strong>My Profile</strong>
+                  <span>Manage your account details</span>
                 </div>
               </div>
 
-              <div className="fpo-profile-info-row">
-                <span>Role</span>
-                <strong>FPO Manager</strong>
-              </div>
+              <div className="fpo-profile-editor">
+                <div className="fpo-profile-editor-grid">
+                  <label>
+                    First Name
+                    <input
+                      type="text"
+                      value={profile.name.trim().split(/\s+/)[0] || ""}
+                      readOnly={!editingProfile}
+                      onChange={(e) => {
+                        const surname = profile.name
+                          .trim()
+                          .split(/\s+/)
+                          .slice(1)
+                          .join(" ");
 
-              <div className="fpo-profile-info-row">
-                <span>Organisation</span>
-                <strong>Kisaan Bazar FPO</strong>
-              </div>
+                        setProfile((prev) => ({
+                          ...prev,
+                          name: [e.target.value, surname]
+                            .filter(Boolean)
+                            .join(" "),
+                        }));
+                      }}
+                      placeholder="First name"
+                    />
+                  </label>
 
-              <div className="fpo-profile-info-row">
-                <span>Farmers</span>
-                <strong>120</strong>
-              </div>
+                  <label>
+                    Surname
+                    <input
+                      type="text"
+                      value={profile.name
+                        .trim()
+                        .split(/\s+/)
+                        .slice(1)
+                        .join(" ")}
+                      readOnly={!editingProfile}
+                      onChange={(e) => {
+                        const firstName =
+                          profile.name.trim().split(/\s+/)[0] || "";
 
-              <div className="fpo-profile-info-row">
-                <span>Regions</span>
-                <strong>12</strong>
-              </div>
+                        setProfile((prev) => ({
+                          ...prev,
+                          name: [firstName, e.target.value]
+                            .filter(Boolean)
+                            .join(" "),
+                        }));
+                      }}
+                      placeholder="Surname"
+                    />
+                  </label>
 
-              <button className="fpo-information-btn">
-                Add / Update Information
-              </button>
+                  <label>
+                    Phone Number
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      autoComplete="tel"
+                      value={profile.phone ?? ""}
+                      readOnly={!editingProfile}
+                      onChange={(e) => {
+                        const value = e.target.value.replace(/\D/g, "");
+
+                        setProfile((prev) => ({
+                          ...prev,
+                          phone: value,
+                        }));
+                      }}
+                      placeholder="Enter phone number"
+                    />
+                  </label>
+
+                  <label>
+                    Date of Birth
+                    <input
+                      type="date"
+                      value={profile.dob || ""}
+                      readOnly={!editingProfile}
+                      onChange={(e) =>
+                        setProfile((prev) => ({
+                          ...prev,
+                          dob: e.target.value,
+                        }))
+                      }
+                    />
+                  </label>
+
+                  <label className="fpo-profile-email-field">
+                    Email Address
+                    <input
+                      type="email"
+                      value={profile.email || ""}
+                      readOnly
+                    />
+                  </label>
+                </div>
+
+                <div className="fpo-profile-photo-section">
+                  <div className="fpo-profile-photo-preview">
+                    {profilePhoto ? (
+                      <img
+                        src={profilePhoto}
+                        alt="FPO profile"
+                      />
+                    ) : (
+                      <span>
+                        {(profile.name || "F").charAt(0).toUpperCase()}
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="fpo-profile-photo-info">
+                    <strong>Profile Photo</strong>
+                    <p>Add or change your profile image.</p>
+
+                    <button
+                      type="button"
+                      className="fpo-profile-photo-btn"
+                      onClick={() => profilePhotoInput.current?.click()}
+                    >
+                      {profilePhoto ? "Change Photo" : "Add Photo"}
+                    </button>
+
+                    <input
+                      ref={profilePhotoInput}
+                      type="file"
+                      accept="image/*"
+                      style={{ display: "none" }}
+                      onChange={(e) =>
+                        handleProfilePhoto(e.target.files?.[0])
+                      }
+                    />
+                  </div>
+                </div>
+
+                <div className="fpo-profile-actions">
+                  <button
+                    type="button"
+                    className="fpo-profile-cancel-btn"
+                    onClick={cancelProfileEdit}
+                  >
+                    Cancel
+                  </button>
+
+                  {!editingProfile ? (
+                    <button
+                      type="button"
+                      className="fpo-profile-save-btn"
+                      onClick={() => setEditingProfile(true)}
+                    >
+                      Update Profile
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      className="fpo-profile-save-btn"
+                      onClick={saveProfile}
+                    >
+                      Save Profile ✓
+                    </button>
+                  )}
+                </div>
+              </div>
             </div>
           )}
         </div>

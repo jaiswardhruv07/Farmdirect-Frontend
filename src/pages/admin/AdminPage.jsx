@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import "./adminpage.css";
 import { useAuth } from "../../context/AuthContext";
 import tomato from "../../assets/tomato.jpg";
@@ -93,6 +93,108 @@ const CONSUMERS = [
     spent: 1980,
     status: "Active"
   }
+];
+
+
+const FPOS = [
+  {
+    id: "FPO001",
+    name: "Bengal Farmers FPO",
+    location: "West Bengal",
+    members: 32,
+    products: 24,
+    orders: 180,
+    sales: 126000,
+    status: "Active",
+  },
+  {
+    id: "FPO002",
+    name: "Bihar Agro Producers FPO",
+    location: "Bihar",
+    members: 28,
+    products: 19,
+    orders: 145,
+    sales: 98000,
+    status: "Active",
+  },
+  {
+    id: "FPO003",
+    name: "UP Green Farmers FPO",
+    location: "Uttar Pradesh",
+    members: 25,
+    products: 17,
+    orders: 128,
+    sales: 86500,
+    status: "Active",
+  },
+  {
+    id: "FPO004",
+    name: "Jharkhand Rural FPO",
+    location: "Jharkhand",
+    members: 21,
+    products: 14,
+    orders: 96,
+    sales: 64200,
+    status: "Active",
+  },
+  {
+    id: "FPO005",
+    name: "Punjab Harvest FPO",
+    location: "Punjab",
+    members: 30,
+    products: 22,
+    orders: 164,
+    sales: 112400,
+    status: "Active",
+  },
+];
+
+const GOVERNMENT_USERS = [
+  {
+    id: "GOV001",
+    name: "Agriculture Ministry",
+    department: "Ministry of Agriculture & Farmers Welfare",
+    location: "New Delhi",
+    programs: 8,
+    monitored: "All India",
+    status: "Active",
+  },
+  {
+    id: "GOV002",
+    name: "West Bengal Agriculture Dept.",
+    department: "Department of Agriculture, Government of West Bengal",
+    location: "Kolkata, West Bengal",
+    programs: 6,
+    monitored: "32 Farmers / 5 FPOs",
+    status: "Active",
+  },
+  {
+    id: "GOV003",
+    name: "Bihar Agriculture Dept.",
+    department: "Department of Agriculture, Government of Bihar",
+    location: "Patna, Bihar",
+    programs: 5,
+    monitored: "26 Farmers / 4 FPOs",
+    status: "Active",
+  },
+  {
+    id: "GOV004",
+    name: "Uttar Pradesh Agriculture Dept.",
+    department: "Department of Agriculture, Government of Uttar Pradesh",
+    location: "Lucknow, Uttar Pradesh",
+    programs: 7,
+    monitored: "24 Farmers / 3 FPOs",
+    status: "Active",
+  },
+  {
+    id: "GOV005",
+    name: "Punjab Agriculture Dept.",
+    department: "Department of Agriculture, Government of Punjab",
+    location: "Chandigarh, Punjab",
+    programs: 5,
+    monitored: "20 Farmers / 3 FPOs",
+    status: "Active",
+  },
 ];
 
 const PRODUCTS = [
@@ -335,11 +437,38 @@ function AdminPage({ onNavigate, user }) {
   const [orderFilter, setOrderFilter] = useState("all");
   const [stockFilter, setStockFilter] = useState("all");
   const [profileOpen, setProfileOpen] = useState(false);
+  const [profileEditorOpen, setProfileEditorOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const profilePhotoInput = useRef(null);
+  const [adminProfile, setAdminProfile] = useState(() => {
+    try {
+      const saved = localStorage.getItem("kb_admin_profile");
+      if (saved) return JSON.parse(saved);
+    } catch {}
+
+    const fullName = user?.name || "Admin User";
+    return {
+      name: fullName,
+      email: user?.email || localStorage.getItem("userEmail") || "admin@kisaanconnect.com",
+      phone: "",
+      dob: "",
+      place: "",
+      role: "Administrator",
+    };
+  });
+  const [adminProfilePhoto, setAdminProfilePhoto] = useState(() => {
+    try {
+      return localStorage.getItem("kb_admin_profile_photo") || null;
+    } catch {
+      return null;
+    }
+  });
 
   const totalFarmers = FARMERS.length;
   const totalConsumers = CONSUMERS.length;
-  const totalUsers = totalFarmers + totalConsumers;
+  const totalFPOs = FPOS.length;
+  const totalGovernment = GOVERNMENT_USERS.length;
+  const totalUsers = totalFarmers + totalConsumers + totalFPOs + totalGovernment;
 
   const totalProducts = PRODUCTS.length;
   const totalOrders = ORDERS.length;
@@ -367,6 +496,36 @@ function AdminPage({ onNavigate, user }) {
     ? ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
     : ["2021","2022","2023","2024","2025","2026"];
   const salesValues = salesPeriod === "month" ? monthlySales : yearlySales;
+
+
+  function handleAdminProfilePhoto(file) {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const image = e.target.result;
+      setAdminProfilePhoto(image);
+      localStorage.setItem("kb_admin_profile_photo", image);
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function saveAdminProfile() {
+    const firstName = adminProfile.name.trim().split(/\s+/)[0] || "";
+    const surname = adminProfile.name.trim().split(/\s+/).slice(1).join(" ");
+    if (!firstName) return;
+
+    const nextProfile = {
+      ...adminProfile,
+      name: [firstName, surname].filter(Boolean).join(" "),
+      phone: adminProfile.phone.trim(),
+      place: adminProfile.place.trim(),
+    };
+
+    setAdminProfile(nextProfile);
+    localStorage.setItem("kb_admin_profile", JSON.stringify(nextProfile));
+    setProfileEditorOpen(false);
+    setProfileOpen(false);
+  }
 
   function renderDashboard() {
     return (
@@ -413,6 +572,16 @@ function AdminPage({ onNavigate, user }) {
               <span>Total Consumers</span>
               <strong>{totalConsumers}</strong>
               <small>↑ 15% this month</small>
+            </div>
+          </div>
+
+          <div className="admin-stat-card clickable-stat" onClick={() => { setUserType("fpos"); setSection("users"); }}>
+            <div className="stat-icon gold">🏢</div>
+
+            <div>
+              <span>Total FPOs</span>
+              <strong>{totalFPOs}</strong>
+              <small>Active FPO network</small>
             </div>
           </div>
 
@@ -681,64 +850,51 @@ function AdminPage({ onNavigate, user }) {
   function renderUsers() {
     let users = [];
 
-    if (userType === "farmers") {
-      users = FARMERS;
-    } else if (userType === "consumers") {
-      users = CONSUMERS;
-    }
+    if (userType === "farmers") users = FARMERS;
+    else if (userType === "consumers") users = CONSUMERS;
+    else if (userType === "fpos") users = FPOS;
+    else if (userType === "government") users = GOVERNMENT_USERS;
 
     return (
       <>
         <div className="admin-title-row">
           <div>
             <h1>👥 Users</h1>
-            <p>Manage all farmers and consumers</p>
+            <p>Manage farmers, consumers, FPOs and government accounts</p>
           </div>
         </div>
 
         <div className="filter-tabs">
-          <button
-            className={userType === "all" ? "active" : ""}
-            onClick={() => setUserType("all")}
-          >
+          <button className={userType === "all" ? "active" : ""} onClick={() => setUserType("all")}>
             All Users ({totalUsers})
           </button>
-
-          <button
-            className={userType === "farmers" ? "active" : ""}
-            onClick={() => setUserType("farmers")}
-          >
+          <button className={userType === "farmers" ? "active" : ""} onClick={() => setUserType("farmers")}>
             👨‍🌾 Farmers ({totalFarmers})
           </button>
-
-          <button
-            className={userType === "consumers" ? "active" : ""}
-            onClick={() => setUserType("consumers")}
-          >
+          <button className={userType === "consumers" ? "active" : ""} onClick={() => setUserType("consumers")}>
             🧑 Consumers ({totalConsumers})
+          </button>
+          <button className={userType === "fpos" ? "active" : ""} onClick={() => setUserType("fpos")}>
+            🏢 FPOs ({totalFPOs})
+          </button>
+          <button className={userType === "government" ? "active" : ""} onClick={() => setUserType("government")}>
+            🏛️ Government ({totalGovernment})
           </button>
         </div>
 
         {userType === "all" ? (
-          <div className="user-summary-grid">
-            <div
-              className="user-summary-card"
-              onClick={() => setUserType("farmers")}
-            >
-              <div>👨‍🌾</div>
-              <h2>{totalFarmers}</h2>
-              <p>Farmers</p>
-              <span>View Farmer Accounts →</span>
+          <div className="user-summary-grid admin-user-summary-four">
+            <div className="user-summary-card" onClick={() => setUserType("farmers")}>
+              <div>👨‍🌾</div><h2>{totalFarmers}</h2><p>Farmers</p><span>View Farmer Accounts →</span>
             </div>
-
-            <div
-              className="user-summary-card"
-              onClick={() => setUserType("consumers")}
-            >
-              <div>🧑</div>
-              <h2>{totalConsumers}</h2>
-              <p>Consumers</p>
-              <span>View Consumer Accounts →</span>
+            <div className="user-summary-card" onClick={() => setUserType("consumers")}>
+              <div>🧑</div><h2>{totalConsumers}</h2><p>Consumers</p><span>View Consumer Accounts →</span>
+            </div>
+            <div className="user-summary-card" onClick={() => setUserType("fpos")}>
+              <div>🏢</div><h2>{totalFPOs}</h2><p>FPOs</p><span>View FPO Accounts →</span>
+            </div>
+            <div className="user-summary-card" onClick={() => setUserType("government")}>
+              <div>🏛️</div><h2>{totalGovernment}</h2><p>Government</p><span>View Government Accounts →</span>
             </div>
           </div>
         ) : (
@@ -746,47 +902,26 @@ function AdminPage({ onNavigate, user }) {
             <div className="table-wrap">
               <table className="admin-table">
                 <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>Name</th>
-                    <th>{userType === "farmers" ? "Location" : "Email"}</th>
-
-                    <th>{userType === "farmers" ? "Products" : "Orders"}</th>
-
-                    <th>{userType === "farmers" ? "Sales" : "Spent"}</th>
-
-                    <th>Status</th>
-                  </tr>
+                  {userType === "farmers" && <tr><th>ID</th><th>Farmer</th><th>Location</th><th>Products</th><th>Sales</th><th>Status</th></tr>}
+                  {userType === "consumers" && <tr><th>ID</th><th>Consumer</th><th>Email</th><th>Orders</th><th>Spent</th><th>Status</th></tr>}
+                  {userType === "fpos" && <tr><th>ID</th><th>FPO</th><th>Location</th><th>Members</th><th>Products</th><th>Orders</th><th>Status</th></tr>}
+                  {userType === "government" && <tr><th>ID</th><th>Government Body</th><th>Department</th><th>Location</th><th>Programs</th><th>Monitoring</th><th>Status</th></tr>}
                 </thead>
-
                 <tbody>
-                  {users.map((user) => (
-                    <tr key={user.id}>
-                      <td>{user.id}</td>
-
-                      <td>
-                        <strong>{user.name}</strong>
-                      </td>
-
-                      <td>
-                        {userType === "farmers" ? user.location : user.email}
-                      </td>
-
-                      <td>
-                        {userType === "farmers" ? user.products : user.orders}
-                      </td>
-
-                      <td>
-                        ₹
-                        {(userType === "farmers"
-                          ? user.sales
-                          : user.spent
-                        ).toLocaleString()}
-                      </td>
-
-                      <td>
-                        <span className="status completed">{user.status}</span>
-                      </td>
+                  {users.map((item) => (
+                    <tr key={item.id}>
+                      {userType === "farmers" && <>
+                        <td>{item.id}</td><td><strong>{item.name}</strong></td><td>{item.location}</td><td>{item.products}</td><td>₹{item.sales.toLocaleString()}</td><td><span className="status completed">{item.status}</span></td>
+                      </>}
+                      {userType === "consumers" && <>
+                        <td>{item.id}</td><td><strong>{item.name}</strong></td><td>{item.email}</td><td>{item.orders}</td><td>₹{item.spent.toLocaleString()}</td><td><span className="status completed">{item.status}</span></td>
+                      </>}
+                      {userType === "fpos" && <>
+                        <td>{item.id}</td><td><strong>{item.name}</strong></td><td>{item.location}</td><td>{item.members}</td><td>{item.products}</td><td>{item.orders}</td><td><span className="status completed">{item.status}</span></td>
+                      </>}
+                      {userType === "government" && <>
+                        <td>{item.id}</td><td><strong>{item.name}</strong></td><td>{item.department}</td><td>{item.location}</td><td>{item.programs}</td><td>{item.monitored}</td><td><span className="status completed">{item.status}</span></td>
+                      </>}
                     </tr>
                   ))}
                 </tbody>
@@ -1157,245 +1292,84 @@ function AdminPage({ onNavigate, user }) {
         <div className="admin-title-row">
           <div>
             <h1>📊 Reports</h1>
-            <p>Detailed marketplace performance reports</p>
+            <p>Detailed marketplace reports for farmers, consumers, FPOs and government</p>
           </div>
         </div>
 
-        <div className="report-tabs">
-          <button
-            className={reportType === "farmer" ? "active" : ""}
-            onClick={() => setReportType("farmer")}
-          >
-            👨‍🌾 Farmer Report
-          </button>
-
-          <button
-            className={reportType === "consumer" ? "active" : ""}
-            onClick={() => setReportType("consumer")}
-          >
-            🧑 Consumer Report
-          </button>
-
-          <button
-            className={reportType === "regional" ? "active" : ""}
-            onClick={() => setReportType("regional")}
-          >
-            📍 Agriculture Report
-          </button>
-
-          <button
-            className={reportType === "product" ? "active" : ""}
-            onClick={() => setReportType("product")}
-          >
-            🌾 Agriculture Product Report
-          </button>
+        <div className="report-tabs admin-report-tabs-wide">
+          <button className={reportType === "farmer" ? "active" : ""} onClick={() => setReportType("farmer")}>👨‍🌾 Farmer Report</button>
+          <button className={reportType === "consumer" ? "active" : ""} onClick={() => setReportType("consumer")}>🧑 Consumer Report</button>
+          <button className={reportType === "fpo" ? "active" : ""} onClick={() => setReportType("fpo")}>🏢 FPO Report</button>
+          <button className={reportType === "government" ? "active" : ""} onClick={() => setReportType("government")}>🏛️ Government Report</button>
+          <button className={reportType === "regional" ? "active" : ""} onClick={() => setReportType("regional")}>📍 Agriculture Report</button>
+          <button className={reportType === "product" ? "active" : ""} onClick={() => setReportType("product")}>🌾 Product Report</button>
         </div>
 
-        {reportType === "farmer" ? (
-          <div className="admin-card report-card">
-            <div className="card-heading">
-              <div>
-                <h2>👨‍🌾 Farmer Performance Report</h2>
-
-                <p>Sales and product performance of farmers</p>
-              </div>
-            </div>
-
-            <div className="table-wrap">
-              <table className="admin-table">
-                <thead>
-                  <tr>
-                    <th>Farmer</th>
-                    <th>Region</th>
-                    <th>Products</th>
-                    <th>Total Sales</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-
-                <tbody>
-                  {FARMERS.map((farmer) => (
-                    <tr key={farmer.id}>
-                      <td>
-                        <strong>{farmer.name}</strong>
-                      </td>
-
-                      <td>{farmer.location}</td>
-
-                      <td>{farmer.products}</td>
-
-                      <td>₹{farmer.sales.toLocaleString()}</td>
-
-                      <td>
-                        <span className="status completed">
-                          {farmer.status}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+        {reportType === "farmer" && (
+          <div className="admin-card report-card"><div className="card-heading"><div><h2>👨‍🌾 Farmer Performance Report</h2><p>Farmer participation, products and sales</p></div></div>
+            <div className="table-wrap"><table className="admin-table"><thead><tr><th>Farmer</th><th>Region</th><th>Products</th><th>Total Sales</th><th>Status</th></tr></thead><tbody>
+              {FARMERS.map((farmer) => <tr key={farmer.id}><td><strong>{farmer.name}</strong></td><td>{farmer.location}</td><td>{farmer.products}</td><td>₹{farmer.sales.toLocaleString()}</td><td><span className="status completed">{farmer.status}</span></td></tr>)}
+            </tbody></table></div>
           </div>
-        ) : (
-          <div className="admin-card report-card">
-            <div className="card-heading">
-              <div>
-                <h2>🧑 Consumer Purchase Report</h2>
+        )}
 
-                <p>Consumer orders and purchase activity</p>
-              </div>
+        {reportType === "consumer" && (
+          <div className="admin-card report-card"><div className="card-heading"><div><h2>🧑 Consumer Activity Report</h2><p>Consumer orders, email and purchase activity</p></div></div>
+            <div className="table-wrap"><table className="admin-table"><thead><tr><th>Consumer</th><th>Email</th><th>Orders</th><th>Total Spent</th><th>Status</th></tr></thead><tbody>
+              {CONSUMERS.map((consumer) => <tr key={consumer.id}><td><strong>{consumer.name}</strong></td><td>{consumer.email}</td><td>{consumer.orders}</td><td>₹{consumer.spent.toLocaleString()}</td><td><span className="status completed">{consumer.status}</span></td></tr>)}
+            </tbody></table></div>
+          </div>
+        )}
+
+        {reportType === "fpo" && (
+          <div className="admin-card report-card"><div className="card-heading"><div><h2>🏢 FPO Participation Report</h2><p>Farmer Producer Organisation members, products, orders and sales</p></div></div>
+            <div className="report-summary admin-report-summary-four">
+              <div><span>Total FPOs</span><strong>{totalFPOs}</strong></div>
+              <div><span>Total Members</span><strong>{FPOS.reduce((sum, fpo) => sum + fpo.members, 0)}</strong></div>
+              <div><span>Products</span><strong>{FPOS.reduce((sum, fpo) => sum + fpo.products, 0)}</strong></div>
+              <div><span>Sales</span><strong>₹{FPOS.reduce((sum, fpo) => sum + fpo.sales, 0).toLocaleString()}</strong></div>
             </div>
+            <div className="table-wrap"><table className="admin-table"><thead><tr><th>FPO</th><th>Location</th><th>Members</th><th>Products</th><th>Orders</th><th>Total Sales</th><th>Status</th></tr></thead><tbody>
+              {FPOS.map((fpo) => <tr key={fpo.id}><td><strong>{fpo.name}</strong></td><td>{fpo.location}</td><td>{fpo.members}</td><td>{fpo.products}</td><td>{fpo.orders}</td><td>₹{fpo.sales.toLocaleString()}</td><td><span className="status completed">{fpo.status}</span></td></tr>)}
+            </tbody></table></div>
+          </div>
+        )}
 
-            <div className="table-wrap">
-              <table className="admin-table">
-                <thead>
-                  <tr>
-                    <th>Consumer</th>
-                    <th>Email</th>
-                    <th>Total Orders</th>
-                    <th>Total Spent</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-
-                <tbody>
-                  {CONSUMERS.map((consumer) => (
-                    <tr key={consumer.id}>
-                      <td>
-                        <strong>{consumer.name}</strong>
-                      </td>
-
-                      <td>{consumer.email}</td>
-
-                      <td>{consumer.orders}</td>
-
-                      <td>₹{consumer.spent.toLocaleString()}</td>
-
-                      <td>
-                        <span className="status completed">
-                          {consumer.status}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+        {reportType === "government" && (
+          <div className="admin-card report-card"><div className="card-heading"><div><h2>🏛️ Government Monitoring Report</h2><p>Government departments, programmes and marketplace monitoring coverage</p></div></div>
+            <div className="report-summary admin-report-summary-four">
+              <div><span>Government Bodies</span><strong>{totalGovernment}</strong></div>
+              <div><span>Programmes</span><strong>{GOVERNMENT_USERS.reduce((sum, gov) => sum + gov.programs, 0)}</strong></div>
+              <div><span>FPO Network</span><strong>{totalFPOs}</strong></div>
+              <div><span>Farmer Network</span><strong>{totalFarmers}</strong></div>
             </div>
+            <div className="table-wrap"><table className="admin-table"><thead><tr><th>Government Body</th><th>Department</th><th>Location</th><th>Programs</th><th>Monitoring Coverage</th><th>Status</th></tr></thead><tbody>
+              {GOVERNMENT_USERS.map((gov) => <tr key={gov.id}><td><strong>{gov.name}</strong></td><td>{gov.department}</td><td>{gov.location}</td><td>{gov.programs}</td><td>{gov.monitored}</td><td><span className="status completed">{gov.status}</span></td></tr>)}
+            </tbody></table></div>
           </div>
         )}
 
         {reportType === "regional" && (
-          <div className="admin-card report-card">
-            <div className="card-heading">
-              <div>
-                <h2>📍 Regional Agriculture Report</h2>
-                <p>Farmer participation and marketplace activity by region</p>
-              </div>
-              <div className="report-highlight">
-                <span>Top Region to Sell</span>
-                <strong>{TOP_SELLING_REGION}</strong>
-              </div>
-            </div>
-
-            <div className="table-wrap">
-              <table className="admin-table">
-                <thead>
-                  <tr>
-                    <th>Region</th>
-                    <th>Farmers</th>
-                    <th>FPOs</th>
-                    <th>Products</th>
-                    <th>Orders</th>
-                    <th>Total Sales</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {REGIONAL_DATA.map((region) => (
-                    <tr key={region.region}>
-                      <td><strong>{region.region}</strong></td>
-                      <td>{region.farmers}</td>
-                      <td>{region.fpos}</td>
-                      <td>{region.products}</td>
-                      <td>{region.orders}</td>
-                      <td>₹{region.sales.toLocaleString()}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+          <div className="admin-card report-card"><div className="card-heading"><div><h2>📍 Regional Agriculture Report</h2><p>Farmer, FPO and marketplace activity by region</p></div><div className="report-highlight"><span>Top Region to Sell</span><strong>{TOP_SELLING_REGION}</strong></div></div>
+            <div className="table-wrap"><table className="admin-table"><thead><tr><th>Region</th><th>Farmers</th><th>FPOs</th><th>Products</th><th>Orders</th><th>Total Sales</th></tr></thead><tbody>
+              {REGIONAL_DATA.map((region) => <tr key={region.region}><td><strong>{region.region}</strong></td><td>{region.farmers}</td><td>{region.fpos}</td><td>{region.products}</td><td>{region.orders}</td><td>₹{region.sales.toLocaleString()}</td></tr>)}
+            </tbody></table></div>
           </div>
         )}
 
         {reportType === "product" && (
-          <div className="admin-card report-card">
-            <div className="card-heading">
-              <div>
-                <h2>🌾 Agricultural Product Report</h2>
-                <p>Product categories, availability, top region and revenue</p>
-              </div>
-            </div>
-
-            <div className="table-wrap">
-              <table className="admin-table">
-                <thead>
-                  <tr>
-                    <th>Product</th>
-                    <th>Category</th>
-                    <th>Top Region to Sell</th>
-                    <th>Price</th>
-                    <th>Stock</th>
-                    <th>Sold</th>
-                    <th>Revenue</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {PRODUCTS.map((product) => (
-                    <tr key={product.id}>
-                      <td>
-                        <div className="table-product">
-                          <span className="product-table-image">
-                            <img src={product.image} alt={product.name} />
-                          </span>
-                          <strong>{product.name}</strong>
-                        </div>
-                      </td>
-                      <td>{product.category}</td>
-                      <td><strong>{TOP_SELLING_REGION}</strong></td>
-                      <td>₹{product.price}/kg</td>
-                      <td>{product.stock}</td>
-                      <td>{product.sold}</td>
-                      <td>₹{(product.price * product.sold).toLocaleString()}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+          <div className="admin-card report-card"><div className="card-heading"><div><h2>🌾 Agricultural Product Report</h2><p>Product categories, availability, top region and revenue</p></div></div>
+            <div className="table-wrap"><table className="admin-table"><thead><tr><th>Product</th><th>Category</th><th>Top Region</th><th>Price</th><th>Stock</th><th>Sold</th><th>Revenue</th></tr></thead><tbody>
+              {PRODUCTS.map((product) => <tr key={product.id}><td><div className="table-product"><span className="product-table-image"><img src={product.image} alt={product.name} /></span><strong>{product.name}</strong></div></td><td>{product.category}</td><td><strong>{TOP_SELLING_REGION}</strong></td><td>₹{product.price}/kg</td><td>{product.stock}</td><td>{product.sold}</td><td>₹{(product.price * product.sold).toLocaleString()}</td></tr>)}
+            </tbody></table></div>
           </div>
         )}
 
-        {/* REPORT SUMMARY */}
-
-        <div className="report-summary">
-          <div>
-            <span>Total Farmers</span>
-            <strong>{totalFarmers}</strong>
-          </div>
-
-          <div>
-            <span>Total Consumers</span>
-            <strong>{totalConsumers}</strong>
-          </div>
-
-          <div>
-            <span>Total Products</span>
-            <strong>{totalProducts}</strong>
-          </div>
-
-          <div>
-            <span>Completed Sales</span>
-            <strong>₹{totalSales.toLocaleString()}</strong>
-          </div>
+        <div className="report-summary admin-report-summary-four">
+          <div><span>Total Farmers</span><strong>{totalFarmers}</strong></div>
+          <div><span>Total Consumers</span><strong>{totalConsumers}</strong></div>
+          <div><span>Total FPOs</span><strong>{totalFPOs}</strong></div>
+          <div><span>Government Bodies</span><strong>{totalGovernment}</strong></div>
         </div>
       </>
     );
@@ -1485,7 +1459,7 @@ function AdminPage({ onNavigate, user }) {
         </div>
 
         <div className="admin-header-right">
-          <span className="notification">🔔</span>
+          <span className="notification"></span>
 
           <div style={{ position: "relative" }}>
             <button className="admin-profile-trigger" onClick={() => setProfileOpen((open) => !open)}>
@@ -1496,10 +1470,20 @@ function AdminPage({ onNavigate, user }) {
               </div>
             </button>
             {profileOpen && (
-              <div className="admin-profile-card">
-                <div className="admin-profile-avatar">{(user?.name || user?.email || "A").charAt(0).toUpperCase()}</div>
-                <strong>{user?.name || "Admin"}</strong>
-                <span>{user?.email || localStorage.getItem("userEmail") || "No email available"}</span>
+              <div className="admin-profile-card admin-profile-card-expanded">
+                <div className="admin-profile-avatar admin-profile-avatar-large">
+                  {adminProfilePhoto ? <img src={adminProfilePhoto} alt="Admin profile" /> : (adminProfile.name || "A").charAt(0).toUpperCase()}
+                </div>
+                <strong>{adminProfile.name || user?.name || "Admin"}</strong>
+                <span className="admin-profile-role">{adminProfile.role || "Administrator"}</span>
+                <span>{adminProfile.email || "No email available"}</span>
+                <div className="admin-profile-info-mini">
+                  <div><span>Phone</span><strong>{adminProfile.phone || "Not added"}</strong></div>
+                  <div><span>Place</span><strong>{adminProfile.place || "Not added"}</strong></div>
+                </div>
+                <button type="button" className="admin-profile-action" onClick={() => { setProfileOpen(false); setProfileEditorOpen(true); }}>
+                  View / Update Profile
+                </button>
               </div>
             )}
           </div>
@@ -1509,6 +1493,170 @@ function AdminPage({ onNavigate, user }) {
           </button>
         </div>
       </header>
+
+      {profileEditorOpen && (
+        <div
+          className="admin-profile-overlay"
+          onClick={() => setProfileEditorOpen(false)}
+        >
+          <div
+            className="admin-profile-editor"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              className="admin-profile-editor-close"
+              onClick={() => setProfileEditorOpen(false)}
+              aria-label="Close profile"
+            >
+              ✕
+            </button>
+
+            <div className="admin-profile-editor-heading">
+              <div className="admin-profile-editor-icon">👤</div>
+              <div>
+                <span>MY PROFILE</span>
+                <h2>View &amp; Update Profile</h2>
+                <p>Keep your administrator details up to date.</p>
+              </div>
+            </div>
+
+            <div className="admin-profile-photo-row">
+              <div className="admin-profile-photo-preview">
+                {adminProfilePhoto ? (
+                  <img src={adminProfilePhoto} alt="Admin profile" />
+                ) : (
+                  (adminProfile.name || "A").charAt(0).toUpperCase()
+                )}
+              </div>
+              <div>
+                <strong>Profile Photo</strong>
+                <p>Add or change your profile image.</p>
+                <button
+                  type="button"
+                  className="admin-profile-photo-btn"
+                  onClick={() => profilePhotoInput.current?.click()}
+                >
+                  {adminProfilePhoto ? "Change Photo" : "Add Photo"}
+                </button>
+                <input
+                  ref={profilePhotoInput}
+                  type="file"
+                  accept="image/*"
+                  style={{ display: "none" }}
+                  onChange={(e) => handleAdminProfilePhoto(e.target.files?.[0])}
+                />
+              </div>
+            </div>
+
+            <div className="admin-profile-editor-grid">
+              <label>
+                First Name
+                <input
+                  type="text"
+                  value={adminProfile.name.trim().split(/\s+/)[0] || ""}
+                  onChange={(e) => {
+                    const surname = adminProfile.name.trim().split(/\s+/).slice(1).join(" ");
+                    setAdminProfile((prev) => ({
+                      ...prev,
+                      name: [e.target.value, surname].filter(Boolean).join(" "),
+                    }));
+                  }}
+                  placeholder="First name"
+                />
+              </label>
+
+              <label>
+                Surname
+                <input
+                  type="text"
+                  value={adminProfile.name.trim().split(/\s+/).slice(1).join(" ")}
+                  onChange={(e) => {
+                    const firstName = adminProfile.name.trim().split(/\s+/)[0] || "";
+                    setAdminProfile((prev) => ({
+                      ...prev,
+                      name: [firstName, e.target.value].filter(Boolean).join(" "),
+                    }));
+                  }}
+                  placeholder="Surname"
+                />
+              </label>
+
+              <label>
+                Phone Number
+                <input
+                  type="tel"
+                  inputMode="numeric"
+                  autoComplete="tel"
+                  value={adminProfile.phone || ""}
+                  onChange={(e) =>
+                    setAdminProfile((prev) => ({
+                      ...prev,
+                      phone: e.target.value.replace(/\D/g, ""),
+                    }))
+                  }
+                  placeholder="Phone number"
+                />
+              </label>
+
+              <label>
+                Date of Birth
+                <input
+                  type="date"
+                  value={adminProfile.dob || ""}
+                  onChange={(e) =>
+                    setAdminProfile((prev) => ({
+                      ...prev,
+                      dob: e.target.value,
+                    }))
+                  }
+                />
+              </label>
+
+              <label>
+                Email Address
+                <input
+                  type="email"
+                  value={adminProfile.email || ""}
+                  readOnly
+                />
+              </label>
+
+              <label>
+                Place / City
+                <input
+                  type="text"
+                  value={adminProfile.place || ""}
+                  onChange={(e) =>
+                    setAdminProfile((prev) => ({
+                      ...prev,
+                      place: e.target.value,
+                    }))
+                  }
+                  placeholder="City / state"
+                />
+              </label>
+            </div>
+
+            <div className="admin-profile-editor-footer">
+              <button
+                type="button"
+                className="admin-profile-cancel-btn"
+                onClick={() => setProfileEditorOpen(false)}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="admin-profile-save-btn"
+                onClick={saveAdminProfile}
+              >
+                Save Profile ✓
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* BODY */}
 

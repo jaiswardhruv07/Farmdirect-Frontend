@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "./GovermentPage.css";
 import { useAuth } from "../../context/AuthContext";
 import tomato from "../../assets/tomato.jpg";
@@ -404,6 +404,32 @@ function GovernmentPage({ user, onNavigate }) {
   const [orderStatus, setOrderStatus] = useState("all");
   const [profileOpen, setProfileOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [profileEditorOpen, setProfileEditorOpen] = useState(false);
+  const [profilePhoto, setProfilePhoto] = useState(() => localStorage.getItem("kb_government_profile_photo") || "");
+  const [profileForm, setProfileForm] = useState(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem("kb_government_profile") || "null");
+      return saved || { firstName: "", lastName: "", phone: "" };
+    } catch {
+      return { firstName: "", lastName: "", phone: "" };
+    }
+  });
+
+  useEffect(() => {
+    localStorage.setItem("kb_government_profile", JSON.stringify(profileForm));
+  }, [profileForm]);
+
+  function handleProfilePhoto(event) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result;
+      setProfilePhoto(result);
+      localStorage.setItem("kb_government_profile_photo", result);
+    };
+    reader.readAsDataURL(file);
+  }
 
   const totalFarmers = 120;
   const totalFPOs = 18;
@@ -1832,7 +1858,7 @@ function GovernmentPage({ user, onNavigate }) {
         <div className="government-header-right">
 
           <span className="government-notification">
-            🔔
+            
           </span>
 
           <button
@@ -1867,42 +1893,139 @@ function GovernmentPage({ user, onNavigate }) {
 
               <div className="profile-panel-top">
                 <div className="profile-large-avatar">
-                  🏛️
+                  {profilePhoto ? (
+                    <img src={profilePhoto} alt="Government profile" />
+                  ) : (
+                    "🏛️"
+                  )}
                 </div>
 
                 <div>
                   <strong>
-                    {user?.name || "Government Officer"}
+                    {profileForm.firstName || user?.name || "Government Officer"}
+                    {profileForm.lastName ? ` ${profileForm.lastName}` : ""}
                   </strong>
 
-                  <span>
-                    {user?.email || "government@example.com"}
-                  </span>
+                  <span>Government</span>
                 </div>
               </div>
 
               <div className="profile-info-row">
-                <span>Full Name</span>
+                <span>Name</span>
                 <strong>
-                  {user?.name || "Government Officer"}
+                  {profileForm.firstName || user?.name || "Not added"}
                 </strong>
               </div>
 
               <div className="profile-info-row">
-                <span>Email</span>
-                <strong>
-                  {user?.email || "government@example.com"}
-                </strong>
+                <span>Last Name</span>
+                <strong>{profileForm.lastName || "Not added"}</strong>
               </div>
 
               <div className="profile-info-row">
-                <span>Account Type</span>
-                <strong>Government</strong>
+                <span>Phone Number</span>
+                <strong>{profileForm.phone || "Not added"}</strong>
               </div>
 
-              <button className="add-information-btn">
+              <button
+                className="add-information-btn"
+                onClick={() => setProfileEditorOpen(true)}
+              >
                 + Add Information
               </button>
+
+              {profileEditorOpen && (
+                <div className="government-profile-editor">
+                  <div className="government-profile-editor-header">
+                    <h3>Add Information</h3>
+                    <button
+                      type="button"
+                      className="government-profile-close"
+                      onClick={() => setProfileEditorOpen(false)}
+                    >
+                      ×
+                    </button>
+                  </div>
+
+                  <div className="government-profile-photo-section">
+                    <div className="government-profile-photo-preview">
+                      {profilePhoto ? (
+                        <img src={profilePhoto} alt="Profile preview" />
+                      ) : (
+                        "🏛️"
+                      )}
+                    </div>
+                    <label className="government-profile-photo-btn">
+                      {profilePhoto ? "Change Photo" : "Add Photo"}
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleProfilePhoto}
+                        hidden
+                      />
+                    </label>
+                  </div>
+
+                  <label>
+                    Name
+                    <input
+                      type="text"
+                      value={profileForm.firstName}
+                      onChange={(e) =>
+                        setProfileForm({ ...profileForm, firstName: e.target.value })
+                      }
+                      placeholder="Enter name"
+                    />
+                  </label>
+
+                  <label>
+                    Last Name
+                    <input
+                      type="text"
+                      value={profileForm.lastName}
+                      onChange={(e) =>
+                        setProfileForm({ ...profileForm, lastName: e.target.value })
+                      }
+                      placeholder="Enter last name"
+                    />
+                  </label>
+
+                  <label>
+                    Phone Number
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      autoComplete="tel"
+                      maxLength="15"
+                      value={profileForm.phone}
+                      onChange={(e) =>
+                        setProfileForm({
+                          ...profileForm,
+                          phone: e.target.value.replace(/\D/g, ""),
+                        })
+                      }
+                      placeholder="Enter phone number"
+                    />
+                  </label>
+
+                  <div className="government-profile-editor-actions">
+                    <button
+                      type="button"
+                      className="government-profile-cancel"
+                      onClick={() => setProfileEditorOpen(false)}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      className="government-profile-save"
+                      onClick={() => setProfileEditorOpen(false)}
+                    >
+                      Save
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 

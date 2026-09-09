@@ -2010,3 +2010,364 @@
     grid-template-columns: 75px 1fr 25px;
   }
 }
+
+
+/* ================= WORKING GOVERNMENT PROFILE ================= */
+.profile-large-avatar {
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.profile-large-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  display: block;
+}
+
+.government-profile-editor {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(420px, calc(100vw - 30px));
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 24px;
+  background: #fffdf7;
+  border: 1px solid #ded5c1;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(43, 57, 35, 0.22);
+  z-index: 1000;
+}
+
+.government-profile-editor-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.government-profile-editor-header h3 {
+  margin: 0;
+  color: #304628;
+  font-family: "Playfair Display", serif;
+  font-size: 21px;
+}
+
+.government-profile-close {
+  border: none;
+  background: transparent;
+  color: #6f695b;
+  font-size: 25px;
+  cursor: pointer;
+}
+
+.government-profile-photo-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.government-profile-photo-preview {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #e3ecd2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 34px;
+  border: 2px solid #d8c6a3;
+}
+
+.government-profile-photo-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.government-profile-photo-btn {
+  display: inline-block;
+  padding: 8px 14px;
+  border: 1px solid #d8c6a3;
+  border-radius: 8px;
+  background: #f8e7bd;
+  color: #52633f;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.government-profile-editor label {
+  display: block;
+  margin-bottom: 14px;
+  color: #5d6754;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.government-profile-editor input {
+  width: 100%;
+  margin-top: 6px;
+  padding: 11px 12px;
+  border: 1px solid #dcd3c1;
+  border-radius: 8px;
+  background: #fff;
+  color: #303a2b;
+  font-family: "DM Sans", sans-serif;
+  font-size: 12px;
+  outline: none;
+}
+
+.government-profile-editor input:focus {
+  border-color: #78945d;
+  box-shadow: 0 0 0 3px rgba(120, 148, 93, 0.12);
+}
+
+.government-profile-editor-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 9px;
+  margin-top: 20px;
+}
+
+.government-profile-cancel,
+.government-profile-save {
+  border-radius: 8px;
+  padding: 9px 16px;
+  font-family: "DM Sans", sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.government-profile-cancel {
+  border: 1px solid #ded5c1;
+  background: #f9f4e8;
+  color: #647057;
+}
+
+.government-profile-save {
+  border: 1px solid #4a5d3a;
+  background: #4a5d3a;
+  color: #fff;
+}
+
+/* =========================================================
+   GOVERNMENT PROFILE FORM - FINAL UI FIX
+   Prevents browser-default styling from appearing.
+   ========================================================= */
+.government-profile-editor {
+  position: fixed !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  width: 390px !important;
+  max-width: calc(100vw - 32px) !important;
+  max-height: calc(100vh - 40px) !important;
+  overflow-y: auto !important;
+  padding: 24px !important;
+  background: #fffdf7 !important;
+  border: 1px solid #ded5c1 !important;
+  border-radius: 16px !important;
+  box-shadow: 0 20px 60px rgba(43, 57, 35, 0.24) !important;
+  z-index: 9999 !important;
+  color: #303a2b !important;
+  font-family: "DM Sans", Arial, sans-serif !important;
+}
+
+.government-profile-editor-header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  margin: 0 0 20px !important;
+  padding: 0 !important;
+}
+
+.government-profile-editor-header h3 {
+  margin: 0 !important;
+  font-family: "Playfair Display", Georgia, serif !important;
+  font-size: 24px !important;
+  line-height: 1.2 !important;
+  color: #304628 !important;
+}
+
+.government-profile-close {
+  width: 32px !important;
+  height: 32px !important;
+  padding: 0 !important;
+  border: 1px solid #ded5c1 !important;
+  border-radius: 8px !important;
+  background: #f9f4e8 !important;
+  color: #59604f !important;
+  font-family: Arial, sans-serif !important;
+  font-size: 22px !important;
+  line-height: 28px !important;
+  cursor: pointer !important;
+}
+
+.government-profile-close:hover {
+  background: #eee5d2 !important;
+}
+
+.government-profile-photo-section {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 10px !important;
+  margin: 0 0 20px !important;
+}
+
+.government-profile-photo-preview {
+  width: 88px !important;
+  height: 88px !important;
+  min-width: 88px !important;
+  min-height: 88px !important;
+  max-width: 88px !important;
+  max-height: 88px !important;
+  overflow: hidden !important;
+  border: 2px solid #d8c6a3 !important;
+  border-radius: 50% !important;
+  background: #e3ecd2 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 30px !important;
+  line-height: 1 !important;
+}
+
+.government-profile-photo-preview img {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  object-fit: cover !important;
+  display: block !important;
+  border-radius: 50% !important;
+}
+
+.government-profile-photo-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: auto !important;
+  min-height: 36px !important;
+  padding: 8px 16px !important;
+  margin: 0 !important;
+  border: 1px solid #d8c6a3 !important;
+  border-radius: 8px !important;
+  background: #f8e7bd !important;
+  color: #52633f !important;
+  font-family: "DM Sans", Arial, sans-serif !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  line-height: 1 !important;
+  cursor: pointer !important;
+}
+
+.government-profile-photo-btn:hover {
+  background: #f2dfb0 !important;
+}
+
+.government-profile-editor > label {
+  display: block !important;
+  width: 100% !important;
+  margin: 0 0 14px !important;
+  color: #4d5545 !important;
+  font-family: "DM Sans", Arial, sans-serif !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  line-height: 1.3 !important;
+}
+
+.government-profile-editor > label input {
+  display: block !important;
+  width: 100% !important;
+  height: 42px !important;
+  min-height: 42px !important;
+  margin: 7px 0 0 !important;
+  padding: 0 12px !important;
+  border: 1px solid #d8cfbd !important;
+  border-radius: 9px !important;
+  outline: none !important;
+  background: #ffffff !important;
+  color: #303a2b !important;
+  font-family: "DM Sans", Arial, sans-serif !important;
+  font-size: 13px !important;
+  line-height: 42px !important;
+  box-sizing: border-box !important;
+}
+
+.government-profile-editor > label input::placeholder {
+  color: #aaa294 !important;
+  opacity: 1 !important;
+}
+
+.government-profile-editor > label input:focus {
+  border-color: #78945d !important;
+  box-shadow: 0 0 0 3px rgba(120, 148, 93, 0.12) !important;
+}
+
+.government-profile-editor-actions {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 10px !important;
+  margin: 20px 0 0 !important;
+  padding: 18px 0 0 !important;
+  border-top: 1px solid #e4dccb !important;
+}
+
+.government-profile-cancel,
+.government-profile-save {
+  width: auto !important;
+  min-width: 78px !important;
+  height: 38px !important;
+  padding: 0 16px !important;
+  border-radius: 8px !important;
+  font-family: "DM Sans", Arial, sans-serif !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  line-height: 38px !important;
+  cursor: pointer !important;
+  box-sizing: border-box !important;
+}
+
+.government-profile-cancel {
+  border: 1px solid #ded5c1 !important;
+  background: #f9f4e8 !important;
+  color: #647057 !important;
+}
+
+.government-profile-cancel:hover {
+  background: #eee5d2 !important;
+}
+
+.government-profile-save {
+  border: 1px solid #4a5d3a !important;
+  background: #4a5d3a !important;
+  color: #ffffff !important;
+}
+
+.government-profile-save:hover {
+  background: #637d48 !important;
+}
+
+@media (max-width: 600px) {
+  .government-profile-editor {
+    width: calc(100vw - 24px) !important;
+    max-width: calc(100vw - 24px) !important;
+    padding: 20px !important;
+  }
+
+  .government-profile-editor-header h3 {
+    font-size: 21px !important;
+  }
+}
