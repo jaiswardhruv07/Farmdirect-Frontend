@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { loginUser } from "../../services/authService";
+import loginImage from "../../assets/image.png";
 
 export default function LoginPage({
   onLogin,
@@ -695,7 +696,10 @@ export default function LoginPage({
             LEFT SIDE
         ===================================================== */}
 
-        <section className="login-left">
+        <section
+          className="login-left"
+          style={{ backgroundImage: `url(${loginImage})` }}
+        >
 
           <div className="brand">
             Kisaan<span>Connect</span>

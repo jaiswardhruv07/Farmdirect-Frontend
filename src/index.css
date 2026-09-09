@@ -501,3 +501,48 @@ body { margin: 0; padding: 0; font-family: "DM Sans", Arial, sans-serif; backgro
     margin-top: 0;
   }
 }
+.consumer-logout-btn {
+  width: 100%;
+  padding: 10px 14px;
+  margin-top: 10px;
+  border: 1px solid #d8b4b4;
+  border-radius: 8px;
+  background: #fff;
+  color: #b33a3a;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.consumer-logout-btn:hover {
+  background: #fff4f4;
+  border-color: #c96a6a;
+}
+
+/* ===== ENHANCED CONSUMER QUANTITY / FARMER INFO / REVIEWS ===== */
+.consumer-qty-input { width:58px; border:1px solid #d8d0bd; border-radius:7px; padding:6px 4px; text-align:center; font:600 12px "DM Sans",sans-serif; color:#304628; background:#fffdf7; }
+.consumer-qty-input:focus { outline:none; border-color:#637d48; box-shadow:0 0 0 3px rgba(99,125,72,.1); }
+.consumer-listing-rating { color:#a77925 !important; font-weight:700; font-size:10px; }
+.consumer-listing-description { margin:3px 0 0; color:#6f685c; font-size:10px; line-height:1.4; }
+.consumer-listing-reviews { margin:7px 0; padding:8px; background:#fffaf0; border-radius:8px; font-size:10px; color:#5e584d; }
+.consumer-listing-reviews div + div { margin-top:5px; }
+.consumer-listing-reviews span { display:block; color:#7d7567; margin-top:2px; }
+.consumer-order-product-rich { display:grid !important; grid-template-columns:58px 1fr auto; gap:10px; align-items:center; }
+.consumer-order-product-image { width:58px; height:58px; border-radius:8px; object-fit:cover; }
+.consumer-review-box { grid-column:1 / -1; display:flex; gap:7px; margin-top:6px; }
+.consumer-review-box select,.consumer-review-box input { border:1px solid #d8d0bd; border-radius:7px; padding:7px; background:#fffdf7; font-size:11px; }
+.consumer-review-box input { flex:1; }
+.consumer-review-box button,.consumer-order-status-actions button { border:none; border-radius:7px; background:#637d48; color:white; padding:7px 10px; font-size:10px; font-weight:700; cursor:pointer; }
+.consumer-review-submitted { grid-column:1 / -1; background:#edf2e5; color:#4a5d3a; padding:7px 9px; border-radius:7px; font-size:10px; }
+.consumer-order-status-actions { display:flex; justify-content:flex-end; align-items:center; gap:8px; margin:8px 0 12px; color:#637d48; font-size:10px; font-weight:700; }
+@media(max-width:700px){ .consumer-order-product-rich { grid-template-columns:48px 1fr; } .consumer-order-product-rich > strong { grid-column:2; } .consumer-review-box { flex-wrap:wrap; } }
+
+
+/* ===== CUSTOMER REVIEW STARS ===== */
+.consumer-star-rating { display:flex; gap:1px; align-items:center; flex-shrink:0; }
+.consumer-star-rating button { border:none; background:transparent; color:#d8d0bd; padding:1px 2px; font-size:20px; line-height:1; cursor:pointer; transition:transform .12s ease,color .12s ease; }
+.consumer-star-rating button.active { color:#d39b28; }
+.consumer-star-rating button:hover { transform:scale(1.12); color:#d39b28; }
+.consumer-review-box { align-items:center; padding:9px; background:#fffdf7; border:1px solid #e2dac9; border-radius:9px; }
+@media(max-width:700px){ .consumer-review-box { align-items:flex-start; } .consumer-star-rating { width:100%; } }

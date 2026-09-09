@@ -1679,3 +1679,86 @@
   color: #2f2a1e;
   transform: translateY(-1px);
 }
+
+/* ================= FIXED PRODUCT IMAGES ================= */
+
+.fpo-product-image {
+  width: 42px;
+  height: 42px;
+  min-width: 42px;
+  border-radius: 9px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #edf1e3;
+}
+
+.fpo-product-image img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.fpo-detail-product-image {
+  width: 42px;
+  height: 42px;
+  display: inline-flex;
+  vertical-align: middle;
+  margin-right: 8px;
+  border-radius: 9px;
+  overflow: hidden;
+  background: #edf1e3;
+}
+
+.fpo-detail-product-image img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+/* ================= PROFILE FIX ================= */
+
+.fpo-header-right {
+  position: relative;
+}
+
+.fpo-user {
+  position: relative;
+  z-index: 51;
+}
+
+.fpo-profile-panel {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: 310px;
+  max-width: calc(100vw - 30px);
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.fpo-profile-top {
+  align-items: center;
+}
+
+.fpo-profile-panel .fpo-information-btn {
+  display: block;
+}
+
+@media (max-width: 600px) {
+  .fpo-profile-panel {
+    right: 0;
+    width: min(310px, calc(100vw - 24px));
+  }
+
+  .fpo-user-text {
+    display: none;
+  }
+
+  .fpo-header-right {
+    gap: 10px;
+  }
+}

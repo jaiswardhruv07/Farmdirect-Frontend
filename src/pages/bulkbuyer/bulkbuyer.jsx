@@ -1,5 +1,110 @@
 import React, { useState, useEffect } from "react";
 import "./bulkbuyer.css";
+import { useAuth } from "../../context/AuthContext";
+
+// Product images
+import tomato from "../../assets/tomato.jpg";
+import broccoli from "../../assets/broccoli.jpg";
+import potato from "../../assets/potato.jpg";
+import apple from "../../assets/apple.jpg";
+import banana from "../../assets/banana.jpg";
+import mango from "../../assets/mango.jpg";
+import rice from "../../assets/rice.jpg";
+import wheat from "../../assets/wheat.jpg";
+import corn from "../../assets/corn.jpg";
+import milk from "../../assets/milk.jpg";
+import paneer from "../../assets/paneer.jpg";
+import curd from "../../assets/curd.jpg";
+import spinach from "../../assets/spinach.jpg";
+import butter from "../../assets/butter.jpg";
+import stawberry from "../../assets/strawberry.jpg";
+
+// Farmer product images — same mapping as Consumer page
+import tom1 from "../../assets/tom1.jpg";
+import tom2 from "../../assets/tom2.jpg";
+import tom3 from "../../assets/tom3.jpg";
+import tom4 from "../../assets/tom4.jpg";
+import tom5 from "../../assets/tom5.jpg";
+
+import boc1 from "../../assets/boc1.jpg";
+import boc2 from "../../assets/boc2.jpg";
+import boc3 from "../../assets/boc3.jpg";
+import boc4 from "../../assets/boc4.jpg";
+
+import po1 from "../../assets/po1.jpg";
+import po2 from "../../assets/po2.jpg";
+import po3 from "../../assets/po3.jpg";
+import po4 from "../../assets/po4.jpg";
+import po5 from "../../assets/po5.jpg";
+
+import ap1 from "../../assets/ap1.jpg";
+import ap2 from "../../assets/ap2.jpg";
+import ap3 from "../../assets/ap3.jpg";
+import ap4 from "../../assets/ap4.jpg";
+import ap5 from "../../assets/ap5.jpg";
+
+import ba1 from "../../assets/ba1.jpg";
+import ba2 from "../../assets/ba2.jpg";
+import ba3 from "../../assets/ba3.jpg";
+import ba4 from "../../assets/ba4.jpg";
+
+import man1 from "../../assets/man1.jpg";
+import man2 from "../../assets/man2.jpg";
+import man3 from "../../assets/man3.jpg";
+import man4 from "../../assets/man4.jpg";
+import man5 from "../../assets/man5.jpg";
+
+import ri1 from "../../assets/ri1.jpg";
+import ri2 from "../../assets/ri2.jpg";
+import ri3 from "../../assets/ri3.jpg";
+import ri4 from "../../assets/ri4.jpg";
+import ri5 from "../../assets/ri5.jpg";
+
+import co1 from "../../assets/co1.jpg";
+import co2 from "../../assets/co2.jpg";
+import co3 from "../../assets/co3.jpg";
+import co4 from "../../assets/co4.jpg";
+import co5 from "../../assets/co5.jpg";
+import co6 from "../../assets/co6.jpg";
+
+import mi1 from "../../assets/mi1.jpg";
+import mi2 from "../../assets/mi2.jpg";
+import mi3 from "../../assets/mi3.jpg";
+import mi4 from "../../assets/mi4.jpg";
+import mi5 from "../../assets/mi5.jpg";
+
+import pa1 from "../../assets/pa1.jpg";
+import pa2 from "../../assets/pa2.jpg";
+import pa3 from "../../assets/pa3.jpg";
+
+import cu1 from "../../assets/cu1.jpg";
+import cu2 from "../../assets/cu2.jpg";
+import cu3 from "../../assets/cu3.jpg";
+import cu4 from "../../assets/cu4.jpg";
+import cu5 from "../../assets/cu5.jpg";
+
+import w1 from "../../assets/w1.jpg";
+import w2 from "../../assets/w2.jpg";
+import w3 from "../../assets/w3.jpg";
+import w4 from "../../assets/w4.jpg";
+
+import sp1 from "../../assets/sp1.jpg";
+import sp2 from "../../assets/sp2.jpg";
+import sp3 from "../../assets/sp3.jpg";
+import sp4 from "../../assets/sp4.jpg";
+
+import b1 from "../../assets/b1.jpg";
+import b2 from "../../assets/b2.jpg";
+import b3 from "../../assets/b3.jpg";
+import b4 from "../../assets/b4.jpg";
+
+import s1 from "../../assets/s1.jpg";
+import s2 from "../../assets/s2.jpg";
+import s3 from "../../assets/s3.jpg";
+import s4 from "../../assets/s4.jpg";
+import s5 from "../../assets/s5.jpg";
+
+import logo from "../../assets/less.webp";
 
 /* =========================================================
    BULK PRICING HELPERS
@@ -12,27 +117,29 @@ import "./bulkbuyer.css";
      100+ kg   -> 20%
 ========================================================= */
 
+// Bulk pricing: larger fresh-produce orders commonly land around 10–15% below retail/normal unit pricing, so the discount ramps with quantity.
 function getBulkDiscount(quantity) {
-  if (quantity >= 100) return 20;
-  if (quantity >= 50) return 15;
-  if (quantity >= 20) return 10;
-  if (quantity >= 10) return 5;
+  if (quantity >= 1000) return 15;
+  if (quantity >= 500) return 12;
+  if (quantity >= 250) return 8;
+  if (quantity >= 100) return 5;
   return 0;
 }
 
+function getBulkPricePerKg(price, quantity) {
+  return price * (1 - getBulkDiscount(quantity) / 100);
+}
+
 function calculateDiscountAmount(price, quantity) {
-  const base = price * quantity;
-  const discount = getBulkDiscount(quantity);
-  return (base * discount) / 100;
+  return price * quantity * (getBulkDiscount(quantity) / 100);
 }
 
 function calculateFinalPrice(price, quantity) {
-  const base = price * quantity;
-  return base - calculateDiscountAmount(price, quantity);
+  return getBulkPricePerKg(price, quantity) * quantity;
 }
 
-const MIN_BULK_QTY = 5;
-const QTY_STEP = 1;
+const MIN_BULK_QTY = 100;
+const QTY_STEP = 10;
 
 function PaymentPage({ cart = [], onNavigate, onPlaceOrder, savedAddress = "" }) {
   const [address, setAddress] = useState(
@@ -226,6 +333,8 @@ function BulkBuyerPage({
   onProfile,
   onLogout,
 }) {
+  const { logout } = useAuth();
+
   const [address, setAddress] = useState("");
   const [isEditingAddress, setIsEditingAddress] = useState(false);
   const [addressInput, setAddressInput] = useState("");
@@ -243,6 +352,8 @@ function BulkBuyerPage({
   const [orders, setOrders] = useState([]);
   const [footerPanel, setFooterPanel] = useState(null);
   const [cartNotification, setCartNotification] = useState("");
+  const [customerReviews, setCustomerReviews] = useState({});
+  const [reviewDrafts, setReviewDrafts] = useState({});
 
   useEffect(() => {
     const saved = localStorage.getItem("kb_saved_address");
@@ -250,6 +361,24 @@ function BulkBuyerPage({
       setAddress(saved);
     }
   }, []);
+
+  const productImages = {
+    1: { main: tomato, farmers: [tom1, tom2, tom3, tom4, tom5] },
+    2: { main: broccoli, farmers: [boc1, boc2, boc3, boc4] },
+    3: { main: potato, farmers: [po1, po2, po3, po4, po5] },
+    4: { main: apple, farmers: [ap1, ap2, ap3, ap4, ap5] },
+    5: { main: banana, farmers: [ba1, ba2, ba3, ba4] },
+    6: { main: mango, farmers: [man1, man2, man3, man4, man5] },
+    7: { main: rice, farmers: [ri1, ri2, ri3, ri4, ri5] },
+    8: { main: wheat, farmers: [w1, w2, w3, w4] },
+    9: { main: corn, farmers: [co1, co2, co3, co4, co5, co6] },
+    10: { main: milk, farmers: [mi1, mi2, mi3, mi4, mi5] },
+    11: { main: paneer, farmers: [pa1, pa2, pa3] },
+    12: { main: curd, farmers: [cu1, cu2, cu3, cu4, cu5] },
+    101: { main: spinach, farmers: [sp1, sp2, sp3, sp4] },
+    102: { main: stawberry, farmers: [s1, s2, s3, s4, s5] },
+    103: { main: butter, farmers: [b1, b2, b3, b4] },
+  };
 
   const farmers = [
     {
@@ -304,6 +433,7 @@ function BulkBuyerPage({
 
   const products = productCatalog.map((product) => ({
     ...product,
+    image: productImages[product.id]?.main,
     farmerListings: farmers.map((farmer, index) => ({
       id: `${product.id}-${farmer.id}`,
       productId: product.id,
@@ -311,13 +441,26 @@ function BulkBuyerPage({
       farmer: farmer.name,
       region: farmer.region,
       price: product.price + (index - 2) * 2,
-      stock: 40 + ((product.id + index * 7) % 45),
+      marketPrice: (product.price + (index - 2) * 2) / 0.92,
+      stock: 250 + ((product.id * 13 + index * 37) % 751),
 
-      // Product image uploaded by each farmer for this product.
-      productImage: `/farmer-images/${farmer.id}/${product.id}.jpg`,
+      // Product image for this farmer listing — same image mapping as Consumer.
+      productImage:
+        productImages[product.id]?.farmers?.[index] ||
+        productImages[product.id]?.main,
 
-      // Farmer profile image uploaded by the farmer.
-      farmerImage: farmer.image,
+      // Farmer listing image — same farmer-wise image mapping as Consumer page.
+      // These are the images shown in the farmer list after clicking a product.
+      farmerImage:
+        productImages[product.id]?.farmers?.[index] ||
+        productImages[product.id]?.main,
+      rating: [4.8, 4.6, 4.5, 4.7, 4.4][index % 5],
+      reviewCount: 12 + ((product.id * 3 + index * 5) % 19),
+      description: `Fresh ${product.name.toLowerCase()} supplied by ${farmer.name}, carefully selected and packed for quality and freshness.`,
+      reviews: [
+        { name: "Anita Sharma", rating: 5, text: `Very fresh ${product.name.toLowerCase()} and good quality.` },
+        { name: "Raj Mehta", rating: [4, 5, 4, 5, 4][index % 5], text: "Good packaging, accurate quantity and reliable farmer." }
+      ],
     })),
   }));
 
@@ -361,7 +504,9 @@ function BulkBuyerPage({
   }
 
   function setQuantity(productId, value) {
-    const clamped = Math.max(MIN_BULK_QTY, value);
+    const numeric = Number(value);
+    const safeValue = Number.isFinite(numeric) ? numeric : MIN_BULK_QTY;
+    const clamped = Math.max(MIN_BULK_QTY, Math.round(safeValue * 100) / 100);
     setQuantities((prev) => ({
       ...prev,
       [productId]: clamped,
@@ -381,6 +526,21 @@ function BulkBuyerPage({
     setSelectedCategory("All");
     setSearchTerm("");
     onNavigate?.(nextView);
+  }
+
+  function updateOrderStatus(orderId, nextStatus) {
+    setOrders((prev) => prev.map((order) => order.id === orderId ? { ...order, status: nextStatus } : order));
+  }
+
+  function submitCustomerReview(orderId, itemId) {
+    const key = `${orderId}-${itemId}`;
+    const draft = reviewDrafts[key] || {};
+    const text = (draft.text || "").trim();
+    if (!text) return;
+    const reviewData = { rating: Number(draft.rating || 5), text, name: user?.name || "You" };
+    setCustomerReviews((prev) => ({ ...prev, [key]: reviewData }));
+    setOrders((prev) => prev.map((order) => order.id === orderId ? { ...order, items: order.items.map((item) => item.id === itemId ? { ...item, customerReview: reviewData } : item) } : order));
+    setReviewDrafts((prev) => ({ ...prev, [key]: { rating: Number(draft.rating || 5), text: "" } }));
   }
 
   function handleAddToBulkCart(product, quantity) {
@@ -407,12 +567,17 @@ function BulkBuyerPage({
           name: product.name,
           category: product.category,
           price: product.price,
+          marketPrice: product.marketPrice || product.price / 0.95,
           quantity,
           farmer: product.farmer,
           farmerId: product.farmerId,
           region: product.region,
           farmerImage: product.farmerImage,
           productImage: product.productImage,
+          image: product.productImage,
+          description: product.description,
+          rating: product.rating,
+          reviewCount: product.reviewCount,
         },
       ];
     });
@@ -433,7 +598,9 @@ function BulkBuyerPage({
   }
 
   function updateCartQuantity(productId, quantity) {
-    const clamped = Math.max(MIN_BULK_QTY, quantity);
+    const numeric = Number(quantity);
+    const safeValue = Number.isFinite(numeric) ? numeric : MIN_BULK_QTY;
+    const clamped = Math.max(MIN_BULK_QTY, Math.round(safeValue * 100) / 100);
 
     setBulkCart((prev) =>
       prev.map((item) =>
@@ -485,7 +652,7 @@ function BulkBuyerPage({
 
     if (invalidItem) {
       setCheckoutError(
-        "Each bulk order must contain at least 5 kg per product."
+        "Each bulk order must contain at least 100 g (0.1 kg) per product."
       );
       goToView("cart");
       return;
@@ -506,7 +673,7 @@ function BulkBuyerPage({
       coupon: paymentDetails.coupon || "",
       paymentMethod:
         paymentDetails.paymentMethod || "Not selected",
-      status: "Order Successful",
+      status: "Order Placed",
     };
 
     setOrders((prev) => [newOrder, ...prev]);
@@ -549,7 +716,7 @@ function BulkBuyerPage({
 
         {qty === MIN_BULK_QTY && (
           <small className="bb-min-note">
-            Minimum bulk order is 5 kg.
+            Minimum bulk order is 100 g (0.1 kg).
           </small>
         )}
       </div>
@@ -672,7 +839,9 @@ function BulkBuyerPage({
 
       <header className="bb-header">
         <div className="bb-brand">
-          <span className="bb-brand-icon">🌾</span>
+          <span className="bb-brand-icon">
+            <img src={logo} alt="Kisaan Connect logo" />
+          </span>
 
           <div>
             <strong>
@@ -715,7 +884,7 @@ function BulkBuyerPage({
             className="bb-logout-btn"
             onClick={() => {
               setProfileOpen(false);
-              onLogout?.();
+              logout();
             }}
           >
             ↪ Logout
@@ -1033,28 +1202,20 @@ function BulkBuyerPage({
 
                     <div className="bb-pricing-tiers">
                       <div className="bb-tier">
-                        <strong>5–9 kg</strong>
-                        <span>No discount</span>
-                      </div>
-
-                      <div className="bb-tier">
-                        <strong>10–19 kg</strong>
+                        <strong>100–249 kg</strong>
                         <span>5% OFF</span>
                       </div>
-
                       <div className="bb-tier">
-                        <strong>20–49 kg</strong>
-                        <span>10% OFF</span>
+                        <strong>250–499 kg</strong>
+                        <span>8% OFF</span>
                       </div>
-
                       <div className="bb-tier">
-                        <strong>50–99 kg</strong>
+                        <strong>500–999 kg</strong>
+                        <span>12% OFF</span>
+                      </div>
+                      <div className="bb-tier">
+                        <strong>1000+ kg</strong>
                         <span>15% OFF</span>
-                      </div>
-
-                      <div className="bb-tier">
-                        <strong>100+ kg</strong>
-                        <span>20% OFF</span>
                       </div>
                     </div>
                   </section>
@@ -1090,11 +1251,14 @@ function BulkBuyerPage({
               <h2>Bulk Cart</h2>
 
               {bulkCart.length === 0 ? (
-                <p className="bb-empty-state">
-                  Your bulk cart is empty. Add
-                  products with at least 5 kg to
-                  get started.
-                </p>
+                <div className="bb-empty-cart-section">
+                  <div className="bb-empty-cart-icon">🛒</div>
+                  <h2>Your Cart is Empty</h2>
+                  <p>Looks like you haven't added anything to your bulk cart yet.</p>
+                  <button type="button" className="bb-start-shopping-btn" onClick={() => goToView("home")}>
+                    Start Shopping →
+                  </button>
+                </div>
               ) : (
                 <>
                   <div className="bb-cart-list">
@@ -1125,12 +1289,15 @@ function BulkBuyerPage({
                           className="bb-cart-item"
                           key={item.id}
                         >
+                          <div className="bb-cart-product-image"><img src={item.productImage || item.image} alt={item.name} /></div>
                           <div className="bb-cart-item-main">
                             <strong>
                               {item.name}
                             </strong>
-                            <span>
-                              ₹{item.price}/kg
+                            <span className="bb-cart-price-line">
+                              <del>₹{(item.marketPrice || item.price / 0.95).toFixed(0)}/kg</del>
+                              <strong>₹{getBulkPricePerKg(item.price, item.quantity).toFixed(2)}/kg</strong>
+                              <em>{discount}% off</em>
                             </span>
                           </div>
 
@@ -1152,9 +1319,8 @@ function BulkBuyerPage({
                               −
                             </button>
 
-                            <span className="bb-qty-value">
-                              {item.quantity} kg
-                            </span>
+                            <input className="bb-qty-input" type="number" min={MIN_BULK_QTY} step={QTY_STEP} value={item.quantity} onChange={(e) => updateCartQuantity(item.id, Number(e.target.value) || MIN_BULK_QTY)} />
+                            <span className="bb-qty-unit">kg</span>
 
                             <button
                               type="button"
@@ -1232,6 +1398,11 @@ function BulkBuyerPage({
                           0
                         )}
                       </strong>
+                    </div>
+
+                    <div>
+                      <span>Average Bulk Price</span>
+                      <strong>₹{cartTotalQuantity ? (cartFinalTotal / cartTotalQuantity).toFixed(2) : "0.00"}/kg</strong>
                     </div>
                   </div>
 
@@ -1333,35 +1504,30 @@ function BulkBuyerPage({
                       </div>
 
                       <div className="bb-order-products">
-                        {order.items.map(
-                          (item) => (
-                            <div
-                              className="bb-order-product-row"
-                              key={item.id}
-                            >
-                              <span>
-                                <strong>
-                                  {item.name}
-                                </strong>
-                                <small>
-                                  {item.category}
-                                </small>
-                              </span>
-
-                              <span>
-                                {item.quantity} kg
-                              </span>
-
-                              <strong>
-                                ₹
-                                {calculateFinalPrice(
-                                  item.price,
-                                  item.quantity
-                                ).toFixed(0)}
-                              </strong>
+                        {order.items.map((item) => {
+                          const reviewKey = `${order.id}-${item.id}`;
+                          const review = customerReviews[reviewKey] || item.customerReview;
+                          const draft = reviewDrafts[reviewKey] || { rating: 5, text: "" };
+                          return (
+                            <div className="bb-order-product-row bb-order-product-rich" key={item.id}>
+                              <img src={item.productImage || item.image} alt={item.name} className="bb-order-product-image" />
+                              <div className="bb-order-product-info"><strong>{item.name}</strong><small>{item.category} • {item.farmer || "Farmer listing"}</small><span>{item.quantity} kg × ₹{item.price}</span></div>
+                              <strong>₹{calculateFinalPrice(item.price, item.quantity).toFixed(0)}</strong>
+                              {order.status === "Shipped" && (review ? <div className="bb-review-submitted">★ {review.rating}/5 · {review.text}</div> : <div className="bb-review-box">
+                                      <div className="bb-star-rating" aria-label="Rate this item">
+                                        {[1,2,3,4,5].map((star) => <button key={star} type="button" className={star <= draft.rating ? "active" : ""} onClick={() => setReviewDrafts((prev) => ({ ...prev, [reviewKey]: { ...draft, rating: star } }))}>★</button>)}
+                                      </div>
+                                      <input value={draft.text} placeholder="Write a review for this farmer's item" onChange={(e) => setReviewDrafts((prev) => ({ ...prev, [reviewKey]: { ...draft, text: e.target.value } }))} />
+                                      <button type="button" onClick={() => submitCustomerReview(order.id, item.id)}>Submit Review</button>
+                                    </div>)}
                             </div>
-                          )
-                        )}
+                          );
+                        })}
+                      </div>
+                      <div className="bb-order-status-actions">
+                        {order.status === "Order Placed" && <button type="button" onClick={() => updateOrderStatus(order.id, "Shipped")}>Mark as Shipped</button>}
+                        {order.status === "Shipped" && <button type="button" onClick={() => updateOrderStatus(order.id, "Delivered")}>Mark as Delivered</button>}
+                        {order.status === "Shipped" && <span>✓ Review unlocked after shipment</span>}
                       </div>
 
                       <div className="bb-order-total-row">
@@ -1396,81 +1562,86 @@ function BulkBuyerPage({
       {/* ================= HELP / ABOUT ================= */}
 
       {footerPanel === "help" && (
-        <section className="bb-help-bar">
-          <div className="bb-help-content">
-            <h3>Help &amp; Support</h3>
-            <p>
-              Need help with bulk buying,
-              delivery, payment, or your order?
-            </p>
-            <p>
-              <strong>Contact Support:</strong>{" "}
-              Please use the Kisaan Bazar support
-              contact provided by your
-              project/admin team.
-            </p>
-            <p>
-              <strong>Bulk Buyer Help:</strong>{" "}
-              For quantity and discount questions,
-              check the Bulk Pricing section before
-              placing your order.
-            </p>
-          </div>
 
-          <button
-            className="bb-help-close"
-            onClick={() =>
-              setFooterPanel(null)
-            }
-            aria-label="Close help"
-          >
-            ✕
-          </button>
-        </section>
-      )}
+  <section className="bb-help-bar">
+    <div className="bb-help-content">
+      <h3>Need Help?</h3>
 
-      {footerPanel === "about" && (
-        <section className="bb-about-bar">
-          <div className="bb-about-content">
-            <h3>About this App</h3>
 
-            <p>
-              <strong>Kisaan Bazar</strong> is a
-              digital marketplace designed to make
-              agricultural buying simpler, more
-              transparent, and more accessible.
-            </p>
+  <p>
+    📞 <strong>Contact:</strong> 9321440678
+  </p>
 
-            <p>
-              The Bulk Buyer panel helps businesses
-              and institutions purchase larger
-              quantities while automatically
-              applying the available bulk pricing
-              discounts.
-            </p>
+  <p>
+    ✉️ <strong>Email:</strong> deepshikhamaityyy@gmail.com
+  </p>
 
-            <div className="bb-about-flow">
-              <span>Browse Products</span>
-              <span>→</span>
-              <span>Choose Quantity</span>
-              <span>→</span>
-              <span>Get Bulk Discount</span>
-              <span>→</span>
-              <span>Place Order</span>
-            </div>
-          </div>
+  <p>
+    📍 <strong>Office:</strong> Kisaan connect Office, Andheri East,
+    Mumbai, Maharashtra - 400069
+  </p>
+</div>
 
-          <button
-            className="bb-about-close"
-            onClick={() =>
-              setFooterPanel(null)
-            }
-            aria-label="Close about"
-          >
-            ✕
-          </button>
-        </section>
-      )}
+<button
+  className="bb-help-close"
+  onClick={() => setFooterPanel(null)}
+  aria-label="Close help"
+>
+  ✕
+</button>
+
+
+  </section>
+)}
+
+
+  {footerPanel === "about" && (
+
+  <section className="bb-about-bar">
+    <div className="bb-about-content">
+      <h3>About Kisaan connect</h3>
+
+
+  <p>
+    <strong>Kisaan connect</strong> is a digital platform that
+    directly connects farmers with consumers.
+  </p>
+
+  <p>
+    Our goal is to reduce the role of unnecessary intermediaries
+    (middlemen) in the agricultural supply chain. This helps
+    farmers receive a better and fairer price for their produce,
+    while consumers can buy fresh agricultural products at more
+    affordable prices.
+  </p>
+
+  <p>
+    Kisaan connect aims to create a transparent, fair, and efficient
+    marketplace where farmers get better value for their hard work
+    and consumers get quality products at reasonable prices.
+  </p>
+
+  <div className="bb-about-flow">
+    <span>Farmer</span>
+    <span>→</span>
+    <span>Kisaan connect</span>
+    <span>→</span>
+    <span>Consumer</span>
+  </div>
+</div>
+
+<button
+  className="bb-about-close"
+  onClick={() => setFooterPanel(null)}
+  aria-label="Close about"
+>
+  ✕
+</button>
+```
+
+  </section>
+)}
+
 
       <footer className="bb-footer">
         <div className="bb-footer-actions">
@@ -1488,7 +1659,7 @@ function BulkBuyerPage({
               )
             }
           >
-            Help &amp; Support
+            Help
           </button>
 
           <button
@@ -1586,6 +1757,10 @@ function BulkBuyerPage({
                   const qty = getQuantity(
                     listing.id
                   );
+                  const discountPercent = getBulkDiscount(qty);
+                  const bulkPricePerKg = getBulkPricePerKg(listing.price, qty);
+                  const marketPrice = listing.marketPrice || listing.price / 0.95;
+                  const savingsPerKg = marketPrice - bulkPricePerKg;
 
                   return (
                     <div
@@ -1615,20 +1790,21 @@ function BulkBuyerPage({
                         <span>
                           {listing.region}
                         </span>
-                        <small>
-                          {listing.stock} kg
-                          available
-                        </small>
+                        <small>{listing.stock} kg available</small>
+                        <span className="bb-listing-rating">★ {listing.rating} ({listing.reviewCount} reviews)</span>
+                        <p className="bb-listing-description">{listing.description}</p>
                       </div>
 
                       {/* PRICE */}
                       <div className="bb-farmer-listing-price">
-                        <strong>
-                          ₹{listing.price}/kg
-                        </strong>
-                        <span>
-                          Bulk price by quantity
-                        </span>
+                        <span className="bb-market-price">Market ₹{marketPrice.toFixed(0)}/kg</span>
+                        <strong className="bb-bulk-price">₹{bulkPricePerKg.toFixed(2)}/kg</strong>
+                        <span className="bb-discount-badge">{discountPercent}% bulk discount</span>
+                        <small>Save ₹{savingsPerKg.toFixed(2)}/kg</small>
+                      </div>
+
+                      <div className="bb-listing-reviews">
+                        {listing.reviews.map((review, idx) => <div key={idx}><strong>{review.name}</strong> · ★ {review.rating}<span>{review.text}</span></div>)}
                       </div>
 
                       {/* QUANTITY + ADD */}
@@ -1654,9 +1830,8 @@ function BulkBuyerPage({
                             −
                           </button>
 
-                          <span className="bb-qty-value">
-                            {qty} kg
-                          </span>
+                          <input className="bb-qty-input" type="number" min={MIN_BULK_QTY} step={QTY_STEP} value={qty} onChange={(e) => setQuantity(listing.id, Number(e.target.value) || MIN_BULK_QTY)} onClick={(e) => e.stopPropagation()} />
+                          <span className="bb-qty-unit">kg</span>
 
                           <button
                             type="button"

@@ -1,4 +1,11 @@
 import { useState } from "react";
+import tomato from "../../assets/tomato.jpg";
+import mango from "../../assets/mango.jpg";
+import milk from "../../assets/milk.jpg";
+import spinach from "../../assets/spinach.jpg";
+import banana from "../../assets/banana.jpg";
+import wheat from "../../assets/wheat.jpg";
+import logo from "../../assets/less.webp";
 import "./fpo.css";
 import { useAuth } from "../../context/AuthContext";
 
@@ -69,6 +76,7 @@ const PRODUCTS = [
     revenue: 52080,
     topRegion: "West Bengal",
     emoji: "🍅",
+    image: tomato,
     status: "Active",
     quantitySold: "1,240 kg",
     farmers: [
@@ -91,6 +99,7 @@ const PRODUCTS = [
     revenue: 75650,
     topRegion: "West Bengal",
     emoji: "🥭",
+    image: mango,
     status: "Active",
     quantitySold: "890 kg",
     farmers: [
@@ -113,6 +122,7 @@ const PRODUCTS = [
     revenue: 90480,
     topRegion: "Punjab",
     emoji: "🥛",
+    image: milk,
     status: "Active",
     quantitySold: "1,560 L",
     farmers: [
@@ -135,6 +145,7 @@ const PRODUCTS = [
     revenue: 23680,
     topRegion: "Bihar",
     emoji: "🥬",
+    image: spinach,
     status: "Active",
     quantitySold: "740 kg",
     farmers: [
@@ -157,6 +168,7 @@ const PRODUCTS = [
     revenue: 53760,
     topRegion: "Bihar",
     emoji: "🍌",
+    image: banana,
     status: "Active",
     quantitySold: "1,120 kg",
     farmers: [
@@ -179,6 +191,7 @@ const PRODUCTS = [
     revenue: 75240,
     topRegion: "Punjab",
     emoji: "🌾",
+    image: wheat,
     status: "Active",
     quantitySold: "1,980 kg",
     farmers: [
@@ -760,7 +773,7 @@ function FPOPage({ user, onNavigate }) {
                   >
                     <td>
                       <div className="fpo-product-name">
-                        <span>{product.emoji}</span>
+                        <span className="fpo-product-image"><img src={product.image} alt={product.name} /></span>
 
                         <div>
                           <strong>{product.name}</strong>
@@ -810,7 +823,7 @@ function FPOPage({ user, onNavigate }) {
           </button>
 
           <h1>
-            {selectedProduct.emoji} {selectedProduct.name}
+            <span className="fpo-detail-product-image"><img src={selectedProduct.image} alt={selectedProduct.name} /></span> {selectedProduct.name}
           </h1>
 
           <p>
@@ -1224,7 +1237,7 @@ function FPOPage({ user, onNavigate }) {
                   <tr key={product.id}>
                     <td>
                       <div className="fpo-product-name">
-                        <span>{product.emoji}</span>
+                        <span className="fpo-product-image"><img src={product.image} alt={product.name} /></span>
                         <strong>{product.name}</strong>
                       </div>
                     </td>
@@ -1280,108 +1293,40 @@ function FPOPage({ user, onNavigate }) {
       <header className="fpo-header">
         <div className="fpo-brand">
           <div className="fpo-brand-icon">
-            <img src="/LESS.WEBP" alt="Kisaan Connect logo" />
+            <img src={logo} alt="Kisaan Connect logo" />
           </div>
 
           <div>
             <strong>
               Kisaan <em>Connect</em>
             </strong>
-
             <small>FPO Panel</small>
           </div>
         </div>
 
         <div className="fpo-header-right">
           <div className="fpo-notification">🔔</div>
-          <div className="fpo-header-right">
-            <button
-              className="fpo-user"
-              onClick={() => setProfileOpen(!profileOpen)}
-            >
-              <div className="fpo-avatar">F</div>
 
-              <div className="fpo-user-text">
-                <strong>{user?.name || "FPO Manager"}</strong>
+          <button
+            className="fpo-user"
+            onClick={() => setProfileOpen(!profileOpen)}
+          >
+            <div className="fpo-avatar">F</div>
 
-                <span>{user?.email || "fpo@kisaanbazar.com"}</span>
-              </div>
+            <div className="fpo-user-text">
+              <strong>{user?.name || "FPO Manager"}</strong>
+              <span>{user?.email || "fpo@kisaanbazar.com"}</span>
+            </div>
 
-              <span className="fpo-profile-arrow">
-                {profileOpen ? "⌃" : "⌄"}
-              </span>
-            </button>
-
-            {/* LOGOUT BUTTON */}
-            <button className="fpo-logout-btn" onClick={logout}>
-              Logout
-            </button>
-
-            {profileOpen && (
-              <div className="fpo-profile-panel">
-                <div className="fpo-profile-top">
-                  <div className="fpo-large-avatar">🌾</div>
-
-                  <div>
-                    <strong>{user?.name || "FPO Manager"}</strong>
-
-                    <span>Farmer Producer Organisation</span>
-                  </div>
-                </div>
-
-                <div className="fpo-profile-info-row">
-                  <span>Role</span>
-                  <strong>FPO Manager</strong>
-                </div>
-
-                <div className="fpo-profile-info-row">
-                  <span>Organisation</span>
-                  <strong>Kisaan Bazar FPO</strong>
-                </div>
-
-                <div className="fpo-profile-info-row">
-                  <span>Farmers</span>
-                  <strong>120</strong>
-                </div>
-
-                <div className="fpo-profile-info-row">
-                  <span>Regions</span>
-                  <strong>12</strong>
-                </div>
-
-                <button className="fpo-information-btn">
-                  Add / Update Information
-                </button>
-              </div>
-            )}
-          </div>
-
-          <div className="fpo-profile-info-row">
-            <span>Role</span>
-            <strong>FPO Manager</strong>
-          </div>
-
-          <div className="fpo-profile-info-row">
-            <span>Organisation</span>
-            <strong>Kisaan Connect FPO</strong>
-          </div>
-
-          <div className="fpo-profile-info-row">
-            <span>Farmers</span>
-            <strong>120</strong>
-          </div>
-
-          <div className="fpo-profile-info-row">
-            <span>Regions</span>
-            <strong>12</strong>
-          </div>
-
-          <button className="fpo-information-btn">
-            Add / Update Information
+            <span className="fpo-profile-arrow">
+              {profileOpen ? "⌃" : "⌄"}
+            </span>
           </button>
-        </div>
 
-        <div>
+          <button className="fpo-logout-btn" onClick={logout}>
+            Logout
+          </button>
+
           {profileOpen && (
             <div className="fpo-profile-panel">
               <div className="fpo-profile-top">
@@ -1389,7 +1334,6 @@ function FPOPage({ user, onNavigate }) {
 
                 <div>
                   <strong>{user?.name || "FPO Manager"}</strong>
-
                   <span>Farmer Producer Organisation</span>
                 </div>
               </div>
@@ -1401,7 +1345,7 @@ function FPOPage({ user, onNavigate }) {
 
               <div className="fpo-profile-info-row">
                 <span>Organisation</span>
-                <strong>Kisaan Connect FPO</strong>
+                <strong>Kisaan Bazar FPO</strong>
               </div>
 
               <div className="fpo-profile-info-row">

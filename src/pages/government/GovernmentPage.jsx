@@ -1,6 +1,13 @@
 import { useState } from "react";
 import "./GovermentPage.css";
-import {useAuth} from "../../context/AuthContext"
+import { useAuth } from "../../context/AuthContext";
+import tomato from "../../assets/tomato.jpg";
+import mango from "../../assets/mango.jpg";
+import milk from "../../assets/milk.jpg";
+import spinach from "../../assets/spinach.jpg";
+import banana from "../../assets/banana.jpg";
+import wheat from "../../assets/wheat.jpg";
+import logo from "../../assets/less.webp";
 const FARMERS = [
   {
     id: "F001",
@@ -148,6 +155,7 @@ const FPOS = [
 const PRODUCTS = [
   {
     id: 1,
+    image: tomato,
     name: "Tomatoes",
     category: "Vegetables",
     farmer: "Ramesh Kumar",
@@ -159,9 +167,16 @@ const PRODUCTS = [
     revenue: 1260,
     emoji: "🍅",
     status: "In Stock",
+     detailPrice: 42,
+    quantitySold: "1,240 kg",
+    detailRevenue: 52080,
+    topRegion: "West Bengal",
+    farmers: [{ name: "Ramesh Kumar", quantity: "420 kg", rating: 4.8 }, { name: "Sita Ram", quantity: "310 kg", rating: 4.6 }, { name: "Mohan Lal", quantity: "285 kg", rating: 4.5 }],
+    regional: [{ region: "West Bengal", quantity: "420 kg", revenue: "₹17,640" }, { region: "Bihar", quantity: "310 kg", revenue: "₹13,020" }, { region: "Uttar Pradesh", quantity: "285 kg", revenue: "₹11,970" }],
   },
   {
     id: 2,
+    image: mango,
     name: "Mangoes",
     category: "Fruits",
     farmer: "Sita Ram",
@@ -173,9 +188,16 @@ const PRODUCTS = [
     revenue: 2240,
     emoji: "🥭",
     status: "Low Stock",
+     detailPrice: 85,
+    quantitySold: "890 kg",
+    detailRevenue: 75650,
+    topRegion: "West Bengal",
+    farmers: [{ name: "Ramesh Kumar", quantity: "360 kg", rating: 4.9 }, { name: "Mohan Lal", quantity: "280 kg", rating: 4.7 }, { name: "Sita Ram", quantity: "190 kg", rating: 4.5 }],
+    regional: [{ region: "West Bengal", quantity: "360 kg", revenue: "₹30,600" }, { region: "Uttar Pradesh", quantity: "280 kg", revenue: "₹23,800" }, { region: "Bihar", quantity: "190 kg", revenue: "₹16,150" }],
   },
   {
     id: 3,
+    image: milk,
     name: "Milk",
     category: "Dairy",
     farmer: "Mohan Lal",
@@ -187,9 +209,16 @@ const PRODUCTS = [
     revenue: 1200,
     emoji: "🥛",
     status: "In Stock",
+     detailPrice: 58,
+    quantitySold: "1,560 L",
+    detailRevenue: 90480,
+    topRegion: "Punjab",
+    farmers: [{ name: "Hari Singh", quantity: "520 L", rating: 4.8 }, { name: "Sunita Devi", quantity: "410 L", rating: 4.6 }, { name: "Ramesh Kumar", quantity: "350 L", rating: 4.5 }],
+    regional: [{ region: "Punjab", quantity: "520 L", revenue: "₹30,160" }, { region: "Jharkhand", quantity: "410 L", revenue: "₹23,780" }, { region: "West Bengal", quantity: "350 L", revenue: "₹20,300" }],
   },
   {
     id: 4,
+    image: spinach,
     name: "Spinach",
     category: "Vegetables",
     farmer: "Sunita Devi",
@@ -201,9 +230,16 @@ const PRODUCTS = [
     revenue: 360,
     emoji: "🥬",
     status: "Low Stock",
+     detailPrice: 32,
+    quantitySold: "740 kg",
+    detailRevenue: 23680,
+    topRegion: "Bihar",
+    farmers: [{ name: "Sita Ram", quantity: "280 kg", rating: 4.7 }, { name: "Sunita Devi", quantity: "190 kg", rating: 4.5 }, { name: "Mohan Lal", quantity: "150 kg", rating: 4.4 }],
+    regional: [{ region: "Bihar", quantity: "280 kg", revenue: "₹8,960" }, { region: "Jharkhand", quantity: "190 kg", revenue: "₹6,080" }, { region: "Uttar Pradesh", quantity: "150 kg", revenue: "₹4,800" }],
   },
   {
     id: 5,
+    image: banana,
     name: "Bananas",
     category: "Fruits",
     farmer: "Hari Singh",
@@ -215,9 +251,16 @@ const PRODUCTS = [
     revenue: 640,
     emoji: "🍌",
     status: "Low Stock",
+     detailPrice: 48,
+    quantitySold: "1,120 kg",
+    detailRevenue: 53760,
+    topRegion: "Bihar",
+    farmers: [{ name: "Sita Ram", quantity: "390 kg", rating: 4.6 }, { name: "Ramesh Kumar", quantity: "320 kg", rating: 4.5 }, { name: "Sunita Devi", quantity: "240 kg", rating: 4.4 }],
+    regional: [{ region: "Bihar", quantity: "390 kg", revenue: "₹18,720" }, { region: "West Bengal", quantity: "320 kg", revenue: "₹15,360" }, { region: "Jharkhand", quantity: "240 kg", revenue: "₹11,520" }],
   },
   {
     id: 6,
+    image: wheat,
     name: "Wheat",
     category: "Grains",
     farmer: "Ramesh Kumar",
@@ -229,6 +272,12 @@ const PRODUCTS = [
     revenue: 300,
     emoji: "🌾",
     status: "Out of Stock",
+     detailPrice: 38,
+    quantitySold: "1,980 kg",
+    detailRevenue: 75240,
+    topRegion: "Punjab",
+    farmers: [{ name: "Hari Singh", quantity: "720 kg", rating: 4.9 }, { name: "Mohan Lal", quantity: "510 kg", rating: 4.7 }, { name: "Sita Ram", quantity: "420 kg", rating: 4.6 }],
+    regional: [{ region: "Punjab", quantity: "720 kg", revenue: "₹27,360" }, { region: "Uttar Pradesh", quantity: "510 kg", revenue: "₹19,380" }, { region: "Bihar", quantity: "420 kg", revenue: "₹15,960" }],
   },
 ];
 
@@ -354,6 +403,7 @@ function GovernmentPage({ user, onNavigate }) {
   const [reportType, setReportType] = useState("farmer");
   const [orderStatus, setOrderStatus] = useState("all");
   const [profileOpen, setProfileOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
 
   const totalFarmers = 120;
   const totalFPOs = 18;
@@ -376,6 +426,7 @@ function GovernmentPage({ user, onNavigate }) {
 
   function goToSection(name) {
     setSection(name);
+    setSelectedProduct(null);
     setProfileOpen(false);
   }
 
@@ -619,9 +670,24 @@ function GovernmentPage({ user, onNavigate }) {
 
           <div className="gov-product-mini-grid">
             {PRODUCTS.map((product) => (
-              <div className="gov-product-mini-card" key={product.id}>
+              <div
+                  className="gov-product-mini-card gov-product-mini-clickable"
+                  key={product.id}
+                  onClick={() => {
+                    setSection("products");
+                    setSelectedProduct(product);
+                  }}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                      setSection("products");
+                      setSelectedProduct(product);
+                    }
+                  }}
+                >
                 <div className="gov-product-icon">
-                  {product.emoji}
+                  <img src={product.image} alt={product.name} />
                 </div>
 
                 <div>
@@ -869,7 +935,193 @@ function GovernmentPage({ user, onNavigate }) {
     );
   }
 
+  function renderProductDetails() {
+    if (!selectedProduct) return null;
+
+    const averageRating =
+      selectedProduct.farmers.length > 0
+        ? (
+            selectedProduct.farmers.reduce(
+              (sum, farmer) => sum + farmer.rating,
+              0
+            ) / selectedProduct.farmers.length
+          ).toFixed(1)
+        : "0.0";
+
+    return (
+      <>
+        <div className="gov-product-detail-top">
+          <button
+            className="gov-product-back-btn"
+            onClick={() => setSelectedProduct(null)}
+          >
+            ← Back to Products
+          </button>
+        </div>
+
+        <div className="gov-product-detail-header">
+          <div className="gov-detail-product-image">
+            <img
+              src={selectedProduct.image}
+              alt={selectedProduct.name}
+            />
+          </div>
+
+          <div className="gov-detail-product-info">
+            <span className="gov-eyebrow">
+              {selectedProduct.category}
+            </span>
+            <h1>{selectedProduct.name}</h1>
+            <p>
+              Government marketplace performance and farmer contribution
+              details
+            </p>
+            <div className="gov-detail-meta">
+              <span>📍 {selectedProduct.region}</span>
+              <span>👨‍🌾 {selectedProduct.farmer}</span>
+              <span>⭐ {averageRating} / 5</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="gov-product-detail-stats">
+          <div className="gov-detail-stat">
+            <span>Average Price / kg</span>
+            <strong>₹{selectedProduct.detailPrice}</strong>
+          </div>
+
+          <div className="gov-detail-stat">
+            <span>Quantity Sold</span>
+            <strong>{selectedProduct.quantitySold}</strong>
+          </div>
+
+          <div className="gov-detail-stat">
+            <span>Total Revenue</span>
+            <strong>
+              ₹{selectedProduct.detailRevenue.toLocaleString()}
+            </strong>
+          </div>
+
+          <div className="gov-detail-stat">
+            <span>Total Farmers</span>
+            <strong>{selectedProduct.farmers.length}</strong>
+          </div>
+
+          <div className="gov-detail-stat">
+            <span>Top Region</span>
+            <strong>{selectedProduct.topRegion}</strong>
+          </div>
+        </div>
+
+        <div className="gov-product-detail-grid">
+          <div className="gov-card gov-top-farmers">
+            <div className="gov-card-heading">
+              <div>
+                <h2>👨‍🌾 Top Farmers</h2>
+                <p>Farmers contributing the highest quantity</p>
+              </div>
+            </div>
+
+            <div className="gov-top-farmer-list">
+              {selectedProduct.farmers.map((farmer, index) => (
+                <div className="gov-top-farmer" key={farmer.name}>
+                  <span className="gov-farmer-rank">
+                    #{index + 1}
+                  </span>
+
+                  <div className="gov-farmer-avatar">
+                    {farmer.name.charAt(0)}
+                  </div>
+
+                  <div className="gov-top-farmer-info">
+                    <strong>{farmer.name}</strong>
+                    <span>{farmer.quantity} sold</span>
+                  </div>
+
+                  <div className="gov-rating">
+                    ⭐ {farmer.rating}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="gov-card">
+            <div className="gov-card-heading">
+              <div>
+                <h2>⭐ Farmer Ratings</h2>
+                <p>Average rating: {averageRating} / 5</p>
+              </div>
+            </div>
+
+            <div className="gov-rating-summary">
+              <strong>{averageRating}</strong>
+              <div>
+                <div className="gov-stars">★★★★★</div>
+                <span>Based on farmer performance</span>
+              </div>
+            </div>
+
+            <div className="gov-rating-bars">
+              {selectedProduct.farmers.map((farmer) => (
+                <div className="gov-rating-row" key={farmer.name}>
+                  <span>{farmer.name}</span>
+                  <div className="gov-rating-track">
+                    <div
+                      className="gov-rating-fill"
+                      style={{
+                        width: `${(farmer.rating / 5) * 100}%`,
+                      }}
+                    />
+                  </div>
+                  <strong>{farmer.rating}</strong>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="gov-card">
+          <div className="gov-card-heading">
+            <div>
+              <h2>📍 Regional Performance</h2>
+              <p>Product sales performance by region</p>
+            </div>
+          </div>
+
+          <div className="gov-table-wrap">
+            <table className="gov-table">
+              <thead>
+                <tr>
+                  <th>Region</th>
+                  <th>Quantity Sold</th>
+                  <th>Revenue</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {selectedProduct.regional.map((item) => (
+                  <tr key={item.region}>
+                    <td>
+                      <strong>{item.region}</strong>
+                    </td>
+                    <td>{item.quantity}</td>
+                    <td>{item.revenue}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </>
+    );
+  }
+
   function renderProducts() {
+    if (selectedProduct) {
+      return renderProductDetails();
+    }
+
     return (
       <>
         <div className="gov-title-row">
@@ -904,6 +1156,10 @@ function GovernmentPage({ user, onNavigate }) {
         </div>
 
         <div className="gov-card">
+          <div className="gov-product-click-hint">
+            Click any product row to view detailed performance →
+          </div>
+
           <div className="gov-table-wrap">
             <table className="gov-table">
               <thead>
@@ -911,6 +1167,7 @@ function GovernmentPage({ user, onNavigate }) {
                   <th>Product</th>
                   <th>Category</th>
                   <th>Top Region to Sell</th>
+                  <th>Region</th>
                   <th>Price</th>
                   <th>Stock</th>
                   <th>Sold</th>
@@ -921,16 +1178,23 @@ function GovernmentPage({ user, onNavigate }) {
 
               <tbody>
                 {PRODUCTS.map((product) => (
-                  <tr key={product.id}>
+                  <tr
+                    key={product.id}
+                    className="gov-product-row-clickable"
+                    onClick={() => setSelectedProduct(product)}
+                    title={`View ${product.name} details`}
+                  >
                     <td>
                       <div className="gov-product-name">
-                        <span>{product.emoji}</span>
+                        <span>
+                          <img src={product.image} alt={product.name} />
+                        </span>
                         <strong>{product.name}</strong>
                       </div>
                     </td>
 
                     <td>{product.category}</td>
-                    <td>{TOP_SELLING_REGION}</td>
+                    <td>{product.topRegion}</td>
                     <td>{product.region}</td>
                     <td>₹{product.price}</td>
                     <td>{product.stock}</td>
@@ -1495,7 +1759,12 @@ function GovernmentPage({ user, onNavigate }) {
                   {PRODUCTS.map((product) => (
                     <tr key={product.id}>
                       <td>
-                        {product.emoji} {product.name}
+                        <div className="gov-product-name">
+                          <span>
+                            <img src={product.image} alt={product.name} />
+                          </span>
+                          <strong>{product.name}</strong>
+                        </div>
                       </td>
                       <td>{product.category}</td>
                       <td>{TOP_SELLING_REGION}</td>
@@ -1548,7 +1817,7 @@ function GovernmentPage({ user, onNavigate }) {
 
         <div className="government-brand">
           <span className="government-brand-icon">
-            <img src="/LESS.WEBP" alt="Kisaan Connect logo" />
+            <img src={logo} alt="Kisaan Connect logo" />
           </span>
 
           <div>

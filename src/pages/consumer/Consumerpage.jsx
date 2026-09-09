@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 
+import { useAuth } from "../../context/AuthContext";
 // Product images
 import tomato from "../../assets/tomato.jpg";
 import broccoli from "../../assets/broccoli.jpg";
@@ -13,6 +14,7 @@ import corn from "../../assets/corn.jpg";
 import milk from "../../assets/milk.jpg";
 import paneer from "../../assets/paneer.jpg";
 import curd from "../../assets/curd.jpg";
+import spinach from "../../assets/spinach.jpg";
 
 // Farmer listing images
 import tom1 from "../../assets/tom1.jpg";
@@ -78,6 +80,30 @@ import cu3 from "../../assets/cu3.jpg";
 import cu4 from "../../assets/cu4.jpg";
 import cu5 from "../../assets/cu5.jpg";
 
+import w1 from "../../assets/w1.jpg";
+import w2 from "../../assets/w2.jpg";
+import w3 from "../../assets/w3.jpg";
+import w4 from "../../assets/w4.jpg";
+
+import sp1 from "../../assets/sp1.jpg";
+import sp2 from "../../assets/sp2.jpg";
+import sp3 from "../../assets/sp3.jpg";
+import sp4 from "../../assets/sp4.jpg";
+
+import butter from "../../assets/butter.jpg";
+import b1 from "../../assets/b1.jpg";
+import b2 from "../../assets/b2.jpg";
+import b3 from "../../assets/b3.jpg";
+import b4 from "../../assets/b4.jpg";
+
+import stawberry from "../../assets/strawberry.jpg";
+import s1 from "../../assets/s1.jpg";
+import s2 from "../../assets/s2.jpg";
+import s3 from "../../assets/s3.jpg";
+import s4 from "../../assets/s4.jpg";
+import s5 from "../../assets/s5.jpg";
+
+
 import logo from "../../assets/less.webp";
 
 function ConsumerPage({
@@ -108,7 +134,9 @@ function ConsumerPage({
   const [paymentMethod, setPaymentMethod] = useState("");
   const [addressSaved, setAddressSaved] = useState(false);
   const [cartToast, setCartToast] = useState("");
-
+  const [customerReviews, setCustomerReviews] = useState({});
+  const [reviewDrafts, setReviewDrafts] = useState({});
+const { logout } = useAuth();
   function handleConsumerAddToCart(product) {
     onAddToCart?.(product);
     setCartToast(`${product.name} added to cart`);
@@ -180,7 +208,7 @@ function ConsumerPage({
     },
     8: {
       main: wheat,
-      farmers: [wheat, wheat, wheat, wheat]
+      farmers: [w1, w2, w3, w4]
     },
     9: {
       main: corn,
@@ -197,7 +225,19 @@ function ConsumerPage({
     12: {
       main: curd,
       farmers: [cu1, cu2, cu3, cu4, cu5]
-    }
+    },
+    101: {
+  main: spinach,
+  farmers: [sp1, sp2, sp3, sp4]
+},
+102: {
+  main: stawberry,
+  farmers: [s1, s2, s3, s4, s5]
+},
+103: {
+  main: butter,
+  farmers: [b1, b2, b3, b4]
+},
   };
 
   function createFarmerListings(productId, productName, basePrice) {
@@ -215,7 +255,14 @@ function ConsumerPage({
         region: farmer.region,
         price: basePrice + (index - 2) * 2,
         stock: 40 + ((productId + index * 7) % 45),
-        image
+        image,
+        rating: [4.8, 4.6, 4.5, 4.7, 4.4][index % 5],
+        reviewCount: 12 + ((productId * 3 + index * 5) % 19),
+        description: `Fresh ${productName.toLowerCase()} supplied by ${farmer.name}, carefully selected and packed for quality and freshness.`,
+        reviews: [
+          { name: "Anita Sharma", rating: 5, text: `Very fresh ${productName.toLowerCase()} and good quality.` },
+          { name: "Raj Mehta", rating: [4, 5, 4, 5, 4][index % 5], text: "Good packaging, accurate quantity and reliable farmer." }
+        ]
       };
     });
   }
@@ -330,6 +377,21 @@ function ConsumerPage({
     setConsumerView(view);
   }
 
+  function updateConsumerOrderStatus(orderId, nextStatus) {
+    setOrders((prev) => prev.map((order) => order.id === orderId ? { ...order, status: nextStatus } : order));
+  }
+
+  function submitConsumerReview(orderId, itemId) {
+    const key = `${orderId}-${itemId}`;
+    const draft = reviewDrafts[key] || {};
+    const text = (draft.text || "").trim();
+    if (!text) return;
+    const reviewData = { rating: Number(draft.rating || 5), text, name: user?.name || "You" };
+    setCustomerReviews((prev) => ({ ...prev, [key]: reviewData }));
+    setOrders((prev) => prev.map((order) => order.id === orderId ? { ...order, items: order.items.map((item) => item.id === itemId ? { ...item, customerReview: reviewData } : item) } : order));
+    setReviewDrafts((prev) => ({ ...prev, [key]: { rating: Number(draft.rating || 5), text: "" } }));
+  }
+
   function handlePlaceConsumerOrder() {
     if (!paymentAddress.trim()) {
       alert("Please enter your delivery address.");
@@ -351,7 +413,7 @@ function ConsumerPage({
       address: paymentAddress.trim(),
       coupon: coupon.trim(),
       paymentMethod,
-      status: "Order Successful"
+      status: "Order Placed"
     };
 
     setOrders((previous) => [newOrder, ...previous]);
@@ -448,6 +510,17 @@ function ConsumerPage({
                 }}
               >
                 View / Update Profile
+              </button>
+
+              <button
+                type="button"
+                className="consumer-logout-btn"
+                onClick={() => {
+                  setProfileOpen(false);
+                  logout();
+                }}
+              >
+                Logout
               </button>
             </div>
           )}
@@ -615,7 +688,7 @@ function ConsumerPage({
               {isHome && (
                 <section className="hero-banner">
                   <img
-                    src="https://picsum.photos/seed/foodapp/900/280"
+                    src="https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&w=1400&q=85"
                     alt="New launch advertisement"
                     className="hero-image"
                   />
@@ -786,7 +859,14 @@ function ConsumerPage({
                                 >
                                   −
                                 </button>
-                                <span>{item.quantity || 1}</span>
+                                <input
+                                  className="consumer-qty-input"
+                                  type="number"
+                                  min="1"
+                                  step="1"
+                                  value={item.quantity || 1}
+                                  onChange={(e) => onUpdateQuantity?.(item.id, Math.max(1, Number(e.target.value) || 1))}
+                                />
                                 <button
                                   type="button"
                                   onClick={() =>
@@ -1066,24 +1146,34 @@ function ConsumerPage({
                       <div className="ordered-products">
                         <h3>Ordered Products</h3>
                         {order.items.map((item) => (
-                          <div
-                            className="ordered-product-row"
-                            key={`${order.id}-${item.id}`}
-                          >
+                          <div className="ordered-product-row consumer-order-product-rich" key={`${order.id}-${item.id}`}>
+                            <img src={item.image || item.productImage} alt={item.name} className="consumer-order-product-image" />
                             <div>
                               <strong>{item.name}</strong>
-                              <span>
-                                {item.farmer
-                                  ? `${item.farmer} • ${item.region || ""} • `
-                                  : ""}
-                                {item.quantity || 1} kg × ₹{item.price}
-                              </span>
+                              <span>{item.farmer ? `${item.farmer} • ${item.region || ""} • ` : ""}{item.quantity || 1} kg × ₹{item.price}</span>
                             </div>
-                            <strong>
-                              ₹{(item.price * (item.quantity || 1)).toFixed(0)}
-                            </strong>
+                            <strong>₹{(item.price * (item.quantity || 1)).toFixed(0)}</strong>
+                            {order.status === "Shipped" && (() => {
+                              const reviewKey = `${order.id}-${item.id}`;
+                              const review = customerReviews[reviewKey] || item.customerReview;
+                              const draft = reviewDrafts[reviewKey] || { rating: 5, text: "" };
+                              return review ? <div className="consumer-review-submitted">★ {review.rating}/5 · {review.text}</div> : (
+                                <div className="consumer-review-box">
+                                  <div className="consumer-star-rating" aria-label="Rate this item">
+                                    {[1,2,3,4,5].map((star) => <button key={star} type="button" className={star <= draft.rating ? "active" : ""} onClick={() => setReviewDrafts((prev) => ({ ...prev, [reviewKey]: { ...draft, rating: star } }))}>★</button>)}
+                                  </div>
+                                  <input value={draft.text} placeholder="Write a review for this farmer's item" onChange={(e) => setReviewDrafts((prev) => ({ ...prev, [reviewKey]: { ...draft, text: e.target.value } }))} />
+                                  <button type="button" onClick={() => submitConsumerReview(order.id, item.id)}>Submit Review</button>
+                                </div>
+                              );
+                            })()}
                           </div>
                         ))}
+                      </div>
+
+                      <div className="consumer-order-status-actions">
+                        {order.status === "Order Placed" && <button type="button" onClick={() => updateConsumerOrderStatus(order.id, "Shipped")}>Mark as Shipped</button>}
+                        {order.status === "Shipped" && <span>✓ Order shipped — you can review the products below.</span>}
                       </div>
 
                       <div className="consumer-order-summary">
@@ -1163,8 +1253,13 @@ function ConsumerPage({
                     <strong>{listing.farmer}</strong>
                     <span>{listing.region}</span>
                     <small>Stock: {listing.stock} kg</small>
+                    <span className="consumer-listing-rating">★ {listing.rating} ({listing.reviewCount} reviews)</span>
+                    <p className="consumer-listing-description">{listing.description}</p>
                   </div>
 
+                  <div className="consumer-listing-reviews">
+                    {listing.reviews.map((review, idx) => <div key={idx}><strong>{review.name}</strong> · ★ {review.rating}<span>{review.text}</span></div>)}
+                  </div>
                   <div className="farmer-listing-price">
                     <strong>₹{listing.price}/kg</strong>
                     <span>Farmer listing</span>

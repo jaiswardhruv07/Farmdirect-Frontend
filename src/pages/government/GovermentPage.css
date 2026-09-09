@@ -1411,3 +1411,602 @@
   color: #2f2a1e;
   transform: translateY(-1px);
 }
+/* Product images */
+.gov-product-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: inherit;
+  display: block;
+}
+
+.gov-product-name span img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: inherit;
+  display: block;
+}
+
+
+/* ================= PRODUCT DETAIL PAGE ================= */
+
+.gov-product-row-clickable {
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.gov-product-row-clickable:hover {
+  background: #f2f0e6 !important;
+}
+
+.gov-product-row-clickable td:first-child strong {
+  color: #304628;
+}
+
+.gov-product-back-btn {
+  border: 1px solid #ded5c1;
+  background: #fffdf7;
+  color: #4a5d3a;
+  border-radius: 8px;
+  padding: 8px 13px;
+  margin-bottom: 12px;
+  font-family: "DM Sans", sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.gov-product-back-btn:hover {
+  background: #f0eadc;
+  transform: translateX(-2px);
+}
+
+.gov-product-detail-header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 16px;
+}
+
+.gov-detail-product-image {
+  width: 105px;
+  height: 105px;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #edf1e3;
+  border: 1px solid #e4dccb;
+  flex-shrink: 0;
+}
+
+.gov-detail-product-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.gov-detail-product-info h2 {
+  margin: 5px 0 5px;
+  color: #304628;
+  font-family: "Playfair Display", serif;
+  font-size: 26px;
+}
+
+.gov-detail-product-info p {
+  margin: 0;
+  color: #817661;
+  font-size: 11px;
+}
+
+.gov-product-detail-stats {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.gov-detail-stat {
+  background: #fffdf7;
+  border: 1px solid #e4dccb;
+  border-radius: 12px;
+  padding: 17px;
+  box-shadow: 0 4px 15px rgba(68, 78, 54, 0.05);
+}
+
+.gov-detail-stat span {
+  display: block;
+  color: #77705f;
+  font-size: 10px;
+  margin-bottom: 6px;
+}
+
+.gov-detail-stat strong {
+  display: block;
+  color: #304628;
+  font-size: 19px;
+  line-height: 1.2;
+}
+
+.gov-detail-stat small {
+  display: block;
+  color: #8a806d;
+  font-size: 8px;
+  margin-top: 5px;
+}
+
+.gov-product-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 0;
+}
+
+.gov-top-farmers {
+  display: flex;
+  flex-direction: column;
+}
+
+.gov-top-farmer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 0;
+  border-bottom: 1px solid #eee8dc;
+}
+
+.gov-top-farmer:last-child {
+  border-bottom: none;
+}
+
+.gov-farmer-rank {
+  width: 27px;
+  color: #b88e48;
+  font-weight: 700;
+  font-size: 10px;
+}
+
+.gov-farmer-avatar {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  background: #e3ecd2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 17px;
+  flex-shrink: 0;
+}
+
+.gov-top-farmer-info {
+  flex: 1;
+}
+
+.gov-top-farmer-info strong {
+  display: block;
+  color: #3d4c35;
+  font-size: 11px;
+}
+
+.gov-top-farmer-info small {
+  display: block;
+  color: #8a806d;
+  font-size: 9px;
+  margin-top: 3px;
+}
+
+.gov-rating {
+  color: #9b741f;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.gov-rating-summary {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 8px 0 17px;
+  border-bottom: 1px solid #eee8dc;
+  margin-bottom: 12px;
+}
+
+.gov-rating-summary > strong {
+  color: #304628;
+  font-size: 32px;
+}
+
+.gov-stars {
+  color: #c59b45;
+  letter-spacing: 2px;
+  font-size: 17px;
+}
+
+.gov-rating-summary span {
+  display: block;
+  color: #8a806d;
+  font-size: 9px;
+  margin-top: 3px;
+}
+
+.gov-rating-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.gov-rating-row {
+  display: grid;
+  grid-template-columns: 95px 1fr 28px;
+  align-items: center;
+  gap: 8px;
+}
+
+.gov-rating-row > span {
+  color: #655f52;
+  font-size: 9px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.gov-rating-row > strong {
+  color: #4a5d3a;
+  font-size: 9px;
+  text-align: right;
+}
+
+.gov-rating-track {
+  height: 7px;
+  background: #ece7da;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.gov-rating-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #78945d, #4e693c);
+  border-radius: 10px;
+}
+
+@media (max-width: 1200px) {
+  .gov-product-detail-stats {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 850px) {
+  .gov-product-detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .gov-product-detail-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .gov-product-detail-stats {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .gov-product-detail-header {
+    align-items: flex-start;
+  }
+
+  .gov-detail-product-image {
+    width: 80px;
+    height: 80px;
+  }
+
+  .gov-detail-product-info h2 {
+    font-size: 22px;
+  }
+
+  .gov-rating-row {
+    grid-template-columns: 80px 1fr 25px;
+  }
+}
+
+/* ================= CLICKABLE PRODUCT + PRODUCT DETAILS ================= */
+
+.gov-product-row-clickable {
+  cursor: pointer;
+  transition: background 0.18s ease, transform 0.18s ease;
+}
+
+.gov-product-row-clickable:hover {
+  background: #eef3e6 !important;
+}
+
+.gov-product-row-clickable td:first-child strong {
+  color: #36532c;
+}
+
+.gov-product-click-hint {
+  margin-bottom: 12px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  background: #f3f7eb;
+  color: #607252;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.gov-product-mini-clickable {
+  cursor: pointer;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.gov-product-mini-clickable:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 18px rgba(68, 78, 54, 0.10);
+}
+
+.gov-product-detail-top {
+  margin-bottom: 16px;
+}
+
+.gov-product-back-btn {
+  border: 1px solid #ded5c1;
+  background: #fffdf7;
+  color: #50613f;
+  border-radius: 8px;
+  padding: 9px 14px;
+  font-family: "DM Sans", sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.gov-product-back-btn:hover {
+  background: #eee7d8;
+  transform: translateX(-2px);
+}
+
+.gov-product-detail-header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  background: #fffdf7;
+  border: 1px solid #e4dccb;
+  border-radius: 14px;
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 15px rgba(68, 78, 54, 0.05);
+}
+
+.gov-detail-product-image {
+  width: 110px;
+  height: 110px;
+  flex-shrink: 0;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #edf1e3;
+  border: 1px solid #e0e7d4;
+}
+
+.gov-detail-product-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.gov-detail-product-info h1 {
+  margin: 5px 0 5px;
+  font-family: "Playfair Display", serif;
+  font-size: 29px;
+  color: #334b29;
+}
+
+.gov-detail-product-info p {
+  margin: 0;
+  color: #817661;
+  font-size: 12px;
+}
+
+.gov-detail-meta {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+  color: #5f6d52;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.gov-product-detail-stats {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.gov-detail-stat {
+  background: #fffdf7;
+  border: 1px solid #e4dccb;
+  border-radius: 11px;
+  padding: 15px;
+  min-height: 85px;
+}
+
+.gov-detail-stat span {
+  display: block;
+  color: #817661;
+  font-size: 9px;
+  margin-bottom: 7px;
+}
+
+.gov-detail-stat strong {
+  display: block;
+  color: #3e582e;
+  font-size: 18px;
+  line-height: 1.25;
+}
+
+.gov-product-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.gov-top-farmer-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.gov-top-farmer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 0;
+  border-bottom: 1px solid #eee8dc;
+}
+
+.gov-top-farmer:last-child {
+  border-bottom: none;
+}
+
+.gov-farmer-rank {
+  width: 27px;
+  color: #b88e48;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.gov-farmer-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #e3ecd2;
+  color: #4a5d3a;
+  font-weight: 800;
+  font-size: 12px;
+}
+
+.gov-top-farmer-info {
+  flex: 1;
+}
+
+.gov-top-farmer-info strong {
+  display: block;
+  color: #394832;
+  font-size: 11px;
+}
+
+.gov-top-farmer-info span {
+  display: block;
+  color: #8a806d;
+  font-size: 9px;
+  margin-top: 3px;
+}
+
+.gov-rating {
+  color: #9b731e;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.gov-rating-summary {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 17px;
+}
+
+.gov-rating-summary > strong {
+  color: #3e582e;
+  font-size: 34px;
+  line-height: 1;
+}
+
+.gov-rating-summary span {
+  display: block;
+  margin-top: 3px;
+  color: #8a806d;
+  font-size: 9px;
+}
+
+.gov-stars {
+  color: #c4942f;
+  letter-spacing: 2px;
+  font-size: 13px;
+}
+
+.gov-rating-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.gov-rating-row {
+  display: grid;
+  grid-template-columns: 95px 1fr 28px;
+  align-items: center;
+  gap: 8px;
+  font-size: 9px;
+  color: #6f6758;
+}
+
+.gov-rating-row > strong {
+  color: #50613f;
+  font-size: 9px;
+  text-align: right;
+}
+
+.gov-rating-track {
+  height: 7px;
+  border-radius: 10px;
+  background: #ebe7dc;
+  overflow: hidden;
+}
+
+.gov-rating-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #78945d, #4e693c);
+}
+
+@media (max-width: 1200px) {
+  .gov-product-detail-stats {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 850px) {
+  .gov-product-detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .gov-product-detail-header {
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 600px) {
+  .gov-product-detail-stats {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .gov-product-detail-header {
+    flex-direction: column;
+  }
+
+  .gov-detail-product-image {
+    width: 90px;
+    height: 90px;
+  }
+
+  .gov-detail-product-info h1 {
+    font-size: 24px;
+  }
+
+  .gov-rating-row {
+    grid-template-columns: 75px 1fr 25px;
+  }
+}
