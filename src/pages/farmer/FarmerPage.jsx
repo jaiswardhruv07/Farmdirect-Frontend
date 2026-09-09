@@ -188,11 +188,23 @@ export default function FarmerDashboard({ farmer, onNavigate }) {
   const prodFileInputs = useRef({});
   const newProdFileInput = useRef(null);
 
-  const initialFullName = farmer?.name || authUser?.name || "Ramesh Kumar";
+  // The farmer's first/last name comes from the authenticated user,
+  // NOT from the farmer profile. A farmer profile may not exist yet.
+  const authFullName = [
+    farmer?.firstName || authUser?.firstName,
+    farmer?.lastName || authUser?.lastName
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .trim();
+
+  const initialFullName = authFullName || farmer?.name || authUser?.name || "";
+
+  const initialEmail = farmer?.email || authUser?.email || "";
 
   const [profile, setProfile] = useState({
     name: initialFullName,
-    email: farmer?.email || authUser?.email || "",
+    email: initialEmail,
     farmerCode: "",
     coordinates: {
       type: "Point",
@@ -224,6 +236,16 @@ export default function FarmerDashboard({ farmer, onNavigate }) {
       ifsc: ""
     }
   });
+
+  // Keep account-owned fields synchronized with AuthContext/localStorage.
+  // These fields must never fall back to demo/placeholder data.
+  useEffect(() => {
+    setProfile((prev) => ({
+      ...prev,
+      name: initialFullName,
+      email: initialEmail
+    }));
+  }, [initialFullName, initialEmail]);
 
   const [profileExists, setProfileExists] = useState(false);
   const [profileLoading, setProfileLoading] = useState(false);
@@ -2178,6 +2200,16 @@ export default function FarmerDashboard({ farmer, onNavigate }) {
                           readOnly
                           placeholder="First name"
                         />
+                        <small
+                          style={{
+                            display: "block",
+                            marginTop: 5,
+                            color: "#8a7b62",
+                            fontSize: 11
+                          }}
+                        >
+                          From your account
+                        </small>
                       </label>
 
                       <label>
@@ -2192,6 +2224,16 @@ export default function FarmerDashboard({ farmer, onNavigate }) {
                           readOnly
                           placeholder="Surname"
                         />
+                        <small
+                          style={{
+                            display: "block",
+                            marginTop: 5,
+                            color: "#8a7b62",
+                            fontSize: 11
+                          }}
+                        >
+                          From your account
+                        </small>
                       </label>
 
                       <label className="bb-profile-email-field">
