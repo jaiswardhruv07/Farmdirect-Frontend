@@ -30,3 +30,15 @@ export const registerUser = async ({
     })
   });
 };
+
+export const getPublicRoles = async () => {
+  return apiRequest("/auth/roles", {
+    method: "GET"
+  });
+};
+
+export const getCurrentUser = async () => {
+  return apiRequest("/auth/me", {
+    method: "GET"
+  });
+};

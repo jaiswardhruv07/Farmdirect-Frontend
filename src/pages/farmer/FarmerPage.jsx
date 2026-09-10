@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useState, useRef } from "react";
 import "./FarmerPage.css";
 import { useAuth } from "../../context/AuthContext";
 
@@ -93,8 +93,10 @@ export default function FarmerDashboard({ farmer, onNavigate }) {
   const prodFileInputs = useRef({});
   const newProdFileInput = useRef(null);
 
-  const initialFullName = farmer?.name || authUser?.name || "Ramesh Kumar";
-  const initialNameParts = initialFullName.trim().split(/\\s+/);
+  const authenticatedName = [authUser?.firstName, authUser?.lastName]
+    .filter(Boolean)
+    .join(" ");
+  const initialFullName = farmer?.name || authenticatedName || "Farmer";
 
   const [profile, setProfile] = useState({
     name: initialFullName,
