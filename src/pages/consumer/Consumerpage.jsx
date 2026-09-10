@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 
 import { useAuth } from "../../context/AuthContext";
+import { createOrder } from "../../services/orderService";
+import { getPublicProducts } from "../../services/productService";
 // Product images
 import tomato from "../../assets/tomato.jpg";
 import broccoli from "../../assets/broccoli.jpg";
@@ -156,6 +158,7 @@ function ConsumerPage({
   const [consumerView, setConsumerView] = useState("home");
   const [orders, setOrders] = useState([]);
   const [paymentAddress, setPaymentAddress] = useState("");
+  const [backendProducts, setBackendProducts] = useState([]);
   const [coupon, setCoupon] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("");
   const [addressSaved, setAddressSaved] = useState(false);
@@ -263,6 +266,14 @@ function ConsumerPage({
     }
   }, []);
 
+  useEffect(() => {
+    getPublicProducts()
+      .then((response) => setBackendProducts(response.data.products || []))
+      .catch((error) => {
+        console.error("Unable to load marketplace products:", error);
+      });
+  }, []);
+
   /*
     FARMER LISTING IMAGE STRUCTURE
     ------------------------------
@@ -360,6 +371,11 @@ function ConsumerPage({
       return {
         id: `${productId}-${farmer.id}-${index + 1}`,
         productId,
+        backendProductId:
+          backendProducts.find(
+            (product) =>
+              product.name.toLowerCase() === productName.toLowerCase()
+          )?._id || null,
         productName,
         farmerId: farmer.id,
         farmer: farmer.name,
@@ -563,7 +579,7 @@ function ConsumerPage({
     window.__kbCartToastTimer = window.setTimeout(() => setCartToast(""), 2200);
   }
 
-  function handlePlaceConsumerOrder() {
+  async function handlePlaceConsumerOrder() {
     if (!paymentAddress.trim()) {
       alert("Please enter your delivery address.");
       return;
@@ -572,9 +588,47 @@ function ConsumerPage({
       alert("Please select a payment method.");
       return;
     }
+    let availableProducts = backendProducts;
+    if (availableProducts.length === 0) {
+      try {
+        const response = await getPublicProducts();
+        availableProducts = response.data.products || [];
+        setBackendProducts(availableProducts);
+      } catch (error) {
+        console.error("Unable to refresh marketplace products:", error);
+      }
+    }
+
+    const orderItems = cart.map((item) => {
+      const itemName = (item.name || item.productName || "").trim().toLowerCase();
+      const backendProduct = availableProducts.find(
+        (product) => product.name.trim().toLowerCase() === itemName
+      );
+
+      return {
+        productId: item.backendProductId || backendProduct?._id,
+        quantity: getCartQuantity(item)
+      };
+    });
+
+    if (orderItems.some((item) => !item.productId)) {
+      alert("This product is not currently available from the backend marketplace.");
+      return;
+    }
+
+    let response;
+    try {
+      response = await createOrder(orderItems, {
+        addressLine1: paymentAddress.trim()
+      });
+    } catch (error) {
+      console.error("Unable to place order:", error);
+      alert(error.message || "Unable to place order.");
+      return;
+    }
 
     const newOrder = {
-      id: `CB-${Date.now()}`,
+      id: response.data._id,
       createdAt: new Date().toLocaleString(),
       items: cart.map((item) => ({ ...item, quantity: getCartQuantity(item) })),
       totalQuantity: cartItemCount,
