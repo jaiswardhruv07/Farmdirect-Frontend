@@ -126,10 +126,10 @@ import logo from "../../assets/less.webp";
 
 // Bulk pricing: larger fresh-produce orders commonly land around 10–15% below retail/normal unit pricing, so the discount ramps with quantity.
 function getBulkDiscount(quantity) {
-  if (quantity >= 1000) return 15;
-  if (quantity >= 500) return 12;
-  if (quantity >= 250) return 8;
-  if (quantity >= 100) return 5;
+  if (quantity >= 1000) return 40;
+  if (quantity >= 500) return 30;
+  if (quantity >= 250) return 25;
+  if (quantity >= 100) return 20;
   return 0;
 }
 
@@ -1280,19 +1280,19 @@ function BulkBuyerPage({
                     <div className="bb-pricing-tiers">
                       <div className="bb-tier">
                         <strong>100–249 kg</strong>
-                        <span>5% OFF</span>
+                        <span>20% OFF</span>
                       </div>
                       <div className="bb-tier">
                         <strong>250–499 kg</strong>
-                        <span>8% OFF</span>
+                        <span>25% OFF</span>
                       </div>
                       <div className="bb-tier">
                         <strong>500–999 kg</strong>
-                        <span>12% OFF</span>
+                        <span>30% OFF</span>
                       </div>
                       <div className="bb-tier">
                         <strong>1000+ kg</strong>
-                        <span>15% OFF</span>
+                        <span>40% OFF</span>
                       </div>
                     </div>
                   </section>
@@ -1615,7 +1615,7 @@ function BulkBuyerPage({
                       </div>
                       <div className="bb-order-status-actions">
                         {order.status === "Order Placed" && <button type="button" onClick={() => updateOrderStatus(order.id, "Shipped")}>Mark as Shipped</button>}
-                        {order.status === "Shipped" && <button type="button" onClick={() => updateOrderStatus(order.id, "Delivered")}>Mark as Delivered</button>}
+                        {order.status === "Shipped" && <button type="button" onClick={() => updateOrderStatus(order.id, "Delivered")}></button>}
                         {order.status === "Shipped" && <span>✓ Review unlocked after shipment</span>}
                       </div>
 
@@ -1948,8 +1948,19 @@ function BulkBuyerPage({
                             min={MIN_BULK_QTY}
                             step={QTY_STEP}
                             value={quantities[listing.id] ?? qty}
-                            onChange={(e) => setQuantities((prev) => ({ ...prev, [listing.id]: e.target.value }))}
-                            onBlur={(e) => setQuantity(listing.id, e.target.value === "" ? MIN_BULK_QTY : e.target.value)}
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              setQuantities((prev) => ({
+                                ...prev,
+                                [listing.id]: value === "" ? "" : Number(value),
+                              }));
+                            }}
+                            onBlur={(e) =>
+                              setQuantity(
+                                listing.id,
+                                e.target.value === "" ? MIN_BULK_QTY : Number(e.target.value)
+                              )
+                            }
                             onClick={(e) => e.stopPropagation()}
                           />
                           <span className="bb-qty-unit">kg</span>
@@ -1970,13 +1981,13 @@ function BulkBuyerPage({
                           type="button"
                           className="bb-detail-cart-button"
                           onClick={() => {
-                            handleAddToBulkCart(
-                              listingProduct,
-                              qty
-                            );
-                            setSelectedProduct(
-                              null
-                            );
+                            const typedQuantity = Number(quantities[listing.id] ?? qty);
+                            const safeQuantity = Number.isFinite(typedQuantity) && typedQuantity >= MIN_BULK_QTY
+                              ? Math.round(typedQuantity)
+                              : MIN_BULK_QTY;
+                            setQuantity(listing.id, safeQuantity);
+                            handleAddToBulkCart(listingProduct, safeQuantity);
+                            setSelectedProduct(null);
                           }}
                         >
                           Add from{" "}

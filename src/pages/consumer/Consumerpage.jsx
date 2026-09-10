@@ -171,7 +171,6 @@ function ConsumerPage({
     }
   });
   const [appliedCoupon, setAppliedCoupon] = useState("");
-  const [couponMessage, setCouponMessage] = useState("");
   const [showProfileEditor, setShowProfileEditor] = useState(false);
   const [profileForm, setProfileForm] = useState({
     firstName: user?.name?.split(" ")[0] || "",
@@ -515,26 +514,23 @@ function ConsumerPage({
 
     if (!code) {
       setAppliedCoupon("");
-      setCouponMessage("Please enter a coupon code.");
       return;
     }
 
     if (code === "LOVE") {
       setAppliedCoupon("LOVE");
       setCoupon("LOVE");
-      setCouponMessage("LOVE applied — 50% OFF on your payable amount.");
       return;
     }
 
     if (code === "KISANCONNECT" || code === "KISAANCONNECT") {
       setAppliedCoupon("KISANCONNECT");
       setCoupon("KISANCONNECT");
-      setCouponMessage("KISAN CONNECT applied — your entire order is FREE.");
       return;
     }
 
     setAppliedCoupon("");
-    setCouponMessage("Invalid coupon. Try LOVE or KISANCONNECT.");
+    alert("Invalid coupon. Try LOVE or KISANCONNECT.");
   }
 
   function saveConsumerProfile() {
@@ -542,7 +538,6 @@ function ConsumerPage({
     const surname = profileForm.surname.trim();
 
     if (!firstName) {
-      setCouponMessage("");
       alert("Please enter your first name.");
       return;
     }
@@ -583,7 +578,7 @@ function ConsumerPage({
       total: cartTotal,
       couponDiscount,
       address: paymentAddress.trim(),
-      coupon: appliedCoupon || coupon.trim(),
+      coupon: appliedCoupon || "",
       paymentMethod,
       status: "Order Placed"
     };
@@ -598,7 +593,6 @@ function ConsumerPage({
 
     setCoupon("");
     setAppliedCoupon("");
-    setCouponMessage("");
     setPaymentMethod("");
     setAddressSaved(false);
     setConsumerView("orders");
@@ -1126,15 +1120,10 @@ function ConsumerPage({
                       <span>Subtotal</span>
                       <span>₹{cartSubtotal.toFixed(0)}</span>
                     </div>
-                    <div className="summary-row">
-                      <span>Bulk Discount</span>
-                      <span className="delivery-text">
-                        -₹{cartDiscount.toFixed(0)}
-                      </span>
-                    </div>
+                    
                     {couponDiscount > 0 && (
                       <div className="summary-row coupon-summary-row">
-                        <span>Coupon ({appliedCoupon})</span>
+                        <span>Discount</span>
                         <span>-₹{couponDiscount.toFixed(0)}</span>
                       </div>
                     )}
@@ -1209,15 +1198,6 @@ function ConsumerPage({
                     Apply Coupon
                   </button>
                 </div>
-                {couponMessage && (
-                  <p className={`coupon-message ${appliedCoupon ? "success" : "error"}`}>
-                    {appliedCoupon ? "✓ " : "! "}{couponMessage}
-                  </p>
-                )}
-                <div className="coupon-hints">
-                  <button type="button" onClick={() => setCoupon("LOVE")}>LOVE · 50% OFF</button>
-                  <button type="button" onClick={() => setCoupon("KISAANCONNECT")}>KISAAN CONNECT · FREE</button>
-                </div>
               </section>
 
               <section className="payment-section">
@@ -1253,13 +1233,10 @@ function ConsumerPage({
                     <span>Subtotal</span>
                     <strong>₹{cartSubtotal.toFixed(0)}</strong>
                   </div>
-                  <div>
-                    <span>Bulk Discount</span>
-                    <strong>-₹{cartDiscount.toFixed(0)}</strong>
-                  </div>
+                  
                   {couponDiscount > 0 && (
                     <div className="coupon-total-row">
-                      <span>Coupon ({appliedCoupon})</span>
+                      <span>Discount</span>
                       <strong>-₹{couponDiscount.toFixed(0)}</strong>
                     </div>
                   )}
@@ -1412,7 +1389,7 @@ function ConsumerPage({
                           <strong>₹{order.subtotal.toFixed(0)}</strong>
                         </div>
                         <div>
-                          <span>Bulk Discount</span>
+                          <span></span>
                           <strong>-₹{order.discount.toFixed(0)}</strong>
                         </div>
                         {order.couponDiscount > 0 && (
