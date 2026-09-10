@@ -325,7 +325,7 @@ function FPOPage({ user, onNavigate }) {
 
   const [profile, setProfile] = useState({
     name: initialFullName,
-    email: user?.email || "fpo@kisaanbazar.com",
+    email: user?.email || "fpo@GO-FARM.com",
     phone: "",
     dob: "",
   });
@@ -402,7 +402,7 @@ function FPOPage({ user, onNavigate }) {
       } else {
         setProfile({
           name: initialFullName,
-          email: user?.email || "fpo@kisaanbazar.com",
+          email: user?.email || "fpo@GO-FARM.com",
           phone: "",
           dob: "",
         });
@@ -1396,12 +1396,12 @@ function FPOPage({ user, onNavigate }) {
       <header className="fpo-header">
         <div className="fpo-brand">
           <div className="fpo-brand-icon">
-            <img src={logo} alt="Kisaan Connect logo" />
+            <img src={logo} alt="GO-FARM logo" />
           </div>
 
           <div>
             <strong>
-              Kisaan <em>Connect</em>
+              GO-FARM
             </strong>
             <small>FPO Panel</small>
           </div>
@@ -1716,7 +1716,7 @@ function FPOPage({ user, onNavigate }) {
       {/* FOOTER */}
 
       <footer className="fpo-footer">
-        <span>© 2026 Kisaan Connect • FPO Management Panel</span>
+        <span>© 2026 GO-FARM • FPO Management Panel</span>
 
         <span>Empowering Farmers • Building Better Markets</span>
       </footer>

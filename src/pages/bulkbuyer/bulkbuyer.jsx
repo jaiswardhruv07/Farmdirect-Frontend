@@ -171,7 +171,7 @@ function PaymentPage({ cart = [], onNavigate, onPlaceOrder, savedAddress = "" })
 
   const bulkTotal = Math.max(0, subtotal - discount);
   const couponCode = appliedCoupon.toUpperCase();
-  const couponDiscount = couponCode === "KISAANCONNECT" ? bulkTotal : couponCode === "LOVE" ? bulkTotal * 0.5 : 0;
+  const couponDiscount = couponCode === "GO-FARM" ? bulkTotal : couponCode === "LOVE" ? bulkTotal * 0.5 : 0;
   const total = Math.max(0, bulkTotal - couponDiscount);
 
   function handleSaveAddress() {
@@ -193,13 +193,13 @@ function PaymentPage({ cart = [], onNavigate, onPlaceOrder, savedAddress = "" })
       setCouponMessage("LOVE applied — 50% OFF ✓");
       return;
     }
-    if (code === "KISAANCONNECT") {
-      setAppliedCoupon("KISAANCONNECT");
-      setCouponMessage("KISAANCONNECT applied — your order is FREE ✓");
+    if (code === "GO-FARM") {
+      setAppliedCoupon("GO-FARM");
+      setCouponMessage("GO-FARM applied — your order is FREE ✓");
       return;
     }
     setAppliedCoupon("");
-    setCouponMessage("Invalid coupon. Try LOVE or KISAANCONNECT.");
+    setCouponMessage("Invalid coupon. Try LOVE or GO-FARM.");
   }
 
   function handlePlaceOrder() {
@@ -739,7 +739,7 @@ function BulkBuyerPage({
     }
 
     const couponCode = (paymentDetails.coupon || "").trim().toUpperCase();
-    const couponDiscount = couponCode === "KISAANCONNECT"
+    const couponDiscount = couponCode === "GO-FARM"
       ? cartFinalTotal
       : couponCode === "LOVE"
         ? cartFinalTotal * 0.5
@@ -930,12 +930,12 @@ function BulkBuyerPage({
       <header className="bb-header">
         <div className="bb-brand">
           <span className="bb-brand-icon">
-            <img src={logo} alt="Kisaan Connect logo" />
+            <img src={logo} alt="GO-FARM logo" />
           </span>
 
           <div>
             <strong>
-              Kisaan <em>Connect</em>
+              GO-FARM
             </strong>
             <small>Bulk Buyer Panel</small>
           </div>
@@ -1254,8 +1254,8 @@ function BulkBuyerPage({
 
               {view === "home" && (
                 <>
-                  <section className="bb-hero-banner" aria-label="Kisaan Connect farm highlights">
-                    <img key={heroIndex} src={heroImages[heroIndex]} alt={`Kisaan Connect farm highlight ${heroIndex + 1}`} className="bb-hero-image" />
+                  <section className="bb-hero-banner" aria-label="GO-FARM farm highlights">
+                    <img key={heroIndex} src={heroImages[heroIndex]} alt={`GO-FARM farm highlight ${heroIndex + 1}`} className="bb-hero-image" />
                     <div className="bb-hero-overlay" />
                     <div className="bb-hero-copy">
                       <span className="bb-hero-kicker">FRESH • DIRECT • BULK SMART</span>
@@ -1666,7 +1666,7 @@ function BulkBuyerPage({
   </p>
 
   <p>
-    📍 <strong>Office:</strong> Kisaan connect Office, Andheri East,
+    📍 <strong>Office:</strong> GO-FARM Office, Andheri East,
     Mumbai, Maharashtra - 400069
   </p>
 </div>
@@ -1688,11 +1688,11 @@ function BulkBuyerPage({
 
   <section className="bb-about-bar">
     <div className="bb-about-content">
-      <h3>About Kisaan connect</h3>
+      <h3>About GO-FARM</h3>
 
 
   <p>
-    <strong>Kisaan connect</strong> is a digital platform that
+    <strong>GO-FARM</strong> is a digital platform that
     directly connects farmers with consumers.
   </p>
 
@@ -1705,7 +1705,7 @@ function BulkBuyerPage({
   </p>
 
   <p>
-    Kisaan connect aims to create a transparent, fair, and efficient
+    GO-FARM aims to create a transparent, fair, and efficient
     marketplace where farmers get better value for their hard work
     and consumers get quality products at reasonable prices.
   </p>
@@ -1713,7 +1713,7 @@ function BulkBuyerPage({
   <div className="bb-about-flow">
     <span>Farmer</span>
     <span>→</span>
-    <span>Kisaan connect</span>
+    <span>GO-FARM</span>
     <span>→</span>
     <span>Consumer</span>
   </div>
@@ -1770,7 +1770,7 @@ function BulkBuyerPage({
         </div>
 
         <span className="bb-footer-more">
-          Kisaan Bazar • Bulk Buyer
+          GO-FARM • Bulk Buyer
         </span>
       </footer>
 

@@ -472,7 +472,7 @@ function ConsumerPage({
   const couponDiscount =
     appliedCoupon === "LOVE"
       ? amountBeforeCoupon * 0.5
-      : appliedCoupon === "KISAANCONNECT"
+      : appliedCoupon === "GO-FARM"
         ? amountBeforeCoupon
         : 0;
   const cartTotal = Math.max(0, amountBeforeCoupon - couponDiscount);
@@ -523,14 +523,14 @@ function ConsumerPage({
       return;
     }
 
-    if (code === "KISANCONNECT" || code === "KISAANCONNECT") {
-      setAppliedCoupon("KISANCONNECT");
-      setCoupon("KISANCONNECT");
+    if (code === "GO-FARM" || code === "GO-FARM") {
+      setAppliedCoupon("GO-FARM");
+      setCoupon("GO-FARM");
       return;
     }
 
     setAppliedCoupon("");
-    alert("Invalid coupon. Try LOVE or KISANCONNECT.");
+    alert("Invalid coupon. Try LOVE or GO-FARM.");
   }
 
   function saveConsumerProfile() {
@@ -628,11 +628,11 @@ function ConsumerPage({
           <img
             className="consumer-brand-icon"
             src={logo}
-            alt="Kisaan connect logo"
+            alt="GO-FARM logo"
           />
           <div>
             <strong>
-              Kisaan <em>Connect</em>
+              GO-FARM 
             </strong>
             <small>Consumer Panel</small>
           </div>
@@ -882,10 +882,10 @@ function ConsumerPage({
 
               {isHome && (
                 <>
-                  <section className="hero-banner" aria-label="Kisaan Connect farm highlights">
+                  <section className="hero-banner" aria-label="GO-FARM farm highlights">
                     <img
                       src={heroImages[heroIndex]}
-                      alt={`Kisaan Connect farm highlight ${heroIndex + 1}`}
+                      alt={`GO-FARM farm highlight ${heroIndex + 1}`}
                       className="hero-image"
                     />
                     <div className="hero-overlay" />
@@ -907,7 +907,7 @@ function ConsumerPage({
                       <span>🌾 Fresh farm produce</span><span>✦ Direct farmer prices</span><span>🚚 Reliable doorstep delivery</span><span>✦ New seasonal picks every week</span><span>🌱 Support local farmers</span><span>✦ Fresh farm produce</span><span>🚚 Reliable doorstep delivery</span>
                     </div>
                   </div>
-                  <section className="home-ad-rail" aria-label="Kisaan Connect highlights">
+                  <section className="home-ad-rail" aria-label="GO-FARM highlights">
                     <article className="home-ad-card home-ad-card-primary">
                       <span className="home-ad-label">FRESH PICK</span>
                       <strong>Farm-fresh produce, straight to your home.</strong>
@@ -1063,7 +1063,7 @@ function ConsumerPage({
                             <p className="product-description">
                               {item.farmer
                                 ? `${item.farmer} • ${item.region || "Farmer listing"}`
-                                : "Fresh product from KisaanBazar"}
+                                : "Fresh product from GO-FARM"}
                             </p>
                             <div className="product-bottom">
                               <div className="item-price">₹{item.price}</div>
@@ -1298,7 +1298,7 @@ function ConsumerPage({
                   <span className="orders-kicker">CONSUMER ORDERS</span>
                   <h1>My Orders</h1>
                   <p>
-                    Track your successful Kisaan connect purchases in one place.
+                    Track your successful GO-FARM purchases in one place.
                   </p>
                 </div>
                 <button
@@ -1606,7 +1606,7 @@ function ConsumerPage({
               ✉️ <strong>Email:</strong> deepshikhamaityyy@gmail.com
             </p>
             <p>
-              <LocationIcon className="help-location-icon" /> <strong>Office:</strong> Kisaan connect Office, Andheri East,
+              <LocationIcon className="help-location-icon" /> <strong>Office:</strong> GO-FARM Office, Andheri East,
               Mumbai, Maharashtra - 400069
             </p>
           </div>
@@ -1619,9 +1619,9 @@ function ConsumerPage({
       {showAbout && (
         <div className="about-bar">
           <div className="about-content">
-            <h3>About Kisaan connect</h3>
+            <h3>About GO-FARM</h3>
             <p>
-              <strong>Kisaan connect</strong> is a digital platform that
+              <strong>GO-FARM</strong> is a digital platform that
               directly connects farmers with consumers.
             </p>
             <p>
@@ -1632,14 +1632,14 @@ function ConsumerPage({
               prices.
             </p>
             <p>
-              Kisaan connect aims to create a transparent, fair, and efficient
+              GO-FARM aims to create a transparent, fair, and efficient
               marketplace where farmers get better value for their hard work and
               consumers get quality products at reasonable prices.
             </p>
             <div className="about-flow">
               <span>Farmer</span>
               <span>→</span>
-              <span>Kisaan connect</span>
+              <span>GO-FARM</span>
               <span>→</span>
               <span>Consumer</span>
             </div>

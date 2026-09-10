@@ -1843,12 +1843,12 @@ function GovernmentPage({ user, onNavigate }) {
 
         <div className="government-brand">
           <span className="government-brand-icon">
-            <img src={logo} alt="Kisaan Connect logo" />
+            <img src={logo} alt="GO-FARM logo" />
           </span>
 
           <div>
             <strong>
-              Kisaan <em>Connect</em>
+              GO-FARM
             </strong>
 
             <small>Government Panel</small>
@@ -2130,7 +2130,7 @@ function GovernmentPage({ user, onNavigate }) {
 
       <footer className="government-footer">
         <span>
-          Kisaan Connect • Government Panel
+          GO-FARM • Government Panel
         </span>
 
         <span>

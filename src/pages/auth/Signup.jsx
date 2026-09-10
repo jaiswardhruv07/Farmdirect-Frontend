@@ -106,7 +106,7 @@ function Signup({ onBackToLogin }) {
       <div className="signup-box">
         <h1>Create Account</h1>
 
-        <p>Join KisaanBazar</p>
+        <p>Join GO-FARM</p>
 
         <form onSubmit={handleSubmit}>
           {/* FIRST NAME */}

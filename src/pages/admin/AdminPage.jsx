@@ -449,7 +449,7 @@ function AdminPage({ onNavigate, user }) {
     const fullName = user?.name || "Admin User";
     return {
       name: fullName,
-      email: user?.email || localStorage.getItem("userEmail") || "admin@kisaanconnect.com",
+      email: user?.email || localStorage.getItem("userEmail") || "admin@GO-FARM.com",
       phone: "",
       dob: "",
       place: "",
@@ -533,7 +533,7 @@ function AdminPage({ onNavigate, user }) {
         <div className="admin-title-row">
           <div>
             <h1>Admin Dashboard</h1>
-            <p>Complete overview of your Kisaan Connect marketplace</p>
+            <p>Complete overview of your GO-FARM marketplace</p>
           </div>
 
           <div className="admin-date">
@@ -1381,7 +1381,7 @@ function AdminPage({ onNavigate, user }) {
         <div className="admin-title-row">
           <div>
             <h1>₹ Sales</h1>
-            <p>Total sales performance of Kisaan Connect</p>
+            <p>Total sales performance of GO-FARM</p>
           </div>
           <div className="sales-total-box">
             <span>Total Sales</span>
@@ -1447,11 +1447,11 @@ function AdminPage({ onNavigate, user }) {
 
       <header className="admin-header">
         <div className="admin-brand">
-          <span className="brand-icon"><img src={logo} alt="Kisaan Connect logo" /></span>
+          <span className="brand-icon"><img src={logo} alt="GO-FARM logo" /></span>
 
           <div>
             <strong>
-              Kisaan <em>Connect</em>
+              GO-FARM
             </strong>
 
             <small>Admin Panel</small>
@@ -1735,7 +1735,7 @@ function AdminPage({ onNavigate, user }) {
       {/* FOOTER */}
 
       <footer className="admin-footer">
-        <span>Kisaan Connect • Admin Panel</span>
+        <span>GO-FARM • Admin Panel</span>
 
         <span>Better Farming • Better Food • A Stronger India 🌾</span>
       </footer>

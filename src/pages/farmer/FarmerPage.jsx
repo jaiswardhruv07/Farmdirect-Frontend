@@ -630,9 +630,9 @@ export default function FarmerDashboard({ farmer, onNavigate }) {
             <img
               className="kb-logo-image"
               src={logo}
-              alt="Kisaan Connect logo"
+              alt="GO-FARM logo"
             />
-            <span>Kisaan<em>Connect</em></span>
+            <span>GO-FARM</span>
           </div>
 
           <nav className="kb-nav-links">
