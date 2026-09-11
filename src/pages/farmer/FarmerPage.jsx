@@ -2,10 +2,9 @@ import { useEffect, useState, useRef } from "react";
 import "./FarmerPage.css";
 import { useAuth } from "../../context/AuthContext";
 import {
-  getFarmerProfile,
-  createFarmerProfile,
-  updateFarmerProfile
-} from "../../services/farmer-profile.service";
+  getSellerOrders,
+  updateSellerOrderStatus
+} from "../../services/orderService";
 
 import tomato from "../../assets/tomato.jpg";
 import mango from "../../assets/mango.jpg";
@@ -141,9 +140,6 @@ const INITIAL_ORDERS = [
 
 const CATEGORIES = ["All", "Vegetables", "Fruits", "Grains", "Dairy"];
 
-const STATUS_NEXT = {
-  "New Order": "Completed"
-};
 
 const STATUS_COLOR = {
   "New Order": {
@@ -158,6 +154,33 @@ const STATUS_COLOR = {
 };
 
 const ORDER_STATUSES = ["All", "New Order", "Completed"];
+
+const NEXT_API_STATUS = {
+  PENDING: "CONFIRMED",
+  CONFIRMED: "PROCESSING",
+  PROCESSING: "READY_FOR_DISPATCH",
+  READY_FOR_DISPATCH: "SHIPPED"
+};
+
+const mapSellerOrder = (order) => {
+  const item = order.items?.[0];
+  const isComplete = ["SHIPPED", "DELIVERED"].includes(order.status);
+
+  return {
+    id: order._id,
+    consumer: order.buyerId?.firstName
+      ? `${order.buyerId.firstName} ${order.buyerId.lastName || ""}`.trim()
+      : "Customer",
+    product: item?.productName || "Order",
+    category: "Other",
+    quantity: item?.quantity || 0,
+    status: isComplete ? "Completed" : "New Order",
+    backendStatus: order.status,
+    date: order.createdAt
+      ? new Date(order.createdAt).toLocaleDateString()
+      : "Recent"
+  };
+};
 
 export default function FarmerDashboard({ farmer, onNavigate }) {
   const { logout, user: authUser } = useAuth();
@@ -188,19 +211,10 @@ export default function FarmerDashboard({ farmer, onNavigate }) {
   const prodFileInputs = useRef({});
   const newProdFileInput = useRef(null);
 
-  // The farmer's first/last name comes from the authenticated user,
-  // NOT from the farmer profile. A farmer profile may not exist yet.
-  const authFullName = [
-    farmer?.firstName || authUser?.firstName,
-    farmer?.lastName || authUser?.lastName
-  ]
+  const authenticatedName = [authUser?.firstName, authUser?.lastName]
     .filter(Boolean)
-    .join(" ")
-    .trim();
-
-  const initialFullName = authFullName || farmer?.name || authUser?.name || "";
-
-  const initialEmail = farmer?.email || authUser?.email || "";
+    .join(" ");
+  const initialFullName = farmer?.name || authenticatedName || "Farmer";
 
   const [profile, setProfile] = useState({
     name: initialFullName,
@@ -255,450 +269,16 @@ export default function FarmerDashboard({ farmer, onNavigate }) {
   const [profilePhoto, setProfilePhoto] = useState(null);
   const profilePhotoInput = useRef(null);
 
-  const [salesView, setSalesView] = useState("month");
-
-  // ─── Farmer Profile API ──────────────────────────────────────────────────
-
   useEffect(() => {
-    if (!localStorage.getItem("token")) return;
-
-    let cancelled = false;
-
-    async function loadFarmerProfile() {
-      setProfileLoading(true);
-      setProfileError("");
-
-      try {
-        const response = await getFarmerProfile();
-
-        // Some backends may return a successful HTTP status with
-        // success:false for a missing profile. Treat that as the
-        // normal "profile not created yet" state as well.
-        if (
-          response?.success === false &&
-          response?.message === "Farmer profile not found"
-        ) {
-          if (!cancelled) {
-            setProfileExists(false);
-            setEditingProfile(true);
-            setProfileError(
-              "Your farmer profile has not been created yet. Please complete your profile."
-            );
-          }
-          return;
-        }
-
-        const apiProfile = response?.data?.profile;
-
-        if (!cancelled && apiProfile) {
-          setProfile((prev) => ({
-            ...prev,
-            ...apiProfile,
-            name: initialFullName,
-            coordinates: apiProfile.coordinates || prev.coordinates,
-            email: farmer?.email || authUser?.email || "",
-            farmDetails: {
-              ...prev.farmDetails,
-              ...(apiProfile.farmDetails || {})
-            },
-            location: {
-              ...prev.location,
-              ...(apiProfile.location || {})
-            },
-            verification: {
-              ...prev.verification,
-              ...(apiProfile.verification || {})
-            },
-            bankDetails: {
-              ...prev.bankDetails,
-              ...(apiProfile.bankDetails || {})
-            }
-          }));
-          setProfileExists(true);
-          setEditingProfile(false);
-        }
-      } catch (error) {
-        // A missing farmer profile is an expected state after registration.
-        if (
-          error?.status === 404 ||
-          error?.data?.message === "Farmer profile not found"
-        ) {
-          if (!cancelled) {
-            setProfileExists(false);
-            setEditingProfile(true);
-          }
-        } else if (!cancelled) {
-          setProfileError(error?.message || "Unable to load farmer profile.");
-        }
-      } finally {
-        if (!cancelled) setProfileLoading(false);
-      }
-    }
-
-    loadFarmerProfile();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [authUser, farmer, initialFullName]);
-
-  async function refreshFarmerProfile() {
-    setProfileLoading(true);
-    setProfileError("");
-
-    try {
-      const response = await getFarmerProfile();
-
-      if (
-        response?.success === false &&
-        response?.message === "Farmer profile not found"
-      ) {
-        setProfileExists(false);
-        setEditingProfile(true);
-        setProfileError(
-          "Your farmer profile has not been created yet. Please complete your profile."
-        );
-        return;
-      }
-
-      const apiProfile = response?.data?.profile;
-
-      if (apiProfile) {
-        setProfile((prev) => ({
-          ...prev,
-          ...apiProfile,
-          name: initialFullName,
-          coordinates: apiProfile.coordinates || prev.coordinates,
-          email: farmer?.email || authUser?.email || "",
-          farmDetails: {
-            ...prev.farmDetails,
-            ...(apiProfile.farmDetails || {})
-          },
-          location: {
-            ...prev.location,
-            ...(apiProfile.location || {})
-          },
-          verification: {
-            ...prev.verification,
-            ...(apiProfile.verification || {})
-          },
-          bankDetails: {
-            ...prev.bankDetails,
-            ...(apiProfile.bankDetails || {})
-          }
-        }));
-        setProfileExists(true);
-        setEditingProfile(false);
-        setProfileError("");
-      }
-    } catch (error) {
-      if (
-        error?.status === 404 ||
-        error?.data?.message === "Farmer profile not found"
-      ) {
-        setProfileExists(false);
-        setEditingProfile(true);
-        setProfileError(
-          "Your farmer profile has not been created yet. Please complete your profile."
-        );
-      } else {
-        setProfileError(error?.message || "Unable to load farmer profile.");
-      }
-    } finally {
-      setProfileLoading(false);
-    }
-  }
-
-  function updateProfileField(section, field, value) {
-    setProfile((prev) => ({
-      ...prev,
-      [section]: {
-        ...prev[section],
-        [field]: value
-      }
-    }));
-  }
-
-  function getCurrentCoordinates() {
-    return new Promise((resolve, reject) => {
-      if (!navigator.geolocation) {
-        reject(new Error("Geolocation is not supported by this browser."));
-        return;
-      }
-
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          resolve([position.coords.longitude, position.coords.latitude]);
-        },
-        () => {
-          reject(
-            new Error(
-              "Location permission is required to create your farmer profile."
-            )
-          );
-        },
-        {
-          enableHighAccuracy: true,
-          timeout: 10000,
-          maximumAge: 0
-        }
-      );
-    });
-  }
-
-  function buildFarmerProfilePayload(includeCoordinates = false) {
-    const totalLandArea = Number(profile.farmDetails.totalLandArea);
-    const pincode = String(profile.location.pincode || "").trim();
-
-    const payload = {
-      farmDetails: {
-        totalLandArea,
-        landUnit: profile.farmDetails.landUnit,
-        ownershipType: profile.farmDetails.ownershipType
-      },
-      location: {
-        addressLine1: profile.location.addressLine1.trim(),
-        addressLine2: profile.location.addressLine2.trim(),
-        village: profile.location.village.trim(),
-        city: profile.location.city.trim(),
-        district: profile.location.district.trim(),
-        state: profile.location.state.trim(),
-        pincode
-      },
-      bankDetails: {
-        accountHolderName: profile.bankDetails.accountHolderName.trim(),
-        accountNumber: profile.bankDetails.accountNumber.trim(),
-        ifsc: profile.bankDetails.ifsc.trim().toUpperCase()
-      }
-    };
-
-    if (
-      includeCoordinates &&
-      profile.coordinates?.type === "Point" &&
-      Array.isArray(profile.coordinates.coordinates) &&
-      profile.coordinates.coordinates.length === 2
-    ) {
-      payload.coordinates = {
-        type: "Point",
-        coordinates: profile.coordinates.coordinates
-      };
-    }
-
-    return payload;
-  }
-
-  function validateFarmerProfile() {
-    const totalLandArea = Number(profile.farmDetails.totalLandArea);
-    const pincode = String(profile.location.pincode || "").trim();
-    const accountHolderName = profile.bankDetails.accountHolderName.trim();
-    const accountNumber = profile.bankDetails.accountNumber.trim();
-    const ifsc = profile.bankDetails.ifsc.trim().toUpperCase();
-
-    if (
-      profile.farmDetails.totalLandArea === "" ||
-      !Number.isFinite(totalLandArea) ||
-      totalLandArea <= 0
-    ) {
-      return "Please enter a valid total land area.";
-    }
-
-    if (!pincode || !/^\d{6}$/.test(pincode)) {
-      return "Please enter a valid 6-digit pincode.";
-    }
-
-    if (!profile.location.addressLine1.trim()) {
-      return "Please enter Address Line 1.";
-    }
-
-    if (!profile.location.village.trim()) {
-      return "Please enter your village.";
-    }
-
-    if (!profile.location.city.trim()) {
-      return "Please enter your city.";
-    }
-
-    if (!profile.location.district.trim()) {
-      return "Please enter your district.";
-    }
-
-    if (!profile.location.state.trim()) {
-      return "Please enter your state.";
-    }
-
-    if (!accountHolderName || !accountNumber || !ifsc) {
-      return "Please complete your bank details.";
-    }
-
-    return "";
-  }
-
-  function getCurrentCoordinates() {
-    return new Promise((resolve, reject) => {
-      if (!navigator.geolocation) {
-        reject(new Error("Geolocation is not supported by this browser."));
-        return;
-      }
-
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          resolve([position.coords.longitude, position.coords.latitude]);
-        },
-        () => {
-          reject(
-            new Error(
-              "Location permission is required to create your farmer profile."
-            )
-          );
-        },
-        {
-          enableHighAccuracy: true,
-          timeout: 10000,
-          maximumAge: 0
-        }
-      );
-    });
-  }
-
-  async function saveFarmerProfile() {
-    const validationError = validateFarmerProfile();
-
-    if (validationError) {
-      setProfileError(validationError);
-      showToast(validationError);
-      return;
-    }
-
-    setProfileSaving(true);
-    setProfileError("");
-
-    try {
-      let coordinates = profile.coordinates?.coordinates;
-
-      // Coordinates are required by the profile creation payload.
-      if (!Array.isArray(coordinates) || coordinates.length !== 2) {
-        coordinates = await getCurrentCoordinates();
-      }
-
-      const payload = {
-        ...buildFarmerProfilePayload(false),
-        coordinates: {
-          type: "Point",
-          coordinates
-        }
-      };
-
-      const response = await createFarmerProfile(payload);
-      const createdProfile = response?.data?.profile;
-
-      if (createdProfile) {
-        setProfile((prev) => ({
-          ...prev,
-          ...createdProfile,
-          name: initialFullName,
-          email: farmer?.email || authUser?.email || "",
-          coordinates: createdProfile.coordinates || {
-            type: "Point",
-            coordinates
-          },
-          farmDetails: {
-            ...prev.farmDetails,
-            ...(createdProfile.farmDetails || {})
-          },
-          location: {
-            ...prev.location,
-            ...(createdProfile.location || {})
-          },
-          verification: {
-            ...prev.verification,
-            ...(createdProfile.verification || {})
-          },
-          bankDetails: {
-            ...prev.bankDetails,
-            ...(createdProfile.bankDetails || {})
-          }
-        }));
-      }
-
-      setProfileExists(true);
-      setEditingProfile(false);
-      setProfileError("");
-      showToast(response?.message || "Profile created successfully!");
-
-      await refreshFarmerProfile();
-    } catch (error) {
-      const message = error?.message || "Unable to create farmer profile.";
-
-      setProfileError(message);
-      showToast(message);
-    } finally {
-      setProfileSaving(false);
-    }
-  }
-
-  async function updateFarmerProfileData() {
-    const validationError = validateFarmerProfile();
-
-    if (validationError) {
-      setProfileError(validationError);
-      showToast(validationError);
-      return;
-    }
-
-    setProfileSaving(true);
-    setProfileError("");
-
-    try {
-      // PATCH is intentionally sent without coordinates because the
-      // provided update contract did not specify that coordinates must
-      // be changed. Existing coordinates remain untouched on the server.
-      const payload = buildFarmerProfilePayload(false);
-
-      const response = await updateFarmerProfile(payload);
-      const updatedProfile = response?.data?.profile;
-
-      if (updatedProfile) {
-        setProfile((prev) => ({
-          ...prev,
-          ...updatedProfile,
-          name: initialFullName,
-          email: farmer?.email || authUser?.email || "",
-          coordinates: updatedProfile.coordinates || prev.coordinates,
-          farmDetails: {
-            ...prev.farmDetails,
-            ...(updatedProfile.farmDetails || {})
-          },
-          location: {
-            ...prev.location,
-            ...(updatedProfile.location || {})
-          },
-          verification: {
-            ...prev.verification,
-            ...(updatedProfile.verification || {})
-          },
-          bankDetails: {
-            ...prev.bankDetails,
-            ...(updatedProfile.bankDetails || {})
-          }
-        }));
-      }
-
-      setProfileExists(true);
-      setEditingProfile(false);
-      setProfileError("");
-      showToast(response?.message || "Profile updated successfully!");
-
-      // Refresh once more so the UI always reflects the server state.
-      await refreshFarmerProfile();
-    } catch (error) {
-      const message = error?.message || "Unable to update farmer profile.";
-
-      setProfileError(message);
-      showToast(message);
-    } finally {
-      setProfileSaving(false);
-    }
-  }
+    getSellerOrders()
+      .then((response) => {
+        setOrders(response.data.orders.map(mapSellerOrder));
+      })
+      .catch((error) => {
+        console.error("Unable to load seller orders:", error);
+        showToast("Unable to load orders from the server.");
+      });
+  }, []);
 
   function handleProfilePhoto(file) {
     if (!file) return;
@@ -804,18 +384,27 @@ export default function FarmerDashboard({ farmer, onNavigate }) {
 
   // ─── Orders ──────────────────────────────────────────────────────────────
 
-  function advanceOrder(id) {
-    setOrders((prev) =>
-      prev.map((order) => {
-        if (order.id !== id) return order;
+  async function advanceOrder(id) {
+    const currentOrder = orders.find((order) => order.id === id);
+    const nextStatus = NEXT_API_STATUS[currentOrder?.backendStatus];
 
-        const nextStatus = STATUS_NEXT[order.status];
+    if (!nextStatus) {
+      showToast("This order cannot be shipped from its current status.");
+      return;
+    }
 
-        return nextStatus ? { ...order, status: nextStatus } : order;
-      })
-    );
+    try {
+      const response = await updateSellerOrderStatus(id, nextStatus);
+      const updatedOrder = mapSellerOrder(response.data);
 
-    showToast("✅ Order status updated!");
+      setOrders((prev) =>
+        prev.map((order) => (order.id === id ? updatedOrder : order))
+      );
+      showToast("✅ Order status saved to MongoDB.");
+    } catch (error) {
+      console.error("Unable to update seller order:", error);
+      showToast(error.message || "Unable to update order status.");
+    }
   }
   function undoOrder(id) {
     setOrders((prev) =>
@@ -1122,11 +711,9 @@ export default function FarmerDashboard({ farmer, onNavigate }) {
             <img
               className="kb-logo-image"
               src={logo}
-              alt="Kisaan Connect logo"
+              alt="GO-FARM logo"
             />
-            <span>
-              Kisaan<em>Connect</em>
-            </span>
+            <span>GO-FARM</span>
           </div>
 
           <nav className="kb-nav-links">

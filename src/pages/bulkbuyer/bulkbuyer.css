@@ -2571,3 +2571,54 @@
   .bb-hero-copy p { font-size:10px; }
   .bb-hero-arrow { width:32px; height:32px; font-size:22px; }
 }
+
+
+/* =========================================================
+   FINAL FARMER MODAL / CARD CONTAINMENT FIX
+   Keeps reviews, quantity controls and Add to Cart inside
+   the farmer card and makes the modal responsive.
+   ========================================================= */
+.bb-product-detail-overlay{padding:16px;box-sizing:border-box;overflow:hidden}
+.bb-product-detail-card{width:min(900px,100%);max-width:900px;max-height:min(92vh,900px);padding:22px;box-sizing:border-box;overflow-x:hidden;overflow-y:auto}
+.bb-farmer-listings{width:100%;min-width:0;box-sizing:border-box;display:flex;flex-direction:column;gap:12px}
+.bb-farmer-listing{width:100%;min-width:0;max-width:100%;box-sizing:border-box;display:grid;grid-template-columns:100px minmax(0,1fr) minmax(125px,.75fr) minmax(160px,180px);gap:12px;align-items:start;padding:13px;overflow:hidden}
+.bb-farmer-listing>*{min-width:0;max-width:100%;box-sizing:border-box}
+.bb-farmer-listing-image{width:100px;max-width:100%;height:86px;box-sizing:border-box}
+.bb-farmer-listing-info,.bb-farmer-listing-price,.bb-farmer-listing-actions{min-width:0;max-width:100%;overflow:hidden}
+.bb-farmer-listing-info strong,.bb-farmer-listing-info span,.bb-farmer-listing-info small,.bb-farmer-listing-price span,.bb-farmer-listing-price strong,.bb-farmer-listing-price small,.bb-listing-description{max-width:100%;overflow-wrap:anywhere}
+.bb-farmer-listing-actions{width:100%;align-items:stretch;justify-self:stretch;overflow:visible}
+.bb-farmer-listing-actions .bb-qty-controls{width:100%;max-width:100%;box-sizing:border-box;display:flex;align-items:center;justify-content:flex-end;gap:6px;flex-wrap:nowrap}
+.bb-farmer-listing-actions .bb-qty-controls button{flex:0 0 32px;width:32px;min-width:32px;height:32px}
+.bb-farmer-listing-actions .bb-qty-input{flex:0 1 66px;width:66px;min-width:48px;max-width:66px;box-sizing:border-box}
+.bb-farmer-listing-actions .bb-qty-unit{flex:0 0 auto}
+.bb-farmer-listing-actions .bb-detail-cart-button{width:100%;max-width:100%;min-width:0;box-sizing:border-box;margin-top:7px;padding:10px 8px;white-space:normal;overflow-wrap:anywhere;text-align:center}
+.bb-listing-reviews{grid-column:2 / -1;grid-row:2;width:100%;min-width:0;max-width:100%;box-sizing:border-box;overflow:hidden;overflow-wrap:anywhere}
+.bb-listing-reviews div{min-width:0;max-width:100%;overflow-wrap:anywhere}
+.bb-listing-reviews span{max-width:100%;overflow-wrap:anywhere}
+@media (max-width:900px){
+ .bb-product-detail-overlay{padding:12px}
+ .bb-product-detail-card{width:100%;max-height:94vh;padding:18px}
+ .bb-farmer-listing{grid-template-columns:84px minmax(0,1fr)}
+ .bb-farmer-listing-image{width:84px;height:74px}
+ .bb-farmer-listing-price,.bb-farmer-listing-actions,.bb-listing-reviews{grid-column:1 / -1;grid-row:auto}
+ .bb-farmer-listing-actions .bb-qty-controls{justify-content:flex-start}
+}
+@media (max-width:600px){
+ .bb-product-detail-overlay{padding:8px}
+ .bb-product-detail-card{max-height:96vh;padding:14px;border-radius:12px}
+ .bb-product-detail-image{height:145px}
+ .bb-product-detail-card h2{font-size:21px}
+ .bb-farmer-listing{grid-template-columns:70px minmax(0,1fr);gap:10px;padding:10px}
+ .bb-farmer-listing-image{width:70px;height:64px}
+ .bb-farmer-listing-info strong{font-size:13px}
+ .bb-farmer-listing-actions .bb-qty-controls{justify-content:center}
+ .bb-farmer-listing-actions .bb-detail-cart-button{font-size:10px;padding:9px 8px}
+ .bb-listing-reviews{font-size:9px;padding:8px 9px}
+}
+@media (max-width:400px){
+ .bb-product-detail-card{padding:11px}
+ .bb-farmer-listing{grid-template-columns:1fr}
+ .bb-farmer-listing-image{width:100%;height:120px}
+ .bb-farmer-listing-price,.bb-farmer-listing-actions,.bb-listing-reviews{grid-column:1}
+ .bb-farmer-listing-actions .bb-qty-controls{justify-content:center}
+}

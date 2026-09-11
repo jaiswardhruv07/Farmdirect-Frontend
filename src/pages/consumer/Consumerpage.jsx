@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 
 import { useAuth } from "../../context/AuthContext";
+import { createOrder } from "../../services/orderService";
+import { getPublicProducts } from "../../services/productService";
 // Product images
 import tomato from "../../assets/tomato.jpg";
 import broccoli from "../../assets/broccoli.jpg";
@@ -156,6 +158,7 @@ function ConsumerPage({
   const [consumerView, setConsumerView] = useState("home");
   const [orders, setOrders] = useState([]);
   const [paymentAddress, setPaymentAddress] = useState("");
+  const [backendProducts, setBackendProducts] = useState([]);
   const [coupon, setCoupon] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("");
   const [addressSaved, setAddressSaved] = useState(false);
@@ -171,7 +174,6 @@ function ConsumerPage({
     }
   });
   const [appliedCoupon, setAppliedCoupon] = useState("");
-  const [couponMessage, setCouponMessage] = useState("");
   const [showProfileEditor, setShowProfileEditor] = useState(false);
   const [profileForm, setProfileForm] = useState({
     firstName: user?.name?.split(" ")[0] || "",
@@ -261,6 +263,14 @@ function ConsumerPage({
         // Ignore malformed local profile data.
       }
     }
+  }, []);
+
+  useEffect(() => {
+    getPublicProducts()
+      .then((response) => setBackendProducts(response.data.products || []))
+      .catch((error) => {
+        console.error("Unable to load marketplace products:", error);
+      });
   }, []);
 
   /*
@@ -360,6 +370,11 @@ function ConsumerPage({
       return {
         id: `${productId}-${farmer.id}-${index + 1}`,
         productId,
+        backendProductId:
+          backendProducts.find(
+            (product) =>
+              product.name.toLowerCase() === productName.toLowerCase()
+          )?._id || null,
         productName,
         farmerId: farmer.id,
         farmer: farmer.name,
@@ -473,7 +488,7 @@ function ConsumerPage({
   const couponDiscount =
     appliedCoupon === "LOVE"
       ? amountBeforeCoupon * 0.5
-      : appliedCoupon === "KISAANCONNECT"
+      : appliedCoupon === "GO-FARM"
         ? amountBeforeCoupon
         : 0;
   const cartTotal = Math.max(0, amountBeforeCoupon - couponDiscount);
@@ -515,26 +530,23 @@ function ConsumerPage({
 
     if (!code) {
       setAppliedCoupon("");
-      setCouponMessage("Please enter a coupon code.");
       return;
     }
 
     if (code === "LOVE") {
       setAppliedCoupon("LOVE");
       setCoupon("LOVE");
-      setCouponMessage("LOVE applied — 50% OFF on your payable amount.");
       return;
     }
 
-    if (code === "KISANCONNECT" || code === "KISAANCONNECT") {
-      setAppliedCoupon("KISANCONNECT");
-      setCoupon("KISANCONNECT");
-      setCouponMessage("KISAN CONNECT applied — your entire order is FREE.");
+    if (code === "GO-FARM" || code === "GO-FARM") {
+      setAppliedCoupon("GO-FARM");
+      setCoupon("GO-FARM");
       return;
     }
 
     setAppliedCoupon("");
-    setCouponMessage("Invalid coupon. Try LOVE or KISANCONNECT.");
+    alert("Invalid coupon. Try LOVE or GO-FARM.");
   }
 
   function saveConsumerProfile() {
@@ -542,7 +554,6 @@ function ConsumerPage({
     const surname = profileForm.surname.trim();
 
     if (!firstName) {
-      setCouponMessage("");
       alert("Please enter your first name.");
       return;
     }
@@ -563,7 +574,7 @@ function ConsumerPage({
     window.__kbCartToastTimer = window.setTimeout(() => setCartToast(""), 2200);
   }
 
-  function handlePlaceConsumerOrder() {
+  async function handlePlaceConsumerOrder() {
     if (!paymentAddress.trim()) {
       alert("Please enter your delivery address.");
       return;
@@ -572,9 +583,47 @@ function ConsumerPage({
       alert("Please select a payment method.");
       return;
     }
+    let availableProducts = backendProducts;
+    if (availableProducts.length === 0) {
+      try {
+        const response = await getPublicProducts();
+        availableProducts = response.data.products || [];
+        setBackendProducts(availableProducts);
+      } catch (error) {
+        console.error("Unable to refresh marketplace products:", error);
+      }
+    }
+
+    const orderItems = cart.map((item) => {
+      const itemName = (item.name || item.productName || "").trim().toLowerCase();
+      const backendProduct = availableProducts.find(
+        (product) => product.name.trim().toLowerCase() === itemName
+      );
+
+      return {
+        productId: item.backendProductId || backendProduct?._id,
+        quantity: getCartQuantity(item)
+      };
+    });
+
+    if (orderItems.some((item) => !item.productId)) {
+      alert("This product is not currently available from the backend marketplace.");
+      return;
+    }
+
+    let response;
+    try {
+      response = await createOrder(orderItems, {
+        addressLine1: paymentAddress.trim()
+      });
+    } catch (error) {
+      console.error("Unable to place order:", error);
+      alert(error.message || "Unable to place order.");
+      return;
+    }
 
     const newOrder = {
-      id: `CB-${Date.now()}`,
+      id: response.data._id,
       createdAt: new Date().toLocaleString(),
       items: cart.map((item) => ({ ...item, quantity: getCartQuantity(item) })),
       totalQuantity: cartItemCount,
@@ -583,7 +632,7 @@ function ConsumerPage({
       total: cartTotal,
       couponDiscount,
       address: paymentAddress.trim(),
-      coupon: appliedCoupon || coupon.trim(),
+      coupon: appliedCoupon || "",
       paymentMethod,
       status: "Order Placed"
     };
@@ -598,7 +647,6 @@ function ConsumerPage({
 
     setCoupon("");
     setAppliedCoupon("");
-    setCouponMessage("");
     setPaymentMethod("");
     setAddressSaved(false);
     setConsumerView("orders");
@@ -634,11 +682,11 @@ function ConsumerPage({
           <img
             className="consumer-brand-icon"
             src={logo}
-            alt="Kisaan connect logo"
+            alt="GO-FARM logo"
           />
           <div>
             <strong>
-              Kisaan <em>Connect</em>
+              GO-FARM 
             </strong>
             <small>Consumer Panel</small>
           </div>
@@ -888,10 +936,10 @@ function ConsumerPage({
 
               {isHome && (
                 <>
-                  <section className="hero-banner" aria-label="Kisaan Connect farm highlights">
+                  <section className="hero-banner" aria-label="GO-FARM farm highlights">
                     <img
                       src={heroImages[heroIndex]}
-                      alt={`Kisaan Connect farm highlight ${heroIndex + 1}`}
+                      alt={`GO-FARM farm highlight ${heroIndex + 1}`}
                       className="hero-image"
                     />
                     <div className="hero-overlay" />
@@ -913,7 +961,7 @@ function ConsumerPage({
                       <span>🌾 Fresh farm produce</span><span>✦ Direct farmer prices</span><span>🚚 Reliable doorstep delivery</span><span>✦ New seasonal picks every week</span><span>🌱 Support local farmers</span><span>✦ Fresh farm produce</span><span>🚚 Reliable doorstep delivery</span>
                     </div>
                   </div>
-                  <section className="home-ad-rail" aria-label="Kisaan Connect highlights">
+                  <section className="home-ad-rail" aria-label="GO-FARM highlights">
                     <article className="home-ad-card home-ad-card-primary">
                       <span className="home-ad-label">FRESH PICK</span>
                       <strong>Farm-fresh produce, straight to your home.</strong>
@@ -1069,7 +1117,7 @@ function ConsumerPage({
                             <p className="product-description">
                               {item.farmer
                                 ? `${item.farmer} • ${item.region || "Farmer listing"}`
-                                : "Fresh product from KisaanBazar"}
+                                : "Fresh product from GO-FARM"}
                             </p>
                             <div className="product-bottom">
                               <div className="item-price">₹{item.price}</div>
@@ -1126,15 +1174,10 @@ function ConsumerPage({
                       <span>Subtotal</span>
                       <span>₹{cartSubtotal.toFixed(0)}</span>
                     </div>
-                    <div className="summary-row">
-                      <span>Bulk Discount</span>
-                      <span className="delivery-text">
-                        -₹{cartDiscount.toFixed(0)}
-                      </span>
-                    </div>
+                    
                     {couponDiscount > 0 && (
                       <div className="summary-row coupon-summary-row">
-                        <span>Coupon ({appliedCoupon})</span>
+                        <span>Discount</span>
                         <span>-₹{couponDiscount.toFixed(0)}</span>
                       </div>
                     )}
@@ -1209,15 +1252,6 @@ function ConsumerPage({
                     Apply Coupon
                   </button>
                 </div>
-                {couponMessage && (
-                  <p className={`coupon-message ${appliedCoupon ? "success" : "error"}`}>
-                    {appliedCoupon ? "✓ " : "! "}{couponMessage}
-                  </p>
-                )}
-                <div className="coupon-hints">
-                  <button type="button" onClick={() => setCoupon("LOVE")}>LOVE · 50% OFF</button>
-                  <button type="button" onClick={() => setCoupon("KISAANCONNECT")}>KISAAN CONNECT · FREE</button>
-                </div>
               </section>
 
               <section className="payment-section">
@@ -1253,13 +1287,10 @@ function ConsumerPage({
                     <span>Subtotal</span>
                     <strong>₹{cartSubtotal.toFixed(0)}</strong>
                   </div>
-                  <div>
-                    <span>Bulk Discount</span>
-                    <strong>-₹{cartDiscount.toFixed(0)}</strong>
-                  </div>
+                  
                   {couponDiscount > 0 && (
                     <div className="coupon-total-row">
-                      <span>Coupon ({appliedCoupon})</span>
+                      <span>Discount</span>
                       <strong>-₹{couponDiscount.toFixed(0)}</strong>
                     </div>
                   )}
@@ -1321,7 +1352,7 @@ function ConsumerPage({
                   <span className="orders-kicker">CONSUMER ORDERS</span>
                   <h1>My Orders</h1>
                   <p>
-                    Track your successful Kisaan connect purchases in one place.
+                    Track your successful GO-FARM purchases in one place.
                   </p>
                 </div>
                 <button
@@ -1412,7 +1443,7 @@ function ConsumerPage({
                           <strong>₹{order.subtotal.toFixed(0)}</strong>
                         </div>
                         <div>
-                          <span>Bulk Discount</span>
+                          <span></span>
                           <strong>-₹{order.discount.toFixed(0)}</strong>
                         </div>
                         {order.couponDiscount > 0 && (
@@ -1629,7 +1660,7 @@ function ConsumerPage({
               ✉️ <strong>Email:</strong> deepshikhamaityyy@gmail.com
             </p>
             <p>
-              <LocationIcon className="help-location-icon" /> <strong>Office:</strong> Kisaan connect Office, Andheri East,
+              <LocationIcon className="help-location-icon" /> <strong>Office:</strong> GO-FARM Office, Andheri East,
               Mumbai, Maharashtra - 400069
             </p>
           </div>
@@ -1642,9 +1673,9 @@ function ConsumerPage({
       {showAbout && (
         <div className="about-bar">
           <div className="about-content">
-            <h3>About Kisaan connect</h3>
+            <h3>About GO-FARM</h3>
             <p>
-              <strong>Kisaan connect</strong> is a digital platform that
+              <strong>GO-FARM</strong> is a digital platform that
               directly connects farmers with consumers.
             </p>
             <p>
@@ -1655,14 +1686,14 @@ function ConsumerPage({
               prices.
             </p>
             <p>
-              Kisaan connect aims to create a transparent, fair, and efficient
+              GO-FARM aims to create a transparent, fair, and efficient
               marketplace where farmers get better value for their hard work and
               consumers get quality products at reasonable prices.
             </p>
             <div className="about-flow">
               <span>Farmer</span>
               <span>→</span>
-              <span>Kisaan connect</span>
+              <span>GO-FARM</span>
               <span>→</span>
               <span>Consumer</span>
             </div>

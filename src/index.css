@@ -1476,3 +1476,50 @@ body { margin: 0; padding: 0; font-family: "DM Sans", Arial, sans-serif; backgro
   margin-right: 5px;
 }
 
+
+
+/* =========================================================
+   CONSUMER COUPON FINAL FIX
+   Coupon feedback/suggestions are intentionally not displayed.
+   The applied coupon is represented only in Order Summary.
+   ========================================================= */
+
+.coupon-message,
+.coupon-hints,
+.coupon-hints button {
+  display: none !important;
+}
+
+.coupon-total-row,
+.coupon-summary-row {
+  display: flex !important;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.coupon-total-row span,
+.coupon-total-row strong,
+.coupon-summary-row span,
+.coupon-summary-row strong {
+  color: #4f7c38 !important;
+}
+
+@media (max-width: 600px) {
+  .coupon-box {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+  }
+
+  .coupon-box input,
+  .coupon-box button {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+
+  .coupon-box button {
+    min-height: 48px;
+  }
+}

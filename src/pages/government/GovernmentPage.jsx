@@ -109,6 +109,15 @@ const CONSUMERS = [
   },
 ];
 
+
+const BULK_BUYERS = [
+  { id: "BB001", name: "FreshMart Wholesale", email: "freshmart@gmail.com", location: "Kolkata", orders: 24, purchased: "1,250 kg", spent: 78500, status: "Active" },
+  { id: "BB002", name: "Green Basket Suppliers", email: "greenbasket@gmail.com", location: "Patna", orders: 18, purchased: "980 kg", spent: 59200, status: "Active" },
+  { id: "BB003", name: "CityFresh Foods", email: "cityfresh@gmail.com", location: "Lucknow", orders: 15, purchased: "760 kg", spent: 48600, status: "Active" },
+  { id: "BB004", name: "Jharkhand Agro Stores", email: "jhagro@gmail.com", location: "Ranchi", orders: 12, purchased: "620 kg", spent: 39400, status: "Active" },
+  { id: "BB005", name: "Punjab Harvest Supplies", email: "pharvest@gmail.com", location: "Chandigarh", orders: 20, purchased: "1,100 kg", spent: 70200, status: "Active" },
+];
+
 const FPOS = [
   {
     id: "FPO001",
@@ -434,6 +443,7 @@ function GovernmentPage({ user, onNavigate }) {
   const totalFarmers = 120;
   const totalFPOs = 18;
   const totalConsumers = 85;
+  const totalBulkBuyers = BULK_BUYERS.length;
   const totalRegions = 12;
   const totalProducts = 540;
   const totalOrders = 2480;
@@ -516,6 +526,21 @@ function GovernmentPage({ user, onNavigate }) {
               <span>Total Consumers</span>
               <strong>{totalConsumers}</strong>
               <small>View consumer information →</small>
+            </div>
+          </button>
+
+          <button
+            className="gov-stat-card"
+            onClick={() => {
+              setSection("users");
+              setUserType("bulkbuyers");
+            }}
+          >
+            <div className="gov-stat-icon green">🛒</div>
+            <div>
+              <span>Total Bulk Buyers</span>
+              <strong>{totalBulkBuyers}</strong>
+              <small>View bulk buyer information →</small>
             </div>
           </button>
 
@@ -772,8 +797,10 @@ function GovernmentPage({ user, onNavigate }) {
       users = FARMERS;
     } else if (userType === "consumers") {
       users = CONSUMERS;
-    } else if (userType === "fpos") {
+     } else if (userType === "fpos") {
       users = FPOS;
+    } else if (userType === "bulkbuyers") {
+      users = BULK_BUYERS;
     }
 
     return (
@@ -815,10 +842,17 @@ function GovernmentPage({ user, onNavigate }) {
           >
             🧑 Consumers ({totalConsumers})
           </button>
+
+          <button
+            className={userType === "bulkbuyers" ? "active" : ""}
+            onClick={() => setUserType("bulkbuyers")}
+          >
+            🛒 Bulk Buyers ({totalBulkBuyers})
+          </button>
         </div>
 
         {userType === "all" ? (
-          <div className="gov-user-summary-grid">
+          <div className="gov-user-summary-grid gov-user-summary-five">
             <button
               className="gov-user-summary-card"
               onClick={() => setUserType("farmers")}
@@ -847,6 +881,16 @@ function GovernmentPage({ user, onNavigate }) {
               <strong>{totalConsumers}</strong>
               <span>Consumers</span>
               <small>View consumer accounts →</small>
+            </button>
+
+            <button
+              className="gov-user-summary-card"
+              onClick={() => setUserType("bulkbuyers")}
+            >
+              <div>🛒</div>
+              <strong>{totalBulkBuyers}</strong>
+              <span>Bulk Buyers</span>
+              <small>View bulk buyer accounts →</small>
             </button>
           </div>
         ) : (
@@ -886,6 +930,19 @@ function GovernmentPage({ user, onNavigate }) {
                       <th>Location</th>
                       <th>Members</th>
                       <th>Products</th>
+                      <th>Status</th>
+                    </tr>
+                  )}
+
+                  {userType === "bulkbuyers" && (
+                    <tr>
+                      <th>ID</th>
+                      <th>Bulk Buyer</th>
+                      <th>Email</th>
+                      <th>Location</th>
+                      <th>Orders</th>
+                      <th>Purchased</th>
+                      <th>Total Spent</th>
                       <th>Status</th>
                     </tr>
                   )}
@@ -952,6 +1009,23 @@ function GovernmentPage({ user, onNavigate }) {
                         </td>
                       </tr>
                     ))}
+
+                  {userType === "bulkbuyers" &&
+                    users.map((buyer) => (
+                      <tr key={buyer.id}>
+                        <td>{buyer.id}</td>
+                        <td><strong>{buyer.name}</strong></td>
+                        <td>{buyer.email}</td>
+                        <td>{buyer.location}</td>
+                        <td>{buyer.orders}</td>
+                        <td>{buyer.purchased}</td>
+                        <td>₹{buyer.spent.toLocaleString()}</td>
+                        <td><span className="gov-status completed">{buyer.status}</span>
+                        </td>
+                      </tr>
+                    ))}
+
+                    
                 </tbody>
               </table>
             </div>
@@ -1529,6 +1603,13 @@ function GovernmentPage({ user, onNavigate }) {
           </button>
 
           <button
+            className={reportType === "bulkbuyer" ? "active" : ""}
+            onClick={() => setReportType("bulkbuyer")}
+          >
+            🛒 Bulk Buyer Report
+          </button>
+
+          <button
             className={reportType === "regional" ? "active" : ""}
             onClick={() => setReportType("regional")}
           >
@@ -1680,6 +1761,66 @@ function GovernmentPage({ user, onNavigate }) {
                           {fpo.status}
                         </span>
                       </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+
+        {reportType === "bulkbuyer" && (
+          <div className="gov-card">
+            <div className="gov-card-heading">
+              <div>
+                <h2>🛒 Bulk Buyer Activity Report</h2>
+                <p>Bulk buyer orders, purchase volume and marketplace spending</p>
+              </div>
+            </div>
+
+            <div className="gov-summary-row">
+              <div>
+                <span>Total Bulk Buyers</span>
+                <strong>{totalBulkBuyers}</strong>
+              </div>
+              <div>
+                <span>Total Orders</span>
+                <strong>{BULK_BUYERS.reduce((sum, buyer) => sum + buyer.orders, 0)}</strong>
+              </div>
+              <div>
+                <span>Purchase Volume</span>
+                <strong>{BULK_BUYERS.reduce((sum, buyer) => sum + parseInt(buyer.purchased.replace(/,/g, ""), 10), 0).toLocaleString()} kg</strong>
+              </div>
+              <div>
+                <span>Total Spent</span>
+                <strong>₹{BULK_BUYERS.reduce((sum, buyer) => sum + buyer.spent, 0).toLocaleString()}</strong>
+              </div>
+            </div>
+
+            <div className="gov-table-wrap">
+              <table className="gov-table">
+                <thead>
+                  <tr>
+                    <th>Bulk Buyer</th>
+                    <th>Email</th>
+                    <th>Location</th>
+                    <th>Orders</th>
+                    <th>Purchased</th>
+                    <th>Total Spent</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {BULK_BUYERS.map((buyer) => (
+                    <tr key={buyer.id}>
+                      <td><strong>{buyer.name}</strong></td>
+                      <td>{buyer.email}</td>
+                      <td>{buyer.location}</td>
+                      <td>{buyer.orders}</td>
+                      <td>{buyer.purchased}</td>
+                      <td>₹{buyer.spent.toLocaleString()}</td>
+                      <td><span className="gov-status completed">{buyer.status}</span></td>
                     </tr>
                   ))}
                 </tbody>
@@ -1843,12 +1984,12 @@ function GovernmentPage({ user, onNavigate }) {
 
         <div className="government-brand">
           <span className="government-brand-icon">
-            <img src={logo} alt="Kisaan Connect logo" />
+            <img src={logo} alt="GO-FARM logo" />
           </span>
 
           <div>
             <strong>
-              Kisaan <em>Connect</em>
+              GO-FARM
             </strong>
 
             <small>Government Panel</small>
@@ -2130,7 +2271,7 @@ function GovernmentPage({ user, onNavigate }) {
 
       <footer className="government-footer">
         <span>
-          Kisaan Connect • Government Panel
+          GO-FARM • Government Panel
         </span>
 
         <span>

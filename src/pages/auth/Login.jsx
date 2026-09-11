@@ -702,7 +702,7 @@ export default function LoginPage({
         >
 
           <div className="brand">
-            Kisaan<span>Connect</span>
+            <span>GO-FARM</span>
           </div>
 
           <div className="tagline">
@@ -716,7 +716,7 @@ export default function LoginPage({
           </h2>
 
           <p className="story-text">
-            Kisaan Connect creates a simple connection between
+            GO-FARM creates a simple connection between
             farmers and consumers, making it easier to discover,
             sell and buy fresh agricultural products.
           </p>
@@ -770,7 +770,7 @@ export default function LoginPage({
             </h1>
 
             <p className="login-subtitle">
-              Login to your Kisaan Connect account
+              Login to your GO-FARM account
             </p>
 
             <form onSubmit={handleSubmit}>

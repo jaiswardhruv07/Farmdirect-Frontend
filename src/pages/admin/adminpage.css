@@ -22,6 +22,42 @@
   font-family: "DM Sans", Arial, sans-serif;
 }
 
+.profile-verification-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.profile-approve-btn,
+.profile-reject-btn {
+  border: none;
+  border-radius: 7px;
+  color: white;
+  cursor: pointer;
+  padding: 7px 12px;
+  font-weight: 600;
+}
+
+.profile-approve-btn {
+  background: #4a7c3a;
+}
+
+.profile-reject-btn {
+  background: #b44b43;
+}
+
+.profile-verification-empty {
+  color: #756d5e;
+  margin: 8px 0;
+}
+
+.profile-verification-error {
+  background: #fbe7e5;
+  border: 1px solid #e4aaa5;
+  border-radius: 8px;
+  color: #9a3029;
+  padding: 10px 14px;
+}
+
 
 /* ═══════════════════════════════════════════════
    HEADER
@@ -2274,5 +2310,27 @@
   .admin-profile-card {
     width: min(310px, calc(100vw - 24px));
     min-width: 0;
+  }
+}
+
+
+/* ================= BULK BUYER USER/REPORT ADDITION ================= */
+.admin-user-summary-five {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.admin-report-tabs-wide {
+  row-gap: 8px;
+}
+
+@media (max-width: 900px) {
+  .admin-user-summary-five {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .admin-user-summary-five {
+    grid-template-columns: 1fr;
   }
 }

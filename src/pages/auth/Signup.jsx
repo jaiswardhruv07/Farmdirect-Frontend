@@ -1,14 +1,10 @@
-import { useState } from "react";
-import { registerUser } from "../../services/authService";
+import { useEffect, useState } from "react";
+import { getPublicRoles, registerUser } from "../../services/authService";
 import bg from "../../assets/bg.jpg";
 import "./signup.css";
 
-const ROLE_IDS = {
-  FARMER: "6a9d8dd1ecd1c65b9f33ab28",
-  CONSUMER: "6a9ac66d2aed80625001f8ed"
-};
-
 function Signup({ onBackToLogin }) {
+  const [roles, setRoles] = useState({});
   const [role, setRole] = useState("");
 
   const [firstName, setFirstName] = useState("");
@@ -18,6 +14,36 @@ function Signup({ onBackToLogin }) {
   const [password, setPassword] = useState("");
 
   const [status, setStatus] = useState("");
+
+  const roleOptions = [
+    { name: "FARMER", label: "Farmer", icon: "👨‍🌾" },
+    { name: "CONSUMER", label: "Consumer", icon: "🛒" }
+  ];
+
+  useEffect(() => {
+    let mounted = true;
+
+    getPublicRoles()
+      .then((response) => {
+        if (mounted) {
+          setRoles(
+            Object.fromEntries(
+              response.data.roles.map(({ name, _id }) => [name, _id])
+            )
+          );
+        }
+      })
+      .catch((error) => {
+        console.error("Unable to load account types:", error);
+        if (mounted) {
+          setStatus("error");
+        }
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -46,9 +72,19 @@ function Signup({ onBackToLogin }) {
       return;
     }
 
+    if (!/^[6-9][0-9]{9}$/.test(phone.trim())) {
+      alert("Phone number must be a valid 10-digit Indian number");
+      return;
+    }
+
     // Check password
     if (!password) {
       alert("Please create a password");
+      return;
+    }
+
+    if (password.length < 8) {
+      alert("Password must be at least 8 characters");
       return;
     }
 
@@ -58,7 +94,7 @@ function Signup({ onBackToLogin }) {
       return;
     }
 
-    const roleId = ROLE_IDS[role];
+    const roleId = roles[role];
 
     if (!roleId) {
       alert("Invalid account type");
@@ -93,7 +129,13 @@ function Signup({ onBackToLogin }) {
 
       setStatus("error");
 
-      if (error.status === 409) {
+      const validationErrors = error.data?.errors
+        ?.map(({ field, message }) => `${field}: ${message}`)
+        .join("\n");
+
+      if (validationErrors) {
+        alert(validationErrors);
+      } else if (error.status === 409) {
         alert(error.message || "An account with these details already exists.");
       } else {
         alert(error.message || "Unable to create account. Please try again.");
@@ -106,7 +148,7 @@ function Signup({ onBackToLogin }) {
       <div className="signup-box">
         <h1>Create Account</h1>
 
-        <p>Join KisaanBazar</p>
+        <p>Join GO-FARM</p>
 
         <form onSubmit={handleSubmit}>
           {/* FIRST NAME */}
@@ -159,28 +201,24 @@ function Signup({ onBackToLogin }) {
           <h3>I am a:</h3>
 
           <div className="role-selection">
-            {/* FARMER */}
-
-            <button
-              type="button"
-              className={role === "FARMER" ? "role selected" : "role"}
-              onClick={() => setRole("FARMER")}
-            >
-              👨‍🌾
-              <span>Farmer</span>
-            </button>
-
-            {/* CONSUMER */}
-
-            <button
-              type="button"
-              className={role === "CONSUMER" ? "role selected" : "role"}
-              onClick={() => setRole("CONSUMER")}
-            >
-              🛒
-              <span>Consumer</span>
-            </button>
+            {roleOptions.map(({ name, label, icon }) => (
+                <button
+                  key={name}
+                  type="button"
+                  className={role === name ? "role selected" : "role"}
+                  disabled={!roles[name]}
+                  onClick={() => setRole(name)}
+                >
+                  {icon}
+                  <span>{label}</span>
+                </button>
+            ))}
           </div>
+          {status === "error" && (
+            <p role="alert">
+              Account types could not be loaded. Please refresh and try again.
+            </p>
+          )}
 
           {/* CREATE ACCOUNT */}
 
