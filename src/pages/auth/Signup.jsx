@@ -201,20 +201,24 @@ function Signup({ onBackToLogin }) {
           <h3>I am a:</h3>
 
           <div className="role-selection">
-            {roleOptions
-              .filter(({ name }) => roles[name])
-              .map(({ name, label, icon }) => (
+            {roleOptions.map(({ name, label, icon }) => (
                 <button
                   key={name}
                   type="button"
                   className={role === name ? "role selected" : "role"}
+                  disabled={!roles[name]}
                   onClick={() => setRole(name)}
                 >
                   {icon}
                   <span>{label}</span>
                 </button>
-              ))}
+            ))}
           </div>
+          {status === "error" && (
+            <p role="alert">
+              Account types could not be loaded. Please refresh and try again.
+            </p>
+          )}
 
           {/* CREATE ACCOUNT */}
 
