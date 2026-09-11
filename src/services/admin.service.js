@@ -26,3 +26,22 @@ export const getAllProducts = async () => {
     method: "GET"
   });
 };
+
+export const getPendingProfiles = async () => {
+  return apiRequest("/admin/profiles/pending", {
+    method: "GET"
+  });
+};
+
+export const approveProfile = async (profileType, profileId) => {
+  return apiRequest(`/admin/profiles/${profileType}/${profileId}/approve`, {
+    method: "PATCH"
+  });
+};
+
+export const rejectProfile = async (profileType, profileId, rejectionReason) => {
+  return apiRequest(`/admin/profiles/${profileType}/${profileId}/reject`, {
+    method: "PATCH",
+    body: JSON.stringify({ rejectionReason })
+  });
+};

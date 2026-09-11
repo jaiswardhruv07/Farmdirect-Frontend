@@ -1,6 +1,10 @@
 import { useEffect, useState, useRef } from "react";
 import "./FarmerPage.css";
 import { useAuth } from "../../context/AuthContext";
+import {
+  getSellerOrders,
+  updateSellerOrderStatus
+} from "../../services/orderService";
 
 import tomato from "../../assets/tomato.jpg";
 import mango from "../../assets/mango.jpg";
@@ -42,10 +46,6 @@ const INITIAL_ORDERS = [
 const CATEGORIES = ["All", "Vegetables", "Fruits", "Grains", "Dairy"];
 
 
-const STATUS_NEXT = {
-  "New Order": "Completed",
-};
-
 const STATUS_COLOR = {
   "New Order": {
     background: "#fff3cd",
@@ -63,6 +63,33 @@ const ORDER_STATUSES = [
   "New Order",
   "Completed",
 ];
+
+const NEXT_API_STATUS = {
+  PENDING: "CONFIRMED",
+  CONFIRMED: "PROCESSING",
+  PROCESSING: "READY_FOR_DISPATCH",
+  READY_FOR_DISPATCH: "SHIPPED"
+};
+
+const mapSellerOrder = (order) => {
+  const item = order.items?.[0];
+  const isComplete = ["SHIPPED", "DELIVERED"].includes(order.status);
+
+  return {
+    id: order._id,
+    consumer: order.buyerId?.firstName
+      ? `${order.buyerId.firstName} ${order.buyerId.lastName || ""}`.trim()
+      : "Customer",
+    product: item?.productName || "Order",
+    category: "Other",
+    quantity: item?.quantity || 0,
+    status: isComplete ? "Completed" : "New Order",
+    backendStatus: order.status,
+    date: order.createdAt
+      ? new Date(order.createdAt).toLocaleDateString()
+      : "Recent"
+  };
+};
 
 export default function FarmerDashboard({ farmer, onNavigate }) {
   const { logout, user: authUser } = useAuth();
@@ -93,8 +120,10 @@ export default function FarmerDashboard({ farmer, onNavigate }) {
   const prodFileInputs = useRef({});
   const newProdFileInput = useRef(null);
 
-  const initialFullName = farmer?.name || authUser?.name || "Ramesh Kumar";
-  const initialNameParts = initialFullName.trim().split(/\\s+/);
+  const authenticatedName = [authUser?.firstName, authUser?.lastName]
+    .filter(Boolean)
+    .join(" ");
+  const initialFullName = farmer?.name || authenticatedName || "Farmer";
 
   const [profile, setProfile] = useState({
     name: initialFullName,
@@ -107,6 +136,17 @@ export default function FarmerDashboard({ farmer, onNavigate }) {
   const [profilePhoto, setProfilePhoto] = useState(null);
   const [editingProfile, setEditingProfile] = useState(false);
   const profilePhotoInput = useRef(null);
+
+  useEffect(() => {
+    getSellerOrders()
+      .then((response) => {
+        setOrders(response.data.orders.map(mapSellerOrder));
+      })
+      .catch((error) => {
+        console.error("Unable to load seller orders:", error);
+        showToast("Unable to load orders from the server.");
+      });
+  }, []);
 
   function handleProfilePhoto(file) {
     if (!file) return;
@@ -241,20 +281,27 @@ export default function FarmerDashboard({ farmer, onNavigate }) {
 
   // ─── Orders ──────────────────────────────────────────────────────────────
 
-  function advanceOrder(id) {
-    setOrders((prev) =>
-      prev.map((order) => {
-        if (order.id !== id) return order;
+  async function advanceOrder(id) {
+    const currentOrder = orders.find((order) => order.id === id);
+    const nextStatus = NEXT_API_STATUS[currentOrder?.backendStatus];
 
-        const nextStatus = STATUS_NEXT[order.status];
+    if (!nextStatus) {
+      showToast("This order cannot be shipped from its current status.");
+      return;
+    }
 
-        return nextStatus
-          ? { ...order, status: nextStatus }
-          : order;
-      })
-    );
+    try {
+      const response = await updateSellerOrderStatus(id, nextStatus);
+      const updatedOrder = mapSellerOrder(response.data);
 
-    showToast("✅ Order status updated!");
+      setOrders((prev) =>
+        prev.map((order) => (order.id === id ? updatedOrder : order))
+      );
+      showToast("✅ Order status saved to MongoDB.");
+    } catch (error) {
+      console.error("Unable to update seller order:", error);
+      showToast(error.message || "Unable to update order status.");
+    }
   }
   function undoOrder(id) {
     setOrders((prev) =>
