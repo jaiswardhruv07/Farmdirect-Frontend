@@ -2276,3 +2276,25 @@
     min-width: 0;
   }
 }
+
+
+/* ================= BULK BUYER USER/REPORT ADDITION ================= */
+.admin-user-summary-five {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.admin-report-tabs-wide {
+  row-gap: 8px;
+}
+
+@media (max-width: 900px) {
+  .admin-user-summary-five {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .admin-user-summary-five {
+    grid-template-columns: 1fr;
+  }
+}

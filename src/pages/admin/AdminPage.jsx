@@ -96,6 +96,15 @@ const CONSUMERS = [
 ];
 
 
+
+const BULK_BUYERS = [
+  { id: "BB001", name: "FreshMart Wholesale", email: "freshmart@gmail.com", location: "Kolkata", orders: 24, purchased: "1,250 kg", spent: 78500, status: "Active" },
+  { id: "BB002", name: "Green Basket Suppliers", email: "greenbasket@gmail.com", location: "Patna", orders: 18, purchased: "980 kg", spent: 59200, status: "Active" },
+  { id: "BB003", name: "CityFresh Foods", email: "cityfresh@gmail.com", location: "Lucknow", orders: 15, purchased: "760 kg", spent: 48600, status: "Active" },
+  { id: "BB004", name: "Jharkhand Agro Stores", email: "jhagro@gmail.com", location: "Ranchi", orders: 12, purchased: "620 kg", spent: 39400, status: "Active" },
+  { id: "BB005", name: "Punjab Harvest Supplies", email: "pharvest@gmail.com", location: "Chandigarh", orders: 20, purchased: "1,100 kg", spent: 70200, status: "Active" }
+];
+
 const FPOS = [
   {
     id: "FPO001",
@@ -468,7 +477,8 @@ function AdminPage({ onNavigate, user }) {
   const totalConsumers = CONSUMERS.length;
   const totalFPOs = FPOS.length;
   const totalGovernment = GOVERNMENT_USERS.length;
-  const totalUsers = totalFarmers + totalConsumers + totalFPOs + totalGovernment;
+  const totalBulkBuyers = BULK_BUYERS.length;
+  const totalUsers = totalFarmers + totalConsumers + totalFPOs + totalGovernment + totalBulkBuyers;
 
   const totalProducts = PRODUCTS.length;
   const totalOrders = ORDERS.length;
@@ -582,6 +592,16 @@ function AdminPage({ onNavigate, user }) {
               <span>Total FPOs</span>
               <strong>{totalFPOs}</strong>
               <small>Active FPO network</small>
+            </div>
+          </div>
+
+          <div className="admin-stat-card clickable-stat" onClick={() => { setUserType("bulkbuyers"); setSection("users"); }}>
+            <div className="stat-icon green">🛒</div>
+
+            <div>
+              <span>Total Bulk Buyers</span>
+              <strong>{totalBulkBuyers}</strong>
+              <small>Wholesale accounts</small>
             </div>
           </div>
 
@@ -854,13 +874,14 @@ function AdminPage({ onNavigate, user }) {
     else if (userType === "consumers") users = CONSUMERS;
     else if (userType === "fpos") users = FPOS;
     else if (userType === "government") users = GOVERNMENT_USERS;
+    else if (userType === "bulkbuyers") users = BULK_BUYERS;
 
     return (
       <>
         <div className="admin-title-row">
           <div>
             <h1>👥 Users</h1>
-            <p>Manage farmers, consumers, FPOs and government accounts</p>
+            <p>Manage farmers, consumers, FPOs, government and bulk buyer accounts</p>
           </div>
         </div>
 
@@ -880,10 +901,13 @@ function AdminPage({ onNavigate, user }) {
           <button className={userType === "government" ? "active" : ""} onClick={() => setUserType("government")}>
             🏛️ Government ({totalGovernment})
           </button>
+          <button className={userType === "bulkbuyers" ? "active" : ""} onClick={() => setUserType("bulkbuyers")}>
+            🛒 Bulk Buyers ({totalBulkBuyers})
+          </button>
         </div>
 
         {userType === "all" ? (
-          <div className="user-summary-grid admin-user-summary-four">
+          <div className="user-summary-grid admin-user-summary-five">
             <div className="user-summary-card" onClick={() => setUserType("farmers")}>
               <div>👨‍🌾</div><h2>{totalFarmers}</h2><p>Farmers</p><span>View Farmer Accounts →</span>
             </div>
@@ -896,6 +920,9 @@ function AdminPage({ onNavigate, user }) {
             <div className="user-summary-card" onClick={() => setUserType("government")}>
               <div>🏛️</div><h2>{totalGovernment}</h2><p>Government</p><span>View Government Accounts →</span>
             </div>
+            <div className="user-summary-card bulk-buyer-summary-card" onClick={() => setUserType("bulkbuyers")}>
+              <div>🛒</div><h2>{totalBulkBuyers}</h2><p>Bulk Buyers</p><span>View Bulk Buyer Accounts →</span>
+            </div>
           </div>
         ) : (
           <div className="admin-card">
@@ -906,6 +933,7 @@ function AdminPage({ onNavigate, user }) {
                   {userType === "consumers" && <tr><th>ID</th><th>Consumer</th><th>Email</th><th>Orders</th><th>Spent</th><th>Status</th></tr>}
                   {userType === "fpos" && <tr><th>ID</th><th>FPO</th><th>Location</th><th>Members</th><th>Products</th><th>Orders</th><th>Status</th></tr>}
                   {userType === "government" && <tr><th>ID</th><th>Government Body</th><th>Department</th><th>Location</th><th>Programs</th><th>Monitoring</th><th>Status</th></tr>}
+                   {userType === "bulkbuyers" && <tr><th>ID</th><th>Bulk Buyer</th><th>Email</th><th>Location</th><th>Orders</th><th>Purchased</th><th>Total Spent</th><th>Status</th></tr>}
                 </thead>
                 <tbody>
                   {users.map((item) => (
@@ -921,6 +949,9 @@ function AdminPage({ onNavigate, user }) {
                       </>}
                       {userType === "government" && <>
                         <td>{item.id}</td><td><strong>{item.name}</strong></td><td>{item.department}</td><td>{item.location}</td><td>{item.programs}</td><td>{item.monitored}</td><td><span className="status completed">{item.status}</span></td>
+                      </>}
+                      {userType === "bulkbuyers" && <>
+                        <td>{item.id}</td><td><strong>{item.name}</strong></td><td>{item.email}</td><td>{item.location}</td><td>{item.orders}</td><td>{item.purchased}</td><td>₹{item.spent.toLocaleString()}</td><td><span className="status completed">{item.status}</span></td>
                       </>}
                     </tr>
                   ))}
@@ -1301,6 +1332,7 @@ function AdminPage({ onNavigate, user }) {
           <button className={reportType === "consumer" ? "active" : ""} onClick={() => setReportType("consumer")}>🧑 Consumer Report</button>
           <button className={reportType === "fpo" ? "active" : ""} onClick={() => setReportType("fpo")}>🏢 FPO Report</button>
           <button className={reportType === "government" ? "active" : ""} onClick={() => setReportType("government")}>🏛️ Government Report</button>
+          <button className={reportType === "bulkbuyer" ? "active" : ""} onClick={() => setReportType("bulkbuyer")}>🛒 Bulk Buyer Report</button>
           <button className={reportType === "regional" ? "active" : ""} onClick={() => setReportType("regional")}>📍 Agriculture Report</button>
           <button className={reportType === "product" ? "active" : ""} onClick={() => setReportType("product")}>🌾 Product Report</button>
         </div>
@@ -1349,6 +1381,42 @@ function AdminPage({ onNavigate, user }) {
           </div>
         )}
 
+
+        {reportType === "bulkbuyer" && (
+          <div className="admin-card report-card">
+            <div className="card-heading">
+              <div>
+                <h2>🛒 Bulk Buyer Activity Report</h2>
+                <p>Bulk buyer orders, purchase volume and marketplace spending</p>
+              </div>
+            </div>
+            <div className="report-summary admin-report-summary-four">
+              <div><span>Total Bulk Buyers</span><strong>{totalBulkBuyers}</strong></div>
+              <div><span>Total Orders</span><strong>{BULK_BUYERS.reduce((sum, buyer) => sum + buyer.orders, 0)}</strong></div>
+              <div><span>Purchase Volume</span><strong>{BULK_BUYERS.reduce((sum, buyer) => sum + parseInt(buyer.purchased.replace(/,/g, ""), 10), 0).toLocaleString()} kg</strong></div>
+              <div><span>Total Spent</span><strong>₹{BULK_BUYERS.reduce((sum, buyer) => sum + buyer.spent, 0).toLocaleString()}</strong></div>
+            </div>
+            <div className="table-wrap">
+              <table className="admin-table">
+                <thead><tr><th>Bulk Buyer</th><th>Email</th><th>Location</th><th>Orders</th><th>Purchased</th><th>Total Spent</th><th>Status</th></tr></thead>
+                <tbody>
+                  {BULK_BUYERS.map((buyer) => (
+                    <tr key={buyer.id}>
+                      <td><strong>{buyer.name}</strong></td>
+                      <td>{buyer.email}</td>
+                      <td>{buyer.location}</td>
+                      <td>{buyer.orders}</td>
+                      <td>{buyer.purchased}</td>
+                      <td>₹{buyer.spent.toLocaleString()}</td>
+                      <td><span className="status completed">{buyer.status}</span></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
         {reportType === "regional" && (
           <div className="admin-card report-card"><div className="card-heading"><div><h2>📍 Regional Agriculture Report</h2><p>Farmer, FPO and marketplace activity by region</p></div><div className="report-highlight"><span>Top Region to Sell</span><strong>{TOP_SELLING_REGION}</strong></div></div>
             <div className="table-wrap"><table className="admin-table"><thead><tr><th>Region</th><th>Farmers</th><th>FPOs</th><th>Products</th><th>Orders</th><th>Total Sales</th></tr></thead><tbody>
@@ -1365,11 +1433,12 @@ function AdminPage({ onNavigate, user }) {
           </div>
         )}
 
-        <div className="report-summary admin-report-summary-four">
+        <div className="report-summary admin-report-summary-five">
           <div><span>Total Farmers</span><strong>{totalFarmers}</strong></div>
           <div><span>Total Consumers</span><strong>{totalConsumers}</strong></div>
           <div><span>Total FPOs</span><strong>{totalFPOs}</strong></div>
           <div><span>Government Bodies</span><strong>{totalGovernment}</strong></div>
+          <div><span>Bulk Buyers</span><strong>{totalBulkBuyers}</strong></div>
         </div>
       </>
     );

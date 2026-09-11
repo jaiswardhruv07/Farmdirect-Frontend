@@ -64,6 +64,26 @@ const FARMERS = [
   }
 ];
 
+/* ================= CONSUMER DATA ================= */
+
+const CONSUMERS = [
+  { id: "C001", name: "Rahul Sharma", email: "rahul@gmail.com", location: "Kolkata", orders: 12, spent: 4260, status: "Active" },
+  { id: "C002", name: "Priya Singh", email: "priya@gmail.com", location: "Patna", orders: 9, spent: 3180, status: "Active" },
+  { id: "C003", name: "Anita Verma", email: "anita@gmail.com", location: "Lucknow", orders: 7, spent: 2860, status: "Active" },
+  { id: "C004", name: "Suresh Yadav", email: "suresh@gmail.com", location: "Ranchi", orders: 6, spent: 2420, status: "Active" },
+  { id: "C005", name: "Neha Patel", email: "neha@gmail.com", location: "Chandigarh", orders: 5, spent: 1980, status: "Active" }
+];
+/* ================= BULK BUYER DATA ================= */
+
+const BULK_BUYERS = [
+  { id: "BB001", name: "FreshMart Wholesale", email: "freshmart@gmail.com", location: "Kolkata", orders: 24, purchased: "1,250 kg", spent: 78500, status: "Active" },
+  { id: "BB002", name: "Green Basket Suppliers", email: "greenbasket@gmail.com", location: "Patna", orders: 18, purchased: "980 kg", spent: 59200, status: "Active" },
+  { id: "BB003", name: "CityFresh Foods", email: "cityfresh@gmail.com", location: "Lucknow", orders: 15, purchased: "760 kg", spent: 48600, status: "Active" },
+  { id: "BB004", name: "Jharkhand Agro Stores", email: "jhagro@gmail.com", location: "Ranchi", orders: 12, purchased: "620 kg", spent: 39400, status: "Active" },
+  { id: "BB005", name: "Punjab Harvest Supplies", email: "pharvest@gmail.com", location: "Chandigarh", orders: 20, purchased: "1,100 kg", spent: 70200, status: "Active" }
+];
+
+
 /* ================= PRODUCT DATA ================= */
 
 const PRODUCTS = [
@@ -460,13 +480,22 @@ function FPOPage({ user, onNavigate }) {
           </div>
         </button>
 
-        <div className="fpo-stat-card consumer-stat">
+        <button className="fpo-stat-card consumer-stat" onClick={() => { setReportType("consumer"); navigate("reports"); }}>
           <div className="fpo-stat-icon gold">🛒</div>
           <div>
             <span>Total Consumers</span>
             <strong>85</strong>
           </div>
-        </div>
+        </button>
+
+        <button className="fpo-stat-card bulk-buyer-stat" onClick={() => { setReportType("bulkbuyer"); navigate("reports"); }}>
+          <div className="fpo-stat-icon green">🏢</div>
+          <div>
+            <span>Total Bulk Buyers</span>
+            <strong>{BULK_BUYERS.length}</strong>
+            <small>Wholesale accounts</small>
+          </div>
+        </button>
 
         <button className="fpo-stat-card" onClick={() => navigate("products")}>
           <div className="fpo-stat-icon green">🌾</div>
@@ -1157,7 +1186,7 @@ function FPOPage({ user, onNavigate }) {
       <div className="fpo-title-row">
         <div>
           <h1>Reports</h1>
-          <p>Detailed farmer, regional and agricultural product reports.</p>
+          <p>Detailed farmer, consumer, bulk buyer, regional and agricultural product reports.</p>
         </div>
       </div>
 
@@ -1167,6 +1196,20 @@ function FPOPage({ user, onNavigate }) {
           onClick={() => setReportType("farmer")}
         >
           👨‍🌾 Farmer Performance
+        </button>
+
+        <button
+          className={reportType === "consumer" ? "active" : ""}
+          onClick={() => setReportType("consumer")}
+        >
+          🧑 Consumer Information
+        </button>
+
+        <button
+          className={reportType === "bulkbuyer" ? "active" : ""}
+          onClick={() => setReportType("bulkbuyer")}
+        >
+          🏢 Bulk Buyer Information
         </button>
 
         <button
@@ -1234,6 +1277,128 @@ function FPOPage({ user, onNavigate }) {
                       >
                         {farmer.status}
                       </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {reportType === "consumer" && (
+        <div className="fpo-card">
+          <div className="fpo-card-heading">
+            <div>
+              <h2>Consumer Information Report</h2>
+              <p>Consumer-wise orders, spending and marketplace activity</p>
+            </div>
+          </div>
+
+          <div className="fpo-summary-row fpo-consumer-summary">
+            <div><span>Total Consumers</span><strong>{CONSUMERS.length}</strong></div>
+            <div><span>Total Orders</span><strong>{CONSUMERS.reduce((sum, consumer) => sum + consumer.orders, 0)}</strong></div>
+            <div><span>Total Consumer Spending</span><strong>₹{CONSUMERS.reduce((sum, consumer) => sum + consumer.spent, 0).toLocaleString()}</strong></div>
+            <div><span>Active Consumers</span><strong>{CONSUMERS.filter((consumer) => consumer.status === "Active").length}</strong></div>
+          </div>
+
+          <div className="fpo-table-wrap">
+            <table className="fpo-table">
+              <thead>
+                <tr>
+                  <th>Consumer</th>
+                  <th>Email</th>
+                  <th>Location</th>
+                  <th>Orders</th>
+                  <th>Total Spent</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {CONSUMERS.map((consumer) => (
+                  <tr key={consumer.id}>
+                    <td><strong>{consumer.name}</strong></td>
+                    <td>{consumer.email}</td>
+                    <td>{consumer.location}</td>
+                    <td>{consumer.orders}</td>
+                    <td><strong>₹{consumer.spent.toLocaleString()}</strong></td>
+                    <td><span className="fpo-status completed">{consumer.status}</span></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {reportType === "bulkbuyer" && (
+        <div className="fpo-card">
+          <div className="fpo-card-heading">
+            <div>
+              <h2>Bulk Buyer Information Report</h2>
+              <p>Wholesale buyer-wise orders, purchase volume and spending activity</p>
+            </div>
+          </div>
+
+          <div className="fpo-summary-row fpo-consumer-summary fpo-bulkbuyer-summary">
+            <div>
+              <span>Total Bulk Buyers</span>
+              <strong>{BULK_BUYERS.length}</strong>
+            </div>
+            <div>
+              <span>Total Orders</span>
+              <strong>{BULK_BUYERS.reduce((sum, buyer) => sum + buyer.orders, 0)}</strong>
+            </div>
+            <div>
+              <span>Total Purchase Volume</span>
+              <strong>
+                {BULK_BUYERS.reduce(
+                  (sum, buyer) =>
+                    sum + parseInt(buyer.purchased.replace(/,/g, ""), 10),
+                  0
+                ).toLocaleString()} kg
+              </strong>
+            </div>
+            <div>
+              <span>Total Spent</span>
+              <strong>
+                ₹{BULK_BUYERS.reduce((sum, buyer) => sum + buyer.spent, 0).toLocaleString()}
+              </strong>
+            </div>
+          </div>
+
+          <div className="fpo-table-wrap">
+            <table className="fpo-table">
+              <thead>
+                <tr>
+                  <th>Bulk Buyer</th>
+                  <th>Email</th>
+                  <th>Location</th>
+                  <th>Orders</th>
+                  <th>Purchased</th>
+                  <th>Total Spent</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {BULK_BUYERS.map((buyer) => (
+                  <tr key={buyer.id}>
+                    <td>
+                      <div className="fpo-farmer-name">
+                        <span>🏢</span>
+                        <div>
+                          <strong>{buyer.name}</strong>
+                          <small>{buyer.id}</small>
+                        </div>
+                      </div>
+                    </td>
+                    <td>{buyer.email}</td>
+                    <td>{buyer.location}</td>
+                    <td>{buyer.orders}</td>
+                    <td>{buyer.purchased}</td>
+                    <td><strong>₹{buyer.spent.toLocaleString()}</strong></td>
+                    <td>
+                      <span className="fpo-status completed">{buyer.status}</span>
                     </td>
                   </tr>
                 ))}
