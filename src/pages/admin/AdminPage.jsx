@@ -1,6 +1,11 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import "./adminpage.css";
 import { useAuth } from "../../context/AuthContext";
+import {
+  approveProfile,
+  getPendingProfiles,
+  rejectProfile
+} from "../../services/admin.service";
 import tomato from "../../assets/tomato.jpg";
 import mango from "../../assets/mango.jpg";
 import milk from "../../assets/milk.jpg";
@@ -439,6 +444,9 @@ function AdminPage({ onNavigate, user }) {
   const [profileOpen, setProfileOpen] = useState(false);
   const [profileEditorOpen, setProfileEditorOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [pendingProfiles, setPendingProfiles] = useState([]);
+  const [profilesLoading, setProfilesLoading] = useState(false);
+  const [profilesError, setProfilesError] = useState("");
   const profilePhotoInput = useRef(null);
   const [adminProfile, setAdminProfile] = useState(() => {
     try {
@@ -463,6 +471,37 @@ function AdminPage({ onNavigate, user }) {
       return null;
     }
   });
+
+  useEffect(() => {
+    if (section !== "profile-verification") {
+      return;
+    }
+
+    let active = true;
+    setProfilesLoading(true);
+    setProfilesError("");
+
+    getPendingProfiles()
+      .then((response) => {
+        if (active) {
+          setPendingProfiles(response.data?.profiles || []);
+        }
+      })
+      .catch((error) => {
+        if (active) {
+          setProfilesError(error.message || "Unable to load pending profiles.");
+        }
+      })
+      .finally(() => {
+        if (active) {
+          setProfilesLoading(false);
+        }
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [section]);
 
   const totalFarmers = FARMERS.length;
   const totalConsumers = CONSUMERS.length;
@@ -525,6 +564,34 @@ function AdminPage({ onNavigate, user }) {
     localStorage.setItem("kb_admin_profile", JSON.stringify(nextProfile));
     setProfileEditorOpen(false);
     setProfileOpen(false);
+  }
+
+  async function handleProfileDecision(profile, action) {
+    try {
+      if (action === "reject") {
+        const rejectionReason = window.prompt("Enter the rejection reason:");
+
+        if (!rejectionReason || !rejectionReason.trim()) {
+          return;
+        }
+
+        await rejectProfile(
+          profile.profileType,
+          profile._id,
+          rejectionReason.trim()
+        );
+      } else {
+        await approveProfile(profile.profileType, profile._id);
+      }
+
+      setPendingProfiles((currentProfiles) =>
+        currentProfiles.filter(
+          (currentProfile) => currentProfile._id !== profile._id
+        )
+      );
+    } catch (error) {
+      setProfilesError(error.message || "Unable to update this profile.");
+    }
   }
 
   function renderDashboard() {
@@ -929,6 +996,82 @@ function AdminPage({ onNavigate, user }) {
             </div>
           </div>
         )}
+      </>
+    );
+  }
+
+  function renderProfileVerification() {
+    return (
+      <>
+        <div className="admin-title-row">
+          <div>
+            <h1>✅ Profile Verification</h1>
+            <p>Review pending farmer, bulk buyer, FPO and government profiles.</p>
+          </div>
+          <button
+            className="view-btn"
+            onClick={() => setSection("profile-verification")}
+          >
+            Refresh
+          </button>
+        </div>
+
+        {profilesError && <p className="profile-verification-error">{profilesError}</p>}
+
+        <div className="admin-card">
+          {profilesLoading ? (
+            <p className="profile-verification-empty">Loading pending profiles...</p>
+          ) : pendingProfiles.length === 0 ? (
+            <p className="profile-verification-empty">No pending profiles.</p>
+          ) : (
+            <div className="table-wrap">
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Created</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {pendingProfiles.map((profile) => (
+                    <tr key={`${profile.profileType}-${profile._id}`}>
+                      <td>{profile.profileType}</td>
+                      <td>
+                        <strong>
+                          {profile.userId?.firstName || "Unknown"}{" "}
+                          {profile.userId?.lastName || ""}
+                        </strong>
+                      </td>
+                      <td>{profile.userId?.email || "—"}</td>
+                      <td>
+                        {profile.createdAt
+                          ? new Date(profile.createdAt).toLocaleDateString()
+                          : "—"}
+                      </td>
+                      <td className="profile-verification-actions">
+                        <button
+                          className="profile-approve-btn"
+                          onClick={() => handleProfileDecision(profile, "approve")}
+                        >
+                          Accept
+                        </button>
+                        <button
+                          className="profile-reject-btn"
+                          onClick={() => handleProfileDecision(profile, "reject")}
+                        >
+                          Reject
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
       </>
     );
   }
@@ -1424,6 +1567,9 @@ function AdminPage({ onNavigate, user }) {
       case "users":
         return renderUsers();
 
+      case "profile-verification":
+        return renderProfileVerification();
+
       case "products":
         return renderProducts();
 
@@ -1679,6 +1825,14 @@ function AdminPage({ onNavigate, user }) {
             >
               <span>👥</span>
               Users
+            </button>
+
+            <button
+              className={section === "profile-verification" ? "active" : ""}
+              onClick={() => setSection("profile-verification")}
+            >
+              <span>✅</span>
+              Verify Profiles
             </button>
 
             <button
